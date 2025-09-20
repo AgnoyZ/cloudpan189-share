@@ -4,7 +4,11 @@ import (
 	"strconv"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 )
+
+// CloudToken 云盘令牌模型类型别名
+type CloudToken = models.CloudToken
 
 // Query 查询云盘令牌详情
 // @Summary 查询云盘令牌详情

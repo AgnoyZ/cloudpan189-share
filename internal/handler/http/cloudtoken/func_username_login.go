@@ -6,7 +6,8 @@ import (
 )
 
 type (
-	usernameLoginRequest = cloudtoken.UsernameLoginRequest
+	usernameLoginRequest  = cloudtoken.UsernameLoginRequest
+	UsernameLoginResponse = cloudtoken.UsernameLoginResponse
 )
 
 // UsernameLogin 用户名密码登录

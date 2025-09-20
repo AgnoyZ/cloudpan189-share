@@ -2,7 +2,11 @@ package cloudtoken
 
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
+	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 )
+
+// InitQrcodeResponse 初始化二维码响应类型别名
+type InitQrcodeResponse = cloudtokenSvi.InitQrcodeResponse
 
 // InitQrcode 初始化二维码
 // @Summary 初始化二维码

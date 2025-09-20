@@ -28,6 +28,70 @@ definitions:
         example: success
         type: string
     type: object
+  github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap:
+    additionalProperties: true
+    type: object
+  github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.ProcessorResult:
+    properties:
+      duration:
+        $ref: '#/definitions/time.Duration'
+      endTime:
+        type: string
+      error:
+        type: string
+      processorId:
+        type: string
+      startTime:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskInfo:
+    properties:
+      endAt:
+        description: 结束时间
+        type: string
+      id:
+        description: 任务唯一ID
+        type: string
+      payload:
+        items:
+          type: integer
+        type: array
+      receiveAt:
+        description: 接收时间
+        type: string
+      results:
+        description: 处理器结果
+        items:
+          $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.ProcessorResult'
+        type: array
+      startAt:
+        description: 开始时间
+        type: string
+      status:
+        description: 状态
+        type: string
+      topic:
+        description: 消息主题
+        type: string
+      workerId:
+        description: 处理的Worker ID
+        type: string
+    type: object
+  github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskStats:
+    properties:
+      completedTasks:
+        type: integer
+      failedTasks:
+        type: integer
+      pendingTasks:
+        type: integer
+      runningTasks:
+        type: integer
+      totalTasks:
+        type: integer
+    type: object
   github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken:
     properties:
       accessToken:
@@ -54,6 +118,83 @@ definitions:
       username:
         type: string
     type: object
+  github_com_xxcheng123_cloudpan189-share_internal_repository_models.FileTaskLog:
+    properties:
+      addition:
+        allOf:
+        - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap'
+        description: 附加信息
+      beginAt:
+        description: 开始时间
+        type: string
+      completed:
+        description: 进度显示
+        type: integer
+      createdAt:
+        type: string
+      desc:
+        type: string
+      duration:
+        description: 执行耗时（毫秒）
+        type: integer
+      endAt:
+        description: 结束时间
+        type: string
+      errorMsg:
+        description: 错误信息
+        type: string
+      fileId:
+        description: 关联信息
+        type: integer
+      id:
+        type: integer
+      result:
+        description: 执行结果描述
+        type: string
+      status:
+        description: 状态：pending, running, completed, failed
+        type: string
+      title:
+        description: 任务标题
+        type: string
+      total:
+        description: 总数量
+        type: integer
+      type:
+        description: 任务类型（如：file_refresh, file_scan等）
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        description: 触发用户ID（如果适用）
+        type: integer
+    type: object
+  github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType:
+    enum:
+    - folder
+    - file
+    - subscribe
+    - subscribe_share_folder
+    - subscribe_share_file
+    - share_folder
+    - share_file
+    - person_folder
+    - person_file
+    - family_folder
+    - family_file
+    type: string
+    x-enum-varnames:
+    - OsTypeFolder
+    - OsTypeFile
+    - OsTypeSubscribe
+    - OsTypeSubscribeShareFolder
+    - OsTypeSubscribeShareFile
+    - OsTypeShareFolder
+    - OsTypeShareFile
+    - OsTypePersonFolder
+    - OsTypePersonFile
+    - OsTypeFamilyFolder
+    - OsTypeFamilyFile
   github_com_xxcheng123_cloudpan189-share_internal_repository_models.User:
     properties:
       createdAt:
@@ -84,6 +225,27 @@ definitions:
       parentId:
         type: string
     type: object
+  github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.GetFamilyListResponse:
+    properties:
+      familyInfoResp:
+        items:
+          $ref: '#/definitions/client.FamilyInfo'
+        type: array
+    type: object
+  github_com_xxcheng123_cloudpan189-share_internal_services_cloudtoken.UsernameLoginResponse:
+    properties:
+      id:
+        description: 云盘令牌ID
+        example: 1
+        type: integer
+    type: object
+  internal_handler_http_cloudtoken.InitQrcodeResponse:
+    properties:
+      uuid:
+        description: 二维码UUID
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
   internal_handler_http_cloudtoken.checkQrcodeRequest:
     properties:
       id:
@@ -105,13 +267,6 @@ definitions:
         type: integer
     required:
     - id
-    type: object
-  internal_handler_http_cloudtoken.initQrcodeResponse:
-    properties:
-      uuid:
-        description: 二维码UUID
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
     type: object
   internal_handler_http_cloudtoken.listResponse:
     properties:
@@ -147,32 +302,6 @@ definitions:
     - id
     - name
     type: object
-  internal_handler_http_cloudtoken.queryResponse:
-    properties:
-      accessToken:
-        type: string
-      addition:
-        description: 附属参数
-        type: object
-      createdAt:
-        type: string
-      expiresIn:
-        type: integer
-      id:
-        type: integer
-      loginType:
-        description: '1: 扫码登录 2: 密码登录'
-        type: integer
-      name:
-        type: string
-      status:
-        description: '状态 1:正常 2: 登录失败'
-        type: integer
-      updatedAt:
-        type: string
-      username:
-        type: string
-    type: object
   internal_handler_http_cloudtoken.usernameLoginRequest:
     properties:
       id:
@@ -195,11 +324,95 @@ definitions:
     - password
     - username
     type: object
-  internal_handler_http_cloudtoken.usernameLoginResponse:
+  internal_handler_http_file.createDownloadURLRequest:
     properties:
+      fileId:
+        example: 123456
+        minimum: 1
+        type: integer
+    required:
+    - fileId
+    type: object
+  internal_handler_http_file.createDownloadURLResponse:
+    properties:
+      downloadUrl:
+        example: /api/file/download/123456?sign=abc&uuid=def&timestamp=1234567890&signer=v1
+        type: string
+    type: object
+  internal_handler_http_file.searchDTO:
+    properties:
+      addition:
+        allOf:
+        - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap'
+        description: 额外信息 例如分享id 文件夹id 等
+      cloudId:
+        description: 云端的文件ID
+        type: string
+      createDate:
+        description: 云盘记录的创建时间
+        type: string
+      createdAt:
+        description: 数据库记录的创建时间
+        type: string
+      fullPath:
+        description: 文件完整路径
+        example: /folder1/test.txt
+        type: string
+      hash:
+        description: 文件的hash值 这个没有啥用 考虑是否删除
+        type: string
       id:
-        description: 云盘令牌ID
+        type: integer
+      isDir:
+        description: 是否为目录
+        type: boolean
+      isTop:
+        description: 是否最顶层文件夹
+        type: boolean
+      modifyDate:
+        description: 云盘记录的修改时间
+        type: string
+      name:
+        description: 文件名
+        type: string
+      osType:
+        allOf:
+        - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType'
+        description: 读取文件的方式
+      parentId:
+        description: 上级文件ID
+        type: integer
+      rev:
+        description: 版本 用于下次扫描时知道当前文件是删除还是修改还是新增
+        type: string
+      size:
+        description: 文件大小
+        type: integer
+      topId:
+        description: 隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id
+        type: integer
+      updatedAt:
+        description: 数据库记录的修改时间
+        type: string
+    type: object
+  internal_handler_http_file.searchResponse:
+    properties:
+      currentPage:
+        description: 当前页码
         example: 1
+        type: integer
+      data:
+        description: 搜索结果列表
+        items:
+          $ref: '#/definitions/internal_handler_http_file.searchDTO'
+        type: array
+      pageSize:
+        description: 每页大小
+        example: 10
+        type: integer
+      total:
+        description: 总记录数
+        example: 100
         type: integer
     type: object
   internal_handler_http_setting.initSystemRequest:
@@ -282,12 +495,14 @@ definitions:
         example: /test
         type: string
     type: object
-  internal_handler_http_storage.familyListResponse:
+  internal_handler_http_storage.deleteRequest:
     properties:
-      familyInfoResp:
-        items:
-          $ref: '#/definitions/client.FamilyInfo'
-        type: array
+      id:
+        description: 存储节点ID
+        example: 1
+        type: integer
+    required:
+    - id
     type: object
   internal_handler_http_storage.getFamilyFilesResponse:
     properties:
@@ -314,6 +529,113 @@ definitions:
         type: integer
       total:
         type: integer
+    type: object
+  internal_handler_http_storage.listResponse:
+    properties:
+      currentPage:
+        description: 当前页码
+        example: 1
+        type: integer
+      data:
+        description: 列表数据
+        items:
+          $ref: '#/definitions/internal_handler_http_storage.storageDTO'
+        type: array
+      pageSize:
+        description: 每页大小
+        example: 10
+        type: integer
+      total:
+        description: 总记录数
+        example: 100
+        type: integer
+    type: object
+  internal_handler_http_storage.refreshRequest:
+    properties:
+      deep:
+        description: 深度刷新
+        example: true
+        type: boolean
+      id:
+        description: 挂载点ID
+        example: 1001
+        type: integer
+    required:
+    - id
+    type: object
+  internal_handler_http_storage.storageDTO:
+    properties:
+      createdAt:
+        type: string
+      enableAutoRefresh:
+        type: boolean
+      enableDeepRefresh:
+        type: boolean
+      fileId:
+        type: integer
+      fullPath:
+        type: string
+      id:
+        type: integer
+      lastState:
+        type: string
+      name:
+        type: string
+      osType:
+        type: string
+      refreshInterval:
+        type: integer
+      taskLogs:
+        items:
+          $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.FileTaskLog'
+        type: array
+      tokenId:
+        description: 关联的token id
+        type: integer
+      tokenName:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_handler_http_taskstate.fileLogListResponse:
+    properties:
+      currentPage:
+        description: 当前页码
+        example: 1
+        type: integer
+      data:
+        description: 任务日志列表数据
+        items:
+          $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.FileTaskLog'
+        type: array
+      pageSize:
+        description: 每页大小
+        example: 10
+        type: integer
+      total:
+        description: 总记录数
+        example: 100
+        type: integer
+    type: object
+  internal_handler_http_taskstate.taskEngineListResponse:
+    properties:
+      isRunning:
+        description: 引擎是否正在运行
+        type: boolean
+      pendingTasks:
+        description: 待处理的任务列表
+        items:
+          $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskInfo'
+        type: array
+      runningTasks:
+        description: 正在运行的任务列表
+        items:
+          $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskInfo'
+        type: array
+      stats:
+        allOf:
+        - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskStats'
+        description: 任务引擎统计信息
     type: object
   internal_handler_http_user.addRequest:
     properties:
@@ -658,70 +980,30 @@ definitions:
         example: 5
         type: integer
     type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
 info:
   contact: {}
 paths:
-  /api/cloud/storage/person/files:
-    get:
-      consumes:
-      - application/json
-      description: 根据云盘令牌获取个人文件列表，支持分页查询
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 页码，从1开始
-        in: query
-        minimum: 1
-        name: pageNum
-        required: true
-        type: integer
-      - description: 每页数量，最大100
-        in: query
-        maximum: 100
-        minimum: 1
-        name: pageSize
-        required: true
-        type: integer
-      - description: 云盘令牌ID
-        in: query
-        name: cloudToken
-        required: true
-        type: integer
-      - default: "-11"
-        description: 父目录ID，默认为-11（根目录）
-        in: query
-        name: parentId
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取文件列表成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/internal_handler_http_storage.getPersonFilesResponse'
-              type: object
-        "400":
-          description: 获取文件列表失败
-          schema:
-            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
-        "401":
-          description: 未授权访问
-          schema:
-            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
-      summary: 获取个人文件列表
-      tags:
-      - 存储管理
   /api/cloud_token/{id}:
     get:
       consumes:
@@ -748,7 +1030,7 @@ paths:
             - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/internal_handler_http_cloudtoken.queryResponse'
+                  $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken'
               type: object
         "400":
           description: 查询云盘令牌失败，code=5007
@@ -868,7 +1150,7 @@ paths:
             - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/internal_handler_http_cloudtoken.initQrcodeResponse'
+                  $ref: '#/definitions/internal_handler_http_cloudtoken.InitQrcodeResponse'
               type: object
         "400":
           description: 初始化二维码失败，code=5001
@@ -1008,7 +1290,7 @@ paths:
             - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/internal_handler_http_cloudtoken.usernameLoginResponse'
+                  $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudtoken.UsernameLoginResponse'
               type: object
         "400":
           description: 用户名登录失败，code=5006
@@ -1025,6 +1307,194 @@ paths:
       summary: 用户名密码登录
       tags:
       - 云盘令牌管理
+  /api/file/create_download_url:
+    post:
+      consumes:
+      - application/json
+      description: 为指定文件生成带签名的下载链接
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 文件ID信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_file.createDownloadURLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 下载链接创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_file.createDownloadURLResponse'
+              type: object
+        "400":
+          description: 文件签名失败，code=6015
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 创建文件下载链接
+      tags:
+      - 文件管理
+  /api/file/download/{fileId}:
+    get:
+      consumes:
+      - application/json
+      description: 通过文件ID和签名验证下载文件，支持多种传输方式（重定向、本地代理、多线程流）
+      parameters:
+      - description: 文件ID
+        example: 123456
+        in: path
+        name: fileId
+        required: true
+        type: integer
+      - description: 签名
+        example: '"abc123"'
+        in: query
+        name: sign
+        required: true
+        type: string
+      - description: UUID
+        example: '"def456"'
+        in: query
+        name: uuid
+        required: true
+        type: string
+      - description: 时间戳
+        example: '"1234567890"'
+        in: query
+        name: timestamp
+        required: true
+        type: string
+      - default: '"v1"'
+        description: 签名版本
+        example: '"v1"'
+        in: query
+        name: signer
+        required: true
+        type: string
+      - description: HTTP Range 请求头，支持断点续传
+        example: '"bytes=0-1023"'
+        in: header
+        name: Range
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: 文件下载成功（本地代理或多线程流模式）
+          schema:
+            type: file
+        "302":
+          description: 重定向到下载链接（重定向模式）
+          schema:
+            type: string
+        "400":
+          description: 创建多线程流请求失败，code=6014
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "404":
+          description: 文件令牌未绑定，code=6007
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 下载文件
+      tags:
+      - 文件管理
+  /api/file/search:
+    get:
+      consumes:
+      - application/json
+      description: 根据关键词搜索虚拟文件，支持全局搜索或指定目录搜索
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 搜索关键词
+        example: '"test.txt"'
+        in: query
+        name: keyword
+        type: string
+      - default: 0
+        description: 父级目录ID，0表示根目录
+        example: 0
+        in: query
+        name: pid
+        type: integer
+      - default: false
+        description: 是否全局搜索，true时忽略pid参数
+        example: false
+        in: query
+        name: global
+        type: boolean
+      - default: 10
+        description: 每页大小，范围1-100
+        example: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        required: true
+        type: integer
+      - default: 1
+        description: 当前页码，从1开始
+        example: 1
+        in: query
+        minimum: 1
+        name: currentPage
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 搜索文件成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_file.searchResponse'
+              type: object
+        "400":
+          description: 计算文件完整路径失败，code=6003
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 搜索文件
+      tags:
+      - 文件管理
   /api/setting/init_system:
     post:
       consumes:
@@ -1045,7 +1515,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
         "400":
-          description: 初始化超级管理员时发生错误，code=4002
+          description: 初始化超级管理员时发生错误，code=6002
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
       summary: 初始化系统
@@ -1081,7 +1551,7 @@ paths:
                   $ref: '#/definitions/internal_handler_http_storage.addResponse'
               type: object
         "400":
-          description: 家庭云盘参数不完整，code=5010
+          description: 家庭云盘参数不完整，code=4011
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
         "401":
@@ -1187,7 +1657,7 @@ paths:
             - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/internal_handler_http_storage.familyListResponse'
+                  $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.GetFamilyListResponse'
               type: object
         "400":
           description: 获取家庭云列表失败
@@ -1204,6 +1674,317 @@ paths:
       summary: 获取家庭云列表
       tags:
       - 存储管理
+  /api/storage/cloud/person/files:
+    get:
+      consumes:
+      - application/json
+      description: 根据云盘令牌获取个人文件列表，支持分页查询
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 页码，从1开始
+        in: query
+        minimum: 1
+        name: pageNum
+        required: true
+        type: integer
+      - description: 每页数量，最大100
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        required: true
+        type: integer
+      - description: 云盘令牌ID
+        in: query
+        name: cloudToken
+        required: true
+        type: integer
+      - default: "-11"
+        description: 父目录ID，默认为-11（根目录）
+        in: query
+        name: parentId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取文件列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_storage.getPersonFilesResponse'
+              type: object
+        "400":
+          description: 获取文件列表失败
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 获取个人文件列表
+      tags:
+      - 存储管理
+  /api/storage/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定的存储挂载点，同时清理相关文件
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 删除请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_storage.deleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 存储挂载删除成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 发送清理任务失败，code=4024
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 删除存储挂载
+      tags:
+      - 存储管理
+  /api/storage/list:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取存储挂载点列表，支持按路径过滤
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 1
+        description: 当前页码，默认为1
+        in: query
+        name: currentPage
+        type: integer
+      - default: 10
+        description: 每页大小，默认为10
+        in: query
+        name: pageSize
+        type: integer
+      - description: 路径过滤
+        example: '"/aaa"'
+        in: query
+        name: path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取存储挂载点列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_storage.listResponse'
+              type: object
+        "400":
+          description: 查询挂载点失败，code=3019
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 获取存储挂载点列表
+      tags:
+      - 存储管理
+  /api/storage/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 刷新指定的存储挂载点，触发文件扫描任务重新同步文件信息
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 刷新请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_storage.refreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 存储挂载刷新成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 添加扫描任务失败，code=4015
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 刷新存储挂载
+      tags:
+      - 存储管理
+  /api/task_state/file_log/list:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取文件任务日志列表，支持多种筛选条件
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 1
+        description: 当前页码，默认为1
+        in: query
+        name: currentPage
+        type: integer
+      - default: 10
+        description: 每页大小，默认为10
+        in: query
+        name: pageSize
+        type: integer
+      - default: false
+        description: 是否不分页，默认false
+        in: query
+        name: noPaginate
+        type: boolean
+      - description: 任务类型筛选
+        in: query
+        name: type
+        type: string
+      - description: 任务状态筛选(pending/running/completed/failed)
+        in: query
+        name: status
+        type: string
+      - description: 文件ID筛选
+        in: query
+        name: fileId
+        type: integer
+      - description: 用户ID筛选
+        in: query
+        name: userId
+        type: integer
+      - description: 任务标题模糊搜索
+        in: query
+        name: title
+        type: string
+      - description: '开始时间筛选(格式: 2006-01-02T15:04:05Z07:00)'
+        in: query
+        name: beginAt
+        type: string
+      - description: '结束时间筛选(格式: 2006-01-02T15:04:05Z07:00)'
+        in: query
+        name: endAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取任务日志列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_taskstate.fileLogListResponse'
+              type: object
+        "400":
+          description: 任务数量统计失败，code=7002
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 获取文件任务日志列表
+      tags:
+      - 任务状态管理
+  /api/task_state/task_engine/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取任务引擎的统计信息和当前正在运行的任务列表
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取任务引擎状态成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_taskstate.taskEngineListResponse'
+              type: object
+        "400":
+          description: 获取任务引擎状态失败，code=7003
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 获取任务引擎状态
+      tags:
+      - 任务状态管理
   /api/user/add:
     post:
       consumes:
@@ -1446,7 +2227,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 登录成功，返回访问令牌和用户信息
+          description: 登录成功
           schema:
             allOf:
             - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
