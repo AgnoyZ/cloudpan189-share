@@ -1,0 +1,34 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+linters:
+  enable:
+    - gosimple
+    - staticcheck
+    - govet
+    - errcheck
+    - ineffassign
+    - typecheck
+    - unused
+    - misspell
+    - gofmt
+    - goimports
+    - wsl
+
+linters-settings:
+  wsl:
+    force-err-cuddling: true
+    allow-assign-and-call: true
+    allow-multiline-assign: true
+    allow-cuddle-declarations: false
+    allow-trailing-comment: false
+    force-case-trailing-whitespace: 0
+    strict-append: true
+
+issues:
+  exclude-rules:
+    - linters:
+        - staticcheck
+      text: "SA5008: unknown JSON option"

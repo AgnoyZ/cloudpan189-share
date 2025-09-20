@@ -1,0 +1,62 @@
+package models
+
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"time"
+)
+
+type Setting struct {
+	ID          int64           `gorm:"primaryKey" json:"id"`
+	Title       string          `gorm:"column:title;type:varchar(255);not null" json:"title"`
+	EnableAuth  bool            `gorm:"column:enable_auth;type:tinyint(1);default:1" json:"enableAuth"` // 是否启用鉴权 1 启用 0 不启用
+	SaltKey     string          `gorm:"column:salt_key;type:varchar(255);not null" json:"-"`
+	BaseURL     string          `gorm:"column:base_url;type:varchar(255);not null;default:''" json:"baseURL"` // base url
+	Initialized bool            `gorm:"column:initialized;type:tinyint(1);default:0" json:"initialized"`      // 是否初始化完成
+	Addition    SettingAddition `gorm:"column:addition;type:json" json:"addition" swaggertype:"object"`
+	CreatedAt   time.Time       `gorm:"column:created_at;autoCreateTime;type:datetime;default:CURRENT_TIMESTAMP" json:"createdAt"`
+	UpdatedAt   time.Time       `gorm:"column:updated_at;autoUpdateTime;type:datetime;default:CURRENT_TIMESTAMP;on update:CURRENT_TIMESTAMP" json:"updatedAt"`
+}
+
+func (s *Setting) TableName() string {
+	return "setting"
+}
+
+type SettingAddition struct {
+	Keep                      string `json:"keep"`
+	LocalProxy                bool   `json:"localProxy"`
+	MultipleStream            bool   `json:"multipleStream"`
+	MultipleStreamThreadCount int    `json:"multipleStreamThreadCount,default=4"`
+	MultipleStreamChunkSize   int64  `json:"multipleStreamChunkSize,default=4194304"`
+	TaskThreadCount           int    `json:"taskThreadCount"`
+}
+
+// Value 实现 driver.Valuer 接口 - 将结构体转换为数据库值
+func (sa SettingAddition) Value() (driver.Value, error) {
+	if sa == (SettingAddition{}) {
+		return nil, nil
+	}
+
+	return json.Marshal(sa)
+}
+
+// Scan 实现 sql.Scanner 接口 - 从数据库值转换为结构体
+func (sa *SettingAddition) Scan(value interface{}) error {
+	if value == nil {
+		*sa = SettingAddition{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New("cannot scan SettingAddition from non-string/[]byte value")
+	}
+
+	return json.Unmarshal(bytes, sa)
+}

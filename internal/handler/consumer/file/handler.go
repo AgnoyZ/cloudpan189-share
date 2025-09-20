@@ -1,0 +1,133 @@
+package file
+
+import (
+	"sync"
+
+	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
+	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	"github.com/xxcheng123/cloudpan189-share/internal/shared"
+
+	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
+	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
+	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
+	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
+	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
+
+	"go.uber.org/zap"
+)
+
+type Handler interface {
+	ScanFile() taskcontext.HandlerFunc
+	ClearFile() taskcontext.HandlerFunc
+}
+
+type handler struct {
+	virtualFileService virtualfileSvi.Service
+	cloudBridgeService cloudbridgeSvi.Service
+	cloudTokenService  cloudtokenSvi.Service
+	mountPointService  mountPointSvi.Service
+	fileTaskLogService filetasklogSvi.Service
+}
+
+func NewHandler(
+	virtualFileService virtualfileSvi.Service,
+	cloudBridgeService cloudbridgeSvi.Service,
+	cloudTokenService cloudtokenSvi.Service,
+	mountPointService mountPointSvi.Service,
+	fileTaskLogService filetasklogSvi.Service,
+) Handler {
+	return &handler{
+		virtualFileService: virtualFileService,
+		cloudBridgeService: cloudBridgeService,
+		cloudTokenService:  cloudTokenService,
+		mountPointService:  mountPointService,
+		fileTaskLogService: fileTaskLogService,
+	}
+}
+
+type walkFunc func(ctx context.Context, file *models.VirtualFile, childrenFiles []*models.VirtualFile) (nextWalkFiles []*models.VirtualFile, err error)
+
+func (h *handler) walkFile(ctx context.Context, rootId int64, walkFunc walkFunc) (err error) {
+	file := new(models.VirtualFile)
+
+	if rootId == 0 {
+		file = models.RootFile()
+	} else {
+		if file, err = h.virtualFileService.Query(ctx, rootId); err != nil {
+			return err
+		}
+	}
+
+	children := make([]*models.VirtualFile, 0)
+
+	// 如果是文件夹类型，递归处理
+	if file.IsDir {
+		if children, err = h.virtualFileService.List(ctx, &virtualfileSvi.ListRequest{
+			ParentId: &file.ID,
+		}); err != nil {
+			return err
+		}
+	}
+
+	ctx.Debug(
+		"开始处理文件",
+		zap.Int64("file_id", file.ID),
+		zap.String("file_name", file.Name),
+	)
+
+	// 判断是否还要继续
+	if nextFiles, walkErr := walkFunc(ctx, file, children); walkErr != nil {
+		return walkErr
+	} else if len(nextFiles) > 0 {
+		// 获取线程数配置
+		threadCount := shared.SettingAddition.TaskThreadCount
+		if threadCount <= 0 {
+			threadCount = 1
+		}
+
+		// 如果只有一个线程或者文件数量很少，使用串行处理
+		if threadCount == 1 || len(nextFiles) <= 1 {
+			for _, nextFile := range nextFiles {
+				if err = h.walkFile(ctx, nextFile.ID, walkFunc); err != nil {
+					return err
+				}
+			}
+		} else {
+			// 使用多线程并发处理
+			var wg sync.WaitGroup
+
+			errorChan := make(chan error, len(nextFiles))
+			semaphore := make(chan struct{}, threadCount)
+
+			for _, nextFile := range nextFiles {
+				wg.Add(1)
+
+				go func(file *models.VirtualFile) {
+					defer wg.Done()
+
+					// 获取信号量
+					semaphore <- struct{}{}
+					defer func() { <-semaphore }()
+
+					if err = h.walkFile(ctx, file.ID, walkFunc); err != nil {
+						errorChan <- err
+					}
+				}(nextFile)
+			}
+
+			// 等待所有goroutine完成
+			wg.Wait()
+			close(errorChan)
+
+			// 检查是否有错误
+			for err = range errorChan {
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
