@@ -1,8 +1,7 @@
 package cloudtoken
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/xxcheng123/cloudpan189-interface/client"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
@@ -20,7 +19,8 @@ func (s *service) CheckQrcode(ctx context.Context, req *CheckQrcodeRequest) (err
 	respData, err := client.LoginQuery(req.UUID)
 	if err != nil {
 		ctx.Error("登录查询失败", zap.Error(err))
-		return fmt.Errorf("登录查询失败: %w", err)
+
+		return errors.Wrap(err, "登录查询失败")
 	}
 
 	if req.ID != 0 {
@@ -33,7 +33,8 @@ func (s *service) CheckQrcode(ctx context.Context, req *CheckQrcodeRequest) (err
 
 		if err = s.getDB(ctx).Where("id = ?", req.ID).Updates(updateMap).Error; err != nil {
 			ctx.Error("更新云盘令牌失败", zap.Error(err), zap.Int64("id", req.ID))
-			return fmt.Errorf("更新云盘令牌失败: %w", err)
+
+			return errors.Wrap(err, "更新云盘令牌失败")
 		}
 	} else {
 		// 创建新记录
@@ -48,7 +49,8 @@ func (s *service) CheckQrcode(ctx context.Context, req *CheckQrcodeRequest) (err
 
 		if err = s.getDB(ctx).Create(cloudToken).Error; err != nil {
 			ctx.Error("创建云盘令牌失败", zap.Error(err))
-			return fmt.Errorf("创建云盘令牌失败: %w", err)
+
+			return errors.Wrap(err, "创建云盘令牌失败")
 		}
 	}
 

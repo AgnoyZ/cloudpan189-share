@@ -16,7 +16,7 @@ type ListRequest struct {
 }
 
 func (s *service) List(ctx context.Context, req *ListRequest) (list []*models.CloudToken, err error) {
-	query := s.getListQuery(ctx, req)
+	query := s.getListQuery(ctx, req).Order("created_at desc")
 
 	// 应用分页
 	if !req.NoPaginate {

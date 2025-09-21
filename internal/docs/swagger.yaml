@@ -313,16 +313,13 @@ definitions:
         example: 云盘令牌
         type: string
       password:
-        description: 密码
+        description: 密码，添加时必填
         example: 密码
         type: string
       username:
-        description: 用户名
+        description: 用户名，添加时必填
         example: 用户名
         type: string
-    required:
-    - password
-    - username
     type: object
   internal_handler_http_file.createDownloadURLRequest:
     properties:

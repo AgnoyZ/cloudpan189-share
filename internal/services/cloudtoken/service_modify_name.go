@@ -1,8 +1,7 @@
 package cloudtoken
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"go.uber.org/zap"
 )
@@ -16,7 +15,8 @@ type ModifyNameRequest struct {
 func (s *service) ModifyName(ctx context.Context, req *ModifyNameRequest) (err error) {
 	if err = s.getDB(ctx).Where("id = ?", req.ID).Update("name", req.Name).Error; err != nil {
 		ctx.Error("修改云盘令牌名称失败", zap.Error(err), zap.Int64("id", req.ID), zap.String("name", req.Name))
-		return fmt.Errorf("修改云盘令牌名称失败: %w", err)
+
+		return errors.Wrap(err, "修改云盘令牌名称失败")
 	}
 
 	return nil

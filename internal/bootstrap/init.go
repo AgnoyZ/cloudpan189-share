@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
 	"go.uber.org/zap"
 
@@ -24,11 +25,11 @@ func useSQLiteDB(c *configs.Config) (db *gorm.DB, err error) {
 
 	db, err = gorm.Open(sqlite.Open(c.DBFile), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to open SQLite database: %w", err)
+		return nil, errors.Wrap(err, "failed to open SQLite database")
 	}
 
 	if err = db.Use(new(TracePlugin)); err != nil {
-		return nil, fmt.Errorf("failed to register trace plugin: %w", err)
+		return nil, errors.Wrap(err, "failed to register trace plugin")
 	}
 
 	return db, nil
@@ -36,7 +37,7 @@ func useSQLiteDB(c *configs.Config) (db *gorm.DB, err error) {
 
 func useMySqlDB(c *configs.Config) (db *gorm.DB, err error) {
 	if c.MySQL == nil {
-		return nil, fmt.Errorf("MySQL configuration is required when using MySQL database")
+		return nil, errors.New("MySQL configuration is required when using MySQL database")
 	}
 
 	// 构建 MySQL DSN (Data Source Name)
@@ -50,11 +51,11 @@ func useMySqlDB(c *configs.Config) (db *gorm.DB, err error) {
 
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to MySQL database: %w", err)
+		return nil, errors.Wrap(err, "failed to connect to MySQL database")
 	}
 
 	if err = db.Use(new(TracePlugin)); err != nil {
-		return nil, fmt.Errorf("failed to register trace plugin: %w", err)
+		return nil, errors.Wrap(err, "failed to register trace plugin")
 	}
 
 	return db, nil

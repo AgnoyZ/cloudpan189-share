@@ -15,7 +15,6 @@ func (s *service) CheckPermission(ctx context.Context, groupId int64, fileId int
 	}
 
 	if count > 0 {
-
 		return true, nil
 	}
 

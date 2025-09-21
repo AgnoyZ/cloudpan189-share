@@ -1,8 +1,7 @@
 package cloudtoken
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"go.uber.org/zap"
 )
@@ -16,7 +15,8 @@ func (s *service) Delete(ctx context.Context, req *DeleteRequest) (err error) {
 	result := s.getDB(ctx).Where("id = ?", req.ID).Delete(nil)
 	if result.Error != nil {
 		ctx.Error("删除云盘令牌失败", zap.Error(result.Error), zap.Int64("id", req.ID))
-		return fmt.Errorf("删除云盘令牌失败: %w", result.Error)
+
+		return errors.Wrap(result.Error, "删除云盘令牌失败")
 	}
 
 	return nil

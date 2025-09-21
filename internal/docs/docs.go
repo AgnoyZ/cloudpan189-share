@@ -3116,10 +3116,6 @@ const docTemplate = `{
         },
         "internal_handler_http_cloudtoken.usernameLoginRequest": {
             "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
             "properties": {
                 "id": {
                     "description": "云盘令牌ID，可选",
@@ -3132,12 +3128,12 @@ const docTemplate = `{
                     "example": "云盘令牌"
                 },
                 "password": {
-                    "description": "密码",
+                    "description": "密码，添加时必填",
                     "type": "string",
                     "example": "密码"
                 },
                 "username": {
-                    "description": "用户名",
+                    "description": "用户名，添加时必填",
                     "type": "string",
                     "example": "用户名"
                 }

@@ -28,6 +28,9 @@ var (
 	codeUsernameLoginFailed = bi.Next("用户名登录失败")
 	codeQueryFailed         = bi.Next("查询云盘令牌失败")
 	codeMountPointUsed      = bi.Next("令牌正在被挂载点使用，请先解绑")
+	codeMissUsername        = bi.Next("缺少用户名")
+	codeMissPassword        = bi.Next("缺少密码")
+	codeNotMatchLoginType   = bi.Next("不匹配的登录类型")
 )
 
 type handler struct {

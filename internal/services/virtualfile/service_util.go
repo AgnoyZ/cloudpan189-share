@@ -1,7 +1,6 @@
 package virtualfile
 
 import (
-	"fmt"
 	"path"
 
 	"github.com/pkg/errors"
@@ -103,7 +102,7 @@ func (s *service) BatchQueryParentFiles(ctx context.Context, id int64) ([]*model
 
 			ctx.Error("查询父ID失败", zap.Int64("parent_id", currentId), zap.Error(err))
 
-			return nil, fmt.Errorf("查询父ID失败 id=%d: %w", currentId, err)
+			return nil, errors.Wrapf(err, "查询父ID失败 id=%d", currentId)
 		}
 
 		currentId = parentId
@@ -113,7 +112,7 @@ func (s *service) BatchQueryParentFiles(ctx context.Context, id int64) ([]*model
 	if err := s.getDB(ctx).Where("id IN ?", ids).Find(&files).Error; err != nil {
 		ctx.Error("批量查询文件信息失败", zap.Int64s("id_list", ids), zap.Error(err))
 
-		return nil, fmt.Errorf("批量查询文件信息失败: %w", err)
+		return nil, errors.Wrap(err, "批量查询文件信息失败")
 	}
 
 	return files, nil

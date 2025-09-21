@@ -2,11 +2,17 @@ package cloudtoken
 
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	"github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 )
 
 type (
-	usernameLoginRequest  = cloudtoken.UsernameLoginRequest
+	usernameLoginRequest = struct {
+		ID       int64  `json:"id" binding:"omitempty" example:"1"`          // 云盘令牌ID，可选
+		Username string `json:"username"  binding:"omitempty" example:"用户名"` // 用户名，添加时必填
+		Password string `json:"password"  binding:"omitempty" example:"密码"`  // 密码，添加时必填
+		Name     string `json:"name" binding:"omitempty" example:"云盘令牌"`     // 令牌名称，可选
+	}
 	UsernameLoginResponse = cloudtoken.UsernameLoginResponse
 )
 
@@ -33,7 +39,55 @@ func (h *handler) UsernameLogin() httpcontext.HandlerFunc {
 			return
 		}
 
-		resp, err := h.cloudTokenService.UsernameLogin(ctx.GetContext(), req)
+		var (
+			username = req.Username
+			password = req.Password
+		)
+
+		// 检查账号密码是否完整
+		if req.ID == 0 {
+			if req.Username == "" {
+				ctx.Fail(codeMissUsername)
+
+				return
+			} else if req.Password == "" {
+				ctx.Fail(codeMissPassword)
+
+				return
+			}
+		} else if req.Username == "" || req.Password == "" {
+			// 去查询账号密码
+			token, err := h.cloudTokenService.Query(ctx.GetContext(), req.ID)
+			if err != nil {
+				ctx.Fail(codeQueryFailed.WithError(err))
+
+				return
+			} else if token.LoginType != models.LoginTypePassword {
+				ctx.Fail(codeNotMatchLoginType)
+
+				return
+			}
+
+			if username == "" {
+				username = token.Username
+			}
+
+			if password == "" {
+				password = token.Password
+			}
+		}
+
+		name := "云盘令牌（账密）"
+		if req.Name != "" {
+			name = req.Name
+		}
+
+		resp, err := h.cloudTokenService.UsernameLogin(ctx.GetContext(), &cloudtoken.UsernameLoginRequest{
+			Username: username,
+			Password: password,
+			Name:     name,
+			ID:       req.ID,
+		})
 		if err != nil {
 			ctx.Fail(codeUsernameLoginFailed.WithError(err))
 
