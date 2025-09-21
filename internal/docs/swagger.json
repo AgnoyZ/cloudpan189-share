@@ -758,6 +758,47 @@
                 }
             }
         },
+        "/api/setting/info": {
+            "get": {
+                "description": "获取系统运行状态信息，包括运行时间、基础URL、初始化状态和认证启用状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统设置"
+                ],
+                "summary": "获取系统信息",
+                "responses": {
+                    "200": {
+                        "description": "获取系统信息成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_setting.infoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "查询系统配置失败，code=2003",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/setting/init_system": {
             "post": {
                 "description": "初始化系统配置并创建超级管理员账户。此接口只能在系统未初始化时调用，初始化后将无法再次调用",
@@ -1760,7 +1801,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.User"
+                                            "$ref": "#/definitions/internal_handler_http_user.userInfo"
                                         }
                                     }
                                 }
@@ -1775,12 +1816,6 @@
                     },
                     "401": {
                         "description": "未授权访问",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
                         "schema": {
                             "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
                         }
@@ -2098,6 +2133,65 @@
                     },
                     "400": {
                         "description": "Token生成失败，code=1004",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/toggle_status": {
+            "post": {
+                "description": "设置用户的启用/禁用状态，需要管理员权限。状态为1表示启用，状态为2表示禁用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "切换用户状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "用户状态信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_user.toggleStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户状态设置成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "用户更新失败，code=1008",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
                         "schema": {
                             "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
                         }
@@ -3168,6 +3262,31 @@
                 }
             }
         },
+        "internal_handler_http_setting.infoResponse": {
+            "type": "object",
+            "properties": {
+                "baseURL": {
+                    "type": "string"
+                },
+                "enableAuth": {
+                    "type": "boolean"
+                },
+                "initialized": {
+                    "type": "boolean"
+                },
+                "runTime": {
+                    "description": "运行时间 单位 s",
+                    "type": "integer"
+                },
+                "runTimeHuman": {
+                    "description": "运行时间 格式 例如：1年2月3天4小时5分6秒",
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_handler_http_setting.initSystemRequest": {
             "type": "object",
             "required": [
@@ -3737,6 +3856,30 @@
                             "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.User"
                         }
                     ]
+                }
+            }
+        },
+        "internal_handler_http_user.toggleStatusRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "description": "用户ID，必须大于0",
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1001
+                },
+                "status": {
+                    "description": "用户状态：1=启用，2=禁用",
+                    "type": "integer",
+                    "enum": [
+                        1,
+                        2
+                    ],
+                    "example": 1
                 }
             }
         },

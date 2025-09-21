@@ -11,7 +11,7 @@ func migrateDB(db *gorm.DB) (err error) {
 		new(models.Setting),
 		new(models.User),
 		new(models.UserGroup),
-		//new(models.Group2File),
+		new(models.Group2File),
 		new(models.VirtualFile),
 		new(models.MediaFile),
 		new(models.FileTaskLog),

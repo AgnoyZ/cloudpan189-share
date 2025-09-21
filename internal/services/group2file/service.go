@@ -1,7 +1,7 @@
 package group2file
 
 import (
-	"fmt"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
@@ -28,15 +28,5 @@ func NewService(svc bootstrap.ServiceContext) Service {
 }
 
 func (s *service) getDB(ctx context.Context) *gorm.DB {
-	return s.svc.GetDB(ctx)
-}
-
-// getGroupSubject 获取用户组标识符
-func (s *service) getGroupSubject(groupId int64) string {
-	return fmt.Sprintf("gid:%d", groupId)
-}
-
-// getFileObject 获取文件对象标识符
-func (s *service) getFileObject(fileId int64) string {
-	return fmt.Sprintf("fid:%d", fileId)
+	return s.svc.GetDB(ctx).Model(new(models.Group2File))
 }

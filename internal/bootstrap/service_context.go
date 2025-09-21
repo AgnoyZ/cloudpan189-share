@@ -16,18 +16,16 @@ import (
 type ServiceContext interface {
 	GetDB(ctx context.Context) *gorm.DB
 	GetLogger(name string, fields ...zap.Field) *zap.Logger
-	GetFileEnforcer() *casbin.Enforcer
 	Close()
 	GetPort() int
 	GetTaskEngine() taskengine.TaskEngine
 }
 
 type serviceContext struct {
-	config       *configs.RuntimeConfig
-	db           *gorm.DB
-	logger       *zap.Logger
-	fileEnforcer *casbin.Enforcer
-	taskEngine   taskengine.TaskEngine
+	config     *configs.RuntimeConfig
+	db         *gorm.DB
+	logger     *zap.Logger
+	taskEngine taskengine.TaskEngine
 }
 
 func (s *serviceContext) GetDB(ctx context.Context) *gorm.DB {
@@ -36,10 +34,6 @@ func (s *serviceContext) GetDB(ctx context.Context) *gorm.DB {
 
 func (s *serviceContext) GetLogger(name string, fields ...zap.Field) *zap.Logger {
 	return s.logger.Named(name).With(fields...)
-}
-
-func (s *serviceContext) GetFileEnforcer() *casbin.Enforcer {
-	return s.fileEnforcer
 }
 
 func (s *serviceContext) Close() {
@@ -60,10 +54,9 @@ func New(c *configs.RuntimeConfig) (ServiceContext, error) {
 
 func newServiceContext(c *configs.RuntimeConfig) (ServiceContext, error) {
 	var (
-		db           *gorm.DB
-		err          error
-		logger       *zap.Logger
-		fileEnforcer *casbin.Enforcer
+		db     *gorm.DB
+		err    error
+		logger *zap.Logger
 	)
 
 	// 连接 db
@@ -91,11 +84,6 @@ func newServiceContext(c *configs.RuntimeConfig) (ServiceContext, error) {
 		return nil, err
 	}
 
-	// 初始化Casbin文件权限执行器
-	if fileEnforcer, err = initFileEnforcer(db); err != nil {
-		return nil, err
-	}
-
 	taskEngine := initTaskEngine(logger)
 
 	gLogger := zapgorm2.New(logger)
@@ -108,11 +96,10 @@ func newServiceContext(c *configs.RuntimeConfig) (ServiceContext, error) {
 	})
 
 	return &serviceContext{
-		config:       c,
-		db:           db,
-		logger:       logger,
-		fileEnforcer: fileEnforcer,
-		taskEngine:   taskEngine,
+		config:     c,
+		db:         db,
+		logger:     logger,
+		taskEngine: taskEngine,
 	}, nil
 }
 

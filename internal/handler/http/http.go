@@ -90,6 +90,7 @@ func Start(svc bootstrap.ServiceContext) error {
 			userRouterWithAdminAuth.POST("/add", wrap(userHandler.Add()))
 			userRouterWithAdminAuth.POST("/del", wrap(userHandler.Del()))
 			userRouterWithAdminAuth.POST("/update", wrap(userHandler.Update()))
+			userRouterWithAdminAuth.POST("/toggle_status", wrap(userHandler.ToggleStatus()))
 			userRouterWithAdminAuth.GET("/list", wrap(userHandler.List()))
 			userRouterWithAdminAuth.POST("/modify_pass", wrap(userHandler.ModifyPass()))
 			userRouterWithAdminAuth.POST("/bind_group", wrap(userHandler.BindGroup()))
@@ -163,6 +164,7 @@ func Start(svc bootstrap.ServiceContext) error {
 
 	{
 		openapiRouter.POST("/setting/init_system", wrap(settingHandler.InitSystem()))
+		openapiRouter.GET("/setting/info", wrap(settingHandler.Info()))
 	}
 
 	logger.Info("http handler start", zap.Int("port", port))

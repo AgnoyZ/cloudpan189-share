@@ -1,39 +1,30 @@
 package group2file
 
 import (
-	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	"go.uber.org/zap"
 )
 
 // BatchBindFiles 批量绑定文件权限到用户组 先删除 再绑定
 func (s *service) BatchBindFiles(ctx context.Context, groupId int64, fileIds []int64) error {
-	enforcer := s.svc.GetFileEnforcer()
-	groupSubject := s.getGroupSubject(groupId)
+	// 删除所有分组
+	if err := s.getDB(ctx).Where("group_id = ?", groupId).Delete(new(models.Group2File)).Error; err != nil {
+		ctx.Error("删除分组失败", zap.Error(err), zap.Int64("groupId", groupId), zap.Int64s("fileIds", fileIds))
 
-	// 1. 从Casbin中删除该用户组的所有策略
-	if _, err := enforcer.RemoveFilteredPolicy(0, groupSubject); err != nil {
-		ctx.Error("删除Casbin策略失败", zap.String("groupSubject", groupSubject), zap.Error(err))
 		return err
 	}
-
-	// 2. 批量添加新的文件权限到Casbin
-	if len(fileIds) > 0 {
-		for _, fileId := range fileIds {
-			fileObject := s.getFileObject(fileId)
-
-			// 添加到Casbin，Casbin会自动管理数据库
-			if _, err := enforcer.AddPolicy(groupSubject, fileObject, consts.FilePermissionType); err != nil {
-				ctx.Error("添加Casbin策略失败", zap.String("groupSubject", groupSubject), zap.String("fileObject", fileObject), zap.Error(err))
-
-				return err
-			}
-		}
+	// 添加新的分组
+	items := make([]models.Group2File, 0, len(fileIds))
+	for _, fileId := range fileIds {
+		items = append(items, models.Group2File{
+			GroupId: groupId,
+			FileId:  fileId,
+		})
 	}
 
-	// 保存Casbin策略到数据库
-	if err := enforcer.SavePolicy(); err != nil {
-		ctx.Error("保存Casbin策略失败", zap.Error(err))
+	if err := s.getDB(ctx).Create(&items).Error; err != nil {
+		ctx.Error("创建分组失败", zap.Error(err), zap.Int64("groupId", groupId))
 
 		return err
 	}

@@ -16,10 +16,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} httpcontext.Response{data=models.User} "获取用户信息成功"
+// @Success 200 {object} httpcontext.Response{data=userInfo} "获取用户信息成功"
 // @Failure 400 {object} httpcontext.Response "用户信息获取失败，code=1012"
 // @Failure 401 {object} httpcontext.Response "未授权访问"
-// @Failure 404 {object} httpcontext.Response "用户不存在"
 // @Router /api/user/info [get]
 func (h *handler) Info() httpcontext.HandlerFunc {
 	return func(ctx *httpcontext.Context) {
@@ -43,6 +42,28 @@ func (h *handler) Info() httpcontext.HandlerFunc {
 			return
 		}
 
-		ctx.Success(user)
+		groupName := "默认用户组"
+
+		if user.GroupID > 0 {
+			group, err := h.userGroupService.Query(ctx.GetContext(), user.GroupID)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					groupName = "用户组不存在"
+				} else {
+					ctx.Fail(codeUserInfoFailed.WithError(err))
+
+					return
+				}
+			} else {
+				groupName = group.Name
+			}
+		}
+
+		info := &userInfo{
+			User:      user,
+			GroupName: groupName,
+		}
+
+		ctx.Success(info)
 	}
 }

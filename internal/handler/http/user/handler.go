@@ -13,6 +13,7 @@ type Handler interface {
 	RefreshToken() httpcontext.HandlerFunc
 	Del() httpcontext.HandlerFunc
 	Update() httpcontext.HandlerFunc
+	ToggleStatus() httpcontext.HandlerFunc
 	List() httpcontext.HandlerFunc
 	ModifyPass() httpcontext.HandlerFunc
 	BindGroup() httpcontext.HandlerFunc
