@@ -17,9 +17,6 @@ type Handler interface {
 	Delete() httpcontext.HandlerFunc
 	List() httpcontext.HandlerFunc
 	Refresh() httpcontext.HandlerFunc
-	GetPersonFiles() httpcontext.HandlerFunc
-	GetFamilyFiles() httpcontext.HandlerFunc
-	FamilyList() httpcontext.HandlerFunc
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeStorageStartCode)

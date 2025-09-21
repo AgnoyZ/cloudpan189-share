@@ -34,6 +34,9 @@ type Service interface {
 	PersonDownloadLink(ctx context.Context, token AuthToken, fileId string) (string, error)
 	FamilyDownloadLink(ctx context.Context, token AuthToken, familyId, fileId string) (string, error)
 	ShareDownloadLink(ctx context.Context, token AuthToken, shareId int64, fileId string) (string, error)
+
+	GetSubscribeUserInfo(ctx context.Context, userId string) (*SubscribeUserInfo, error)
+	GetSubscribeUserShareResource(ctx context.Context, userId string, opts ...SubscribeUserShareResourceOptionFunc) ([]*ShareResourceInfo, int64, error)
 }
 
 type service struct {
@@ -46,4 +49,8 @@ func NewService(svc bootstrap.ServiceContext) Service {
 		svc:    svc,
 		client: client.New(),
 	}
+}
+
+func (s *service) getClient(ctx context.Context) client.Client {
+	return client.New().WithClient(ctx.HTTPClient())
 }

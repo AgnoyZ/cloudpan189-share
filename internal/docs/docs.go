@@ -921,6 +921,359 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/storage/advance/family/files": {
+            "get": {
+                "description": "根据云盘令牌和家庭云ID获取家庭云文件列表，支持分页查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理-高级功能"
+                ],
+                "summary": "获取家庭云文件列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码，从1开始",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量，最大100",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "云盘令牌ID",
+                        "name": "cloudToken",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "家庭云ID",
+                        "name": "familyId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"\"",
+                        "description": "父目录ID，默认为空（根目录）",
+                        "name": "parentId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取家庭云文件列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_storage_advance.getFamilyFilesResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取家庭云文件列表失败，code=8002",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/storage/advance/family/list": {
+            "get": {
+                "description": "根据云盘令牌获取用户的家庭云列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理-高级功能"
+                ],
+                "summary": "获取家庭云列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "云盘令牌ID",
+                        "name": "cloudToken",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取家庭云列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.GetFamilyListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取家庭云列表失败，code=8002",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/storage/advance/get_subscribe_user": {
+            "get": {
+                "description": "根据订阅用户名获取该用户的共享资源列表，支持分页和按文件名搜索",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储高级功能"
+                ],
+                "summary": "获取订阅用户资源列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"user123\"",
+                        "description": "订阅用户名",
+                        "name": "subscribeUser",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"三生三世\"",
+                        "description": "文件名搜索",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "当前页码，默认为1",
+                        "name": "currentPage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页大小，默认为10，最大100",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取订阅用户资源列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_storage_advance.getSubscribeUserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "查询订阅用户列表失败，code=8002",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/storage/advance/person/files": {
+            "get": {
+                "description": "根据云盘令牌获取个人文件列表，支持分页查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理-高级功能"
+                ],
+                "summary": "获取个人文件列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码，从1开始",
+                        "name": "pageNum",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量，最大100",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "云盘令牌ID",
+                        "name": "cloudToken",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "-11",
+                        "description": "父目录ID，默认为-11（根目录）",
+                        "name": "parentId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取文件列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_storage_advance.getPersonFilesResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取文件列表失败，code=8002",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/storage/cloud/family/files": {
             "get": {
                 "description": "根据云盘令牌和家庭云ID获取家庭云文件列表，支持分页查询",
@@ -3017,6 +3370,32 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareResourceInfo": {
+            "type": "object",
+            "properties": {
+                "accessCode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isFolder": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shareId": {
+                    "type": "integer"
+                },
+                "shareTime": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_xxcheng123_cloudpan189-share_internal_services_cloudtoken.UsernameLoginResponse": {
             "type": "object",
             "properties": {
@@ -3544,6 +3923,70 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_handler_http_storage_advance.getFamilyFilesResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode"
+                    }
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler_http_storage_advance.getPersonFilesResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode"
+                    }
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler_http_storage_advance.getSubscribeUserResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareResourceInfo"
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "example": "订阅用户"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

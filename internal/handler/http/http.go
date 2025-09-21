@@ -5,12 +5,11 @@ import (
 
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/taskstate"
 
-	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
-
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/cloudtoken"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/file"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/setting"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage"
+	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage/advance"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/usergroup"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +21,7 @@ import (
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
+	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	settingSvi "github.com/xxcheng123/cloudpan189-share/internal/services/setting"
 	userSvi "github.com/xxcheng123/cloudpan189-share/internal/services/user"
 	userGroupSvi "github.com/xxcheng123/cloudpan189-share/internal/services/usergroup"
@@ -63,13 +63,14 @@ func Start(svc bootstrap.ServiceContext) error {
 	)
 
 	var (
-		userHandler       = user.NewHandler(userService, userGroupService)
-		settingHandler    = setting.NewHandler(userService, settingService)
-		userGroupHandler  = usergroup.NewHandler(userGroupService, group2FileService, userService)
-		storageHandler    = storage.NewHandler(taskEngine, virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService)
-		cloudTokenHandler = cloudtoken.NewHandler(cloudTokenService, mountPointService)
-		fileHandler       = file.NewHandler(virtualFileService, verifyService, cloudTokenService, cloudBridgeService, mountPointService)
-		taskStateHandler  = taskstate.NewHandler(taskEngine, fileTaskLogService)
+		userHandler           = user.NewHandler(userService, userGroupService)
+		settingHandler        = setting.NewHandler(userService, settingService)
+		userGroupHandler      = usergroup.NewHandler(userGroupService, group2FileService, userService)
+		storageHandler        = storage.NewHandler(taskEngine, virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService)
+		storageAdvanceHandler = advance.NewHandler(cloudBridgeService, cloudTokenService)
+		cloudTokenHandler     = cloudtoken.NewHandler(cloudTokenService, mountPointService)
+		fileHandler           = file.NewHandler(virtualFileService, verifyService, cloudTokenService, cloudBridgeService, mountPointService)
+		taskStateHandler      = taskstate.NewHandler(taskEngine, fileTaskLogService)
 	)
 
 	var (
@@ -122,9 +123,14 @@ func Start(svc bootstrap.ServiceContext) error {
 			storageRouter.POST("/delete", wrap(storageHandler.Delete()))
 			storageRouter.GET("/list", wrap(storageHandler.List()))
 			storageRouter.POST("/refresh", wrap(storageHandler.Refresh()))
-			storageRouter.GET("/cloud/person/files", wrap(storageHandler.GetPersonFiles()))
-			storageRouter.GET("/cloud/family/files", wrap(storageHandler.GetFamilyFiles()))
-			storageRouter.GET("/cloud/family/list", wrap(storageHandler.FamilyList()))
+		}
+
+		storageAdvanceRouter := openapiRouter.Group("/storage/advance", wrap(userMiddleware.Auth()))
+		{
+			storageAdvanceRouter.GET("/person/files", wrap(storageAdvanceHandler.GetPersonFiles()))
+			storageAdvanceRouter.GET("/family/files", wrap(storageAdvanceHandler.GetFamilyFiles()))
+			storageAdvanceRouter.GET("/family/list", wrap(storageAdvanceHandler.FamilyList()))
+			storageAdvanceRouter.GET("/get_subscribe_user", wrap(storageAdvanceHandler.GetSubscribeUser()))
 		}
 	}
 

@@ -8,6 +8,7 @@ const (
 	BusCodeCloudTokenStartCode
 	BusCodeFileStartCode
 	BusCodeTaskStateStartCode
+	BusCodeStorageAdvanceStartCode
 
 	BusCodeMiddlewareAuth = 99100 + 1
 )
