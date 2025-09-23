@@ -374,7 +374,7 @@ onMounted(() => {
   padding: 20px;
   background: var(--n-card-color);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 }
 
 .header-left {
@@ -413,7 +413,7 @@ onMounted(() => {
 
 .storage-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 15%);
   border-color: var(--n-primary-color);
 }
 
@@ -547,25 +547,25 @@ onMounted(() => {
   padding: 20px;
   background: var(--n-card-color);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 }
 
 /* 响应式设计 */
-@media (max-width: 1400px) {
+@media (width <= 1400px) {
   .storage-cards {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 18px;
   }
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .storage-cards {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .storage-cards {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 14px;
@@ -583,7 +583,7 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .storage-cards {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -637,7 +637,7 @@ onMounted(() => {
   border-color: var(--n-primary-color);
   background: var(--n-color-target);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
 
 .mount-type-icon {
@@ -671,7 +671,7 @@ onMounted(() => {
 }
 
 /* 弹窗响应式设计 - 保持一行一个的风格 */
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .mount-type-grid {
     gap: 16px;
   }

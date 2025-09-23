@@ -151,14 +151,14 @@ onMounted(() => {
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .info-card {
     height: auto;
     min-height: 250px;
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .info-card {
     height: auto;
     min-height: 220px;

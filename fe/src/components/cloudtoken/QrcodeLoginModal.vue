@@ -330,13 +330,13 @@ onUnmounted(() => {
 }
 
 .instructions h4 {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   color: #333;
   font-size: 16px;
 }
 
 .instructions ol {
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
   padding-left: 20px;
 }
 

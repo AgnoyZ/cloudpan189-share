@@ -150,7 +150,7 @@ const handleLogin = () => {
 .floating-circle {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(255 255 255 / 10%);
   backdrop-filter: blur(10px);
   animation: float 6s ease-in-out infinite;
 }
@@ -200,7 +200,7 @@ const handleLogin = () => {
   position: absolute;
   width: 200%;
   height: 200px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(255 255 255 / 5%);
   border-radius: 50%;
   animation: wave 8s ease-in-out infinite;
 }
@@ -221,8 +221,9 @@ const handleLogin = () => {
 @keyframes float {
   0%,
   100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0) rotate(0deg);
   }
+
   50% {
     transform: translateY(-20px) rotate(180deg);
   }
@@ -234,6 +235,7 @@ const handleLogin = () => {
     transform: scale(1) rotate(0deg);
     opacity: 0.3;
   }
+
   50% {
     transform: scale(1.1) rotate(180deg);
     opacity: 0.1;
@@ -243,12 +245,12 @@ const handleLogin = () => {
 .login-card {
   width: 100%;
   max-width: 400px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgb(255 255 255 / 95%);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px rgb(0 0 0 / 15%);
+  border: 1px solid rgb(255 255 255 / 20%);
   position: relative;
   z-index: 2;
 }
@@ -262,8 +264,8 @@ const handleLogin = () => {
   font-size: 28px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 8px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 0 8px;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .login-header p {
@@ -282,7 +284,7 @@ const handleLogin = () => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .floating-circle {
     display: none;
   }

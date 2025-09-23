@@ -640,7 +640,7 @@ watch(visible, (newVal) => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .search-section {
     flex-direction: column;
     gap: 8px;

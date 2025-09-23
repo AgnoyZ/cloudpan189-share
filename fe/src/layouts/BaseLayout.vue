@@ -440,16 +440,18 @@ onUnmounted(() => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .base-layout {
     height: 100vh;
     height: 100dvh;
+
     /* 动态视口高度，适配移动端地址栏 */
   }
 
   .header {
     padding: 0 16px;
     height: 56px;
+
     /* 移动端稍微降低高度 */
   }
 
@@ -464,6 +466,7 @@ onUnmounted(() => {
   .content {
     padding: 16px;
     padding-bottom: env(safe-area-inset-bottom, 16px);
+
     /* 适配刘海屏底部安全区域 */
   }
 
@@ -495,7 +498,7 @@ onUnmounted(() => {
 }
 
 /* 超小屏幕适配 */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .header {
     padding: 0 12px;
   }
@@ -518,7 +521,7 @@ onUnmounted(() => {
 }
 
 /* 横屏适配 */
-@media (max-width: 768px) and (orientation: landscape) {
+@media (width <= 768px) and (orientation: landscape) {
   .header {
     height: 48px;
   }

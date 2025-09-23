@@ -482,7 +482,7 @@ onMounted(() => {
 }
 
 .login-method-selection p {
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
   color: #666;
   font-size: 16px;
 }

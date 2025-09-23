@@ -260,7 +260,7 @@ const handleCancel = () => {
 }
 
 .login-instructions ul {
-  margin: 8px 0 0 0;
+  margin: 8px 0 0;
   padding-left: 20px;
 }
 

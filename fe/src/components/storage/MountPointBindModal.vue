@@ -445,7 +445,7 @@ watch(
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .modal-actions {
     flex-direction: column;
   }
