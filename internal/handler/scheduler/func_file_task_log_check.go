@@ -44,10 +44,7 @@ func (s *FileTaskLogCheckScheduler) Start(ctx context.Context) error {
 	s.running = true
 
 	gopool.Go(func() {
-		for {
-			if !s.doJob() {
-				break
-			}
+		for s.doJob() {
 		}
 
 		ctx.Info("日志检查器已停止~")

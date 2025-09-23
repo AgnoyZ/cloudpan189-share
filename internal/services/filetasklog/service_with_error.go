@@ -19,7 +19,7 @@ func (s *service) WithError(ctx context.Context, key LogKey, err error) (retErr 
 	// 根据数据库类型选择拼接方式
 	var concatExpr clause.Expr
 
-	dbType := db.Dialector.Name()
+	dbType := db.Name()
 
 	switch dbType {
 	case "mysql":
@@ -39,7 +39,7 @@ func (s *service) WithError(ctx context.Context, key LogKey, err error) (retErr 
 		}).Error; retErr != nil {
 		ctx.Error("添加文件任务错误信息失败",
 			zap.Error(retErr),
-			zap.String("db_type", db.Dialector.Name()),
+			zap.String("db_type", db.Name()),
 		)
 
 		return

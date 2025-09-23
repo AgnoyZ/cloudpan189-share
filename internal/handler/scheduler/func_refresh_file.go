@@ -48,10 +48,7 @@ func (s *RefreshFileScheduler) Start(ctx context.Context) error {
 	s.running = true
 
 	gopool.Go(func() {
-		for {
-			if !s.doJob() {
-				break
-			}
+		for s.doJob() {
 		}
 
 		ctx.Info("文件刷新执行器已停止~")

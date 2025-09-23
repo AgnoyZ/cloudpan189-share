@@ -70,7 +70,7 @@ func after(db *gorm.DB) {
 		return
 	}
 
-	sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
+	sql := db.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
 
 	sqlInfo := new(context.SQL)
 	sqlInfo.Time = time.Now().Format(consts.TimeFormat)
@@ -80,6 +80,6 @@ func after(db *gorm.DB) {
 	sqlInfo.CostSeconds = time.Since(ts).Seconds()
 
 	if ctx.Trace != nil {
-		ctx.Trace.AppendSQL(sqlInfo)
+		ctx.AppendSQL(sqlInfo)
 	}
 }

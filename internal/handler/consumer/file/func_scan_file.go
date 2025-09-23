@@ -45,7 +45,7 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 		}
 
 		if !topFile.IsDir {
-			ctx.GetContext().Logger.Error("文件不是文件夹", zap.Int64("file_id", req.FileId))
+			ctx.GetContext().Error("文件不是文件夹", zap.Int64("file_id", req.FileId))
 
 			return errors.New("文件不是文件夹，不支持扫描")
 		}

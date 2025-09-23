@@ -122,8 +122,8 @@ func loggerHandler() HandlerFunc {
 				respInfo.Body = writer.b.String()
 			}
 
-			ctx.Trace.WithRequest(requestInfo)
-			ctx.Trace.WithResponse(respInfo)
+			ctx.WithRequest(requestInfo)
+			ctx.WithResponse(respInfo)
 
 			fields = append(fields,
 				zap.String("method", reqContext.Request.Method),
@@ -136,7 +136,7 @@ func loggerHandler() HandlerFunc {
 				zap.String("client_ip", reqContext.ClientIP()),
 			)
 
-			ctx.Logger.Info("http-log", fields...)
+			ctx.Info("http-log", fields...)
 		}()
 
 		reqContext.Next()

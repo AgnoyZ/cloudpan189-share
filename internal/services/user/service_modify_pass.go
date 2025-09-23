@@ -21,7 +21,7 @@ func (s *service) ModifyPass(ctx context.Context, uid int64, password string) er
 		Updates(updateData)
 
 	if result.Error != nil {
-		ctx.Logger.Error("修改用户密码失败", zap.Error(result.Error), zap.Int64("uid", uid))
+		ctx.Error("修改用户密码失败", zap.Error(result.Error), zap.Int64("uid", uid))
 
 		return result.Error
 	}

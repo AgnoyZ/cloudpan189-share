@@ -58,10 +58,7 @@ func PathEscape(elem ...string) string {
 	joined := path.Join(elem...)
 
 	// 检查是否需要前导斜杠
-	needsLeadingSlash := false
-	if len(elem) > 0 && strings.HasPrefix(elem[0], "/") {
-		needsLeadingSlash = true
-	}
+	needsLeadingSlash := len(elem) > 0 && strings.HasPrefix(elem[0], "/")
 
 	// 分割并转义每个部分
 	ss := strings.Split(joined, "/")

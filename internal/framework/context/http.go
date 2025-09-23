@@ -160,7 +160,7 @@ func (c Context) createResponseMiddleware(config *HTTPLogConfig) resty.ResponseM
 			}
 
 			// 添加到 trace 中
-			c.Trace.AppendThirdPartyRequest(thirdPartyReq)
+			c.AppendThirdPartyRequest(thirdPartyReq)
 		}
 
 		// 如果启用了响应日志，输出日志
