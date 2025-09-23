@@ -41,6 +41,9 @@ export default [
       // 开发环境规则
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+
+      // 在 TypeScript 项目中关闭 no-undef，避免类型名被误报为未定义
+      'no-undef': 'off',
       
       // Prettier 规则
       'prettier/prettier': 'error'
