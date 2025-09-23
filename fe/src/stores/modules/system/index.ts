@@ -18,6 +18,10 @@ export const useSystemStore = defineStore('system', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  // 定时器相关
+  let refreshTimer: NodeJS.Timeout | null = null
+  const isAutoRefreshEnabled = ref(false)
+
   // 计算属性
   const isInitialized = computed(() => systemInfo.value.initialized)
   const isAuthEnabled = computed(() => systemInfo.value.enableAuth)
@@ -66,11 +70,36 @@ export const useSystemStore = defineStore('system', () => {
     systemInfo.value = { ...systemInfo.value, ...info }
   }
 
+  // 启动自动刷新
+  const startAutoRefresh = () => {
+    if (isAutoRefreshEnabled.value) return
+
+    isAutoRefreshEnabled.value = true
+
+    // 立即获取一次系统信息
+    fetchSystemInfo()
+
+    // 设置定时器，每30秒刷新一次
+    refreshTimer = setInterval(() => {
+      fetchSystemInfo()
+    }, 30000)
+  }
+
+  // 停止自动刷新
+  const stopAutoRefresh = () => {
+    if (refreshTimer) {
+      clearInterval(refreshTimer)
+      refreshTimer = null
+    }
+    isAutoRefreshEnabled.value = false
+  }
+
   return {
     // 状态
     systemInfo,
     loading,
     error,
+    isAutoRefreshEnabled,
 
     // 计算属性
     isInitialized,
@@ -85,5 +114,7 @@ export const useSystemStore = defineStore('system', () => {
     refreshSystemInfo,
     clearSystemInfo,
     updateSystemInfo,
+    startAutoRefresh,
+    stopAutoRefresh,
   }
 })

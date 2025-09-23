@@ -75,12 +75,11 @@ import {
   PeopleOutline,
 } from '@vicons/ionicons5'
 import { getUserList, deleteUser, toggleUserStatus } from '@/api/user'
-import type { UserInfo } from '@/types/models'
 import { AddUserModal, ResetPasswordModal, BindGroupModal } from '@/components/user'
 import { formatDateTime } from '@/utils/time'
 
 // 表格数据
-const tableData = ref<UserInfo[]>([])
+const tableData = ref<Models.UserInfo[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 
@@ -89,11 +88,11 @@ const showAddModal = ref(false)
 
 // 重置密码相关
 const showResetPasswordModal = ref(false)
-const currentResetUser = ref<UserInfo | null>(null)
+const currentResetUser = ref<Models.UserInfo | null>(null)
 
 // 绑定用户组相关
 const showBindGroupModal = ref(false)
-const currentBindUser = ref<UserInfo | null>(null)
+const currentBindUser = ref<Models.UserInfo | null>(null)
 
 // 消息提示
 const message = useMessage()
@@ -194,7 +193,7 @@ const handleDeleteUser = (userId: number) => {
 }
 
 // 重置密码
-const handleResetPassword = (user: UserInfo) => {
+const handleResetPassword = (user: Models.UserInfo) => {
   currentResetUser.value = user
   showResetPasswordModal.value = true
 }
@@ -206,7 +205,7 @@ const handleResetPasswordSuccess = () => {
 }
 
 // 绑定用户组
-const handleBindGroup = (user: UserInfo) => {
+const handleBindGroup = (user: Models.UserInfo) => {
   currentBindUser.value = user
   showBindGroupModal.value = true
 }
@@ -219,7 +218,7 @@ const handleBindGroupSuccess = () => {
 }
 
 // 切换用户状态
-const handleToggleStatus = (user: UserInfo) => {
+const handleToggleStatus = (user: Models.UserInfo) => {
   const newStatus = user.status === 1 ? 2 : 1
   const actionText = newStatus === 1 ? '启用' : '禁用'
 
@@ -240,7 +239,7 @@ const handleToggleStatus = (user: UserInfo) => {
 }
 
 // 表格列定义
-const columns: DataTableColumns<UserInfo> = [
+const columns: DataTableColumns<Models.UserInfo> = [
   {
     title: '用户ID',
     key: 'id',

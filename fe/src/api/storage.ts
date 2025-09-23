@@ -1,5 +1,4 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { PaginationResponse, FileTaskLog, MountPoint } from '@/types/models'
 
 // ===== 存储挂载相关接口 =====
 
@@ -44,9 +43,9 @@ export interface StorageListQuery {
 }
 
 // 存储信息接口（扩展挂载点，包含关联数据）
-export interface StorageInfo extends MountPoint {
+export interface StorageInfo extends Models.MountPoint {
   tokenName?: string // 关联的token名称
-  taskLogs?: FileTaskLog[] // 关联的任务日志
+  taskLogs?: Models.FileTaskLog[] // 关联的任务日志
 }
 
 // ===== 存储管理接口 =====
@@ -64,7 +63,7 @@ export const deleteStorage = (data: DeleteStorageRequest): Promise<ApiResponse> 
 // 获取存储挂载点列表
 export const getStorageList = (
   params?: StorageListQuery
-): Promise<ApiResponse<PaginationResponse<StorageInfo>>> => {
+): Promise<ApiResponse<Models.PaginationResponse<StorageInfo>>> => {
   return api.get('/storage/list', { params }).then((res) => res.data)
 }
 

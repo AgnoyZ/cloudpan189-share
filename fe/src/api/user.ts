@@ -1,5 +1,4 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { UserInfo, PaginationResponse } from '@/types/models'
 
 // 基础权限接口（需要登录）
 export interface ModifyOwnPasswordRequest {
@@ -57,7 +56,7 @@ export interface UserListQuery {
 // ===== 基础权限接口 =====
 
 // 获取当前用户信息
-export const getUserInfo = (): Promise<ApiResponse<UserInfo>> => {
+export const getUserInfo = (): Promise<ApiResponse<Models.UserInfo>> => {
   return api.get('/user/info').then((res) => res.data)
 }
 
@@ -86,7 +85,7 @@ export const updateUser = (data: UpdateUserRequest): Promise<ApiResponse> => {
 // 获取用户列表
 export const getUserList = (
   params?: UserListQuery
-): Promise<ApiResponse<PaginationResponse<UserInfo>>> => {
+): Promise<ApiResponse<Models.PaginationResponse<Models.UserInfo>>> => {
   return api.get('/user/list', { params }).then((res) => res.data)
 }
 

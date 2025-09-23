@@ -1,5 +1,4 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { CloudToken, PaginationResponse } from '@/types/models'
 
 // ===== 云盘令牌相关接口 =====
 
@@ -77,11 +76,11 @@ export const deleteCloudToken = (data: DeleteCloudTokenRequest): Promise<ApiResp
 // 获取云盘令牌列表
 export const getCloudTokenList = (
   params?: CloudTokenListQuery
-): Promise<ApiResponse<PaginationResponse<CloudToken>>> => {
+): Promise<ApiResponse<Models.PaginationResponse<Models.CloudToken>>> => {
   return api.get('/cloud_token/list', { params }).then((res) => res.data)
 }
 
 // 查询云盘令牌详情
-export const getCloudTokenById = (id: number): Promise<ApiResponse<CloudToken>> => {
+export const getCloudTokenById = (id: number): Promise<ApiResponse<Models.CloudToken>> => {
   return api.get(`/cloud_token/${id}`).then((res) => res.data)
 }

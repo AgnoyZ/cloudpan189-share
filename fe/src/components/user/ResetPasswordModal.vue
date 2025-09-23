@@ -72,11 +72,10 @@ import {
   useMessage,
 } from 'naive-ui'
 import { modifyUserPassword, type ModifyPasswordRequest } from '@/api/user'
-import type { UserInfo } from '@/types/models'
 
 interface Props {
   show: boolean
-  userInfo?: UserInfo | null
+  userInfo?: Models.UserInfo | null
 }
 
 interface Emits {

@@ -61,16 +61,15 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { NGrid, NGridItem, NCard, NDescriptions, NDescriptionsItem, NTag, NText } from 'naive-ui'
-import { useUserStore } from '@/stores/user'
-import { useSystemStore } from '@/stores/system'
+import { useAuthStore, useSystemStore } from '@/stores'
 
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const systemStore = useSystemStore()
 
 // 用户信息
 const userInfo = computed(
   () =>
-    userStore.user || {
+    authStore.user || {
       username: '',
       status: 0,
       groupName: '',
@@ -109,7 +108,7 @@ const getUserStatusText = (status: number) => {
 
 onMounted(() => {
   // 获取最新的用户信息和系统信息
-  userStore.fetchUserInfo()
+  authStore.fetchUserInfo()
   systemStore.fetchSystemInfo()
 })
 </script>

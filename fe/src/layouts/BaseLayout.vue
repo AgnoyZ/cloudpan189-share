@@ -93,9 +93,9 @@
             <n-dropdown :options="userMenuOptions" @select="handleUserMenuSelect">
               <div class="user-info">
                 <n-avatar round :size="isMobile ? 'medium' : 'small'" class="user-avatar">
-                  {{ userStore.username.charAt(0).toUpperCase() }}
+                  {{ authStore.username.charAt(0).toUpperCase() }}
                 </n-avatar>
-                <n-text v-if="!isMobile" class="username">{{ userStore.username }}</n-text>
+                <n-text v-if="!isMobile" class="username">{{ authStore.username }}</n-text>
                 <n-icon v-if="!isMobile" size="16" class="dropdown-icon">
                   <ChevronDownIcon />
                 </n-icon>
@@ -147,14 +147,13 @@ import {
   MenuOutline as MenuIcon,
   ServerOutline as StorageIcon,
 } from '@vicons/ionicons5'
-import { useUserStore } from '@/stores/user'
-import { useSystemStore } from '@/stores/system'
+import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
 
 const router = useRouter()
 const route = useRoute()
 const message = useMessage()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const systemStore = useSystemStore()
 
 // 系统信息
@@ -199,7 +198,7 @@ const menuOptions = computed((): MenuOption[] => {
   ]
 
   // 管理员菜单
-  if (userStore.isAdmin) {
+  if (authStore.isAdmin) {
     baseMenus.push(
       {
         label: '用户管理',
@@ -280,7 +279,7 @@ const handleUserMenuSelect = (key: string) => {
 
 // 处理退出登录
 const handleLogout = () => {
-  userStore.userLogout()
+  authStore.userLogout()
   message.success('已退出登录')
   router.push('/@login')
 }
@@ -291,14 +290,7 @@ onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
 
-  console.log('BaseLayout mounted', userStore.isLoggedIn, userStore.user)
-
-  userStore.fetchUserInfo().then((user) => {
-    if (!user) {
-      message.error('获取用户信息失败，请重新登录')
-      router.push('/@login')
-    }
-  })
+  console.log('BaseLayout mounted', authStore.isLogin, authStore.user)
 })
 
 // 清理事件监听器

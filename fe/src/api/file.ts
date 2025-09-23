@@ -1,5 +1,4 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { VirtualFile } from '@/types/models'
 
 // 文件搜索相关接口
 export interface FileSearchQuery {
@@ -10,7 +9,7 @@ export interface FileSearchQuery {
   currentPage: number
 }
 
-export interface FileSearchItem extends VirtualFile {
+export interface FileSearchItem extends Models.VirtualFile {
   fullPath: string
 }
 
@@ -22,11 +21,11 @@ export interface FileSearchResponse {
 }
 
 // 文件打开相关接口
-export interface FileChild extends VirtualFile {
+export interface FileChild extends Models.VirtualFile {
   href: string
 }
 
-export interface FileOpenResponse extends VirtualFile {
+export interface FileOpenResponse extends Models.VirtualFile {
   href: string
   children?: FileChild[]
   childrenTotal: number

@@ -51,11 +51,10 @@ import {
 } from 'naive-ui'
 import { bindUserGroup, type BindGroupRequest } from '@/api/user'
 import { getUserGroupList } from '@/api/usergroup'
-import type { UserInfo } from '@/types/models'
 
 interface Props {
   show: boolean
-  userInfo?: UserInfo | null
+  userInfo?: Models.UserInfo | null
 }
 
 interface Emits {

@@ -14,16 +14,16 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { darkTheme } from 'naive-ui'
-import { useThemeStore } from './stores/theme'
-import { useSystemStore } from './stores/system'
+import { useThemeStore, useSystemStore } from '@/stores'
 
 const themeStore = useThemeStore()
 const systemStore = useSystemStore()
 
 const theme = computed(() => (themeStore.isDark ? darkTheme : null))
 
-// 应用启动时加载系统信息
+// 应用启动时初始化主题和启动系统信息自动刷新
 onMounted(() => {
-  systemStore.fetchSystemInfo()
+  themeStore.initTheme()
+  systemStore.startAutoRefresh()
 })
 </script>

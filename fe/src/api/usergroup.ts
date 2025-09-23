@@ -1,8 +1,7 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { PaginationResponse, UserGroup } from '@/types/models'
 
 // 用户组信息接口（扩展基础 UserGroup 类型）
-export interface UserGroupInfo extends UserGroup {
+export interface UserGroupInfo extends Models.UserGroup {
   userCount: number // 该用户组下的用户数量
 }
 
@@ -62,7 +61,7 @@ export const deleteUserGroup = (data: DeleteUserGroupRequest): Promise<ApiRespon
 // 获取用户组列表
 export const getUserGroupList = (
   params?: UserGroupListQuery
-): Promise<ApiResponse<PaginationResponse<UserGroupInfo>>> => {
+): Promise<ApiResponse<Models.PaginationResponse<UserGroupInfo>>> => {
   return api.get('/user_group/list', { params }).then((res) => res.data)
 }
 

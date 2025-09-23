@@ -68,12 +68,11 @@ import {
 } from 'naive-ui'
 import { PeopleOutline, TrashOutline, CreateOutline, LinkOutline } from '@vicons/ionicons5'
 import { getUserGroupList, deleteUserGroup } from '@/api/usergroup'
-import type { UserGroup } from '@/types/models'
 import { AddUserGroupModal, ModifyUserGroupNameModal, BindFilesModal } from '@/components/usergroup'
 import { formatDateTime } from '@/utils/time'
 
 // 表格数据
-const tableData = ref<UserGroup[]>([])
+const tableData = ref<Models.UserGroup[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 
@@ -82,11 +81,11 @@ const showAddModal = ref(false)
 
 // 修改用户组名称相关
 const showModifyNameModal = ref(false)
-const currentModifyUserGroup = ref<UserGroup | null>(null)
+const currentModifyUserGroup = ref<Models.UserGroup | null>(null)
 
 // 绑定文件相关
 const showBindFilesModal = ref(false)
-const currentBindUserGroup = ref<UserGroup | null>(null)
+const currentBindUserGroup = ref<Models.UserGroup | null>(null)
 
 // 消息提示
 const message = useMessage()
@@ -187,7 +186,7 @@ const handleDeleteUserGroup = (userGroupId: number) => {
 }
 
 // 修改用户组名称
-const handleModifyName = (userGroup: UserGroup) => {
+const handleModifyName = (userGroup: Models.UserGroup) => {
   currentModifyUserGroup.value = userGroup
   showModifyNameModal.value = true
 }
@@ -200,7 +199,7 @@ const handleModifyNameSuccess = () => {
 }
 
 // 绑定文件
-const handleBindFiles = (userGroup: UserGroup) => {
+const handleBindFiles = (userGroup: Models.UserGroup) => {
   currentBindUserGroup.value = userGroup
   showBindFilesModal.value = true
 }
@@ -212,7 +211,7 @@ const handleBindFilesSuccess = () => {
 }
 
 // 表格列定义
-const columns: DataTableColumns<UserGroup> = [
+const columns: DataTableColumns<Models.UserGroup> = [
   {
     title: '用户组ID',
     key: 'id',

@@ -112,12 +112,11 @@ import {
   KeyOutline,
 } from '@vicons/ionicons5'
 import { getCloudTokenList, deleteCloudToken, modifyCloudTokenName } from '@/api/cloudtoken'
-import type { CloudToken } from '@/types/models'
 import { formatRemainingTime, formatDateTime } from '@/utils/time'
 import { QrcodeLoginModal, PasswordLoginModal } from '@/components/cloudtoken'
 
 // 表格数据
-const tableData = ref<CloudToken[]>([])
+const tableData = ref<Models.CloudToken[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 
@@ -128,11 +127,11 @@ const showPasswordModal = ref(false)
 // 更新令牌相关
 const showUpdateQrcodeModal = ref(false)
 const showUpdatePasswordModal = ref(false)
-const currentUpdateToken = ref<CloudToken | null>(null)
+const currentUpdateToken = ref<Models.CloudToken | null>(null)
 
 // 编辑令牌相关
 const showEditModal = ref(false)
-const currentEditToken = ref<CloudToken | null>(null)
+const currentEditToken = ref<Models.CloudToken | null>(null)
 const editLoading = ref(false)
 const editFormRef = ref()
 const editForm = reactive({
@@ -169,7 +168,7 @@ const paginationReactive = reactive<PaginationProps>({
 })
 
 // 表格列定义
-const columns: DataTableColumns<CloudToken> = [
+const columns: DataTableColumns<Models.CloudToken> = [
   {
     title: '令牌ID',
     key: 'id',
@@ -368,7 +367,7 @@ const handleAddSuccess = () => {
 }
 
 // 更新令牌
-const handleUpdate = (token: CloudToken) => {
+const handleUpdate = (token: Models.CloudToken) => {
   currentUpdateToken.value = token
 
   // 根据登录方式选择不同的更新流程
@@ -388,7 +387,7 @@ const handleUpdateSuccess = () => {
 }
 
 // 编辑令牌
-const handleEdit = (token: CloudToken) => {
+const handleEdit = (token: Models.CloudToken) => {
   currentEditToken.value = token
   editForm.name = token.name
   showEditModal.value = true

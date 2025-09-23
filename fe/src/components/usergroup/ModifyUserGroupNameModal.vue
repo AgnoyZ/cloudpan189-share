@@ -40,11 +40,10 @@ import {
   type FormInst,
 } from 'naive-ui'
 import { modifyUserGroupName } from '@/api/usergroup'
-import type { UserGroup } from '@/types/models'
 
 interface Props {
   show: boolean
-  userGroupInfo: UserGroup | null
+  userGroupInfo: Models.UserGroup | null
 }
 
 interface Emits {

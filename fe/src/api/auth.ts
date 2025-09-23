@@ -1,5 +1,4 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { User } from '@/types/models'
 
 export interface LoginRequest {
   username: string
@@ -11,7 +10,7 @@ export interface LoginResponse {
   refreshToken: string
   tokenType: string
   expiresIn: number
-  user: User
+  user: Models.User
 }
 
 export interface RefreshRequest {
@@ -23,7 +22,7 @@ export interface RefreshResponse {
   refreshToken: string
   tokenType: string
   expiresIn: number
-  user: User
+  user: Models.User
 }
 
 // 用户登录

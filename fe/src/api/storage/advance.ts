@@ -1,5 +1,4 @@
 import { api, type ApiResponse } from '@/utils/api'
-import type { PaginationResponse } from '@/types/models'
 
 // ===== 存储高级功能相关接口 =====
 
@@ -48,7 +47,7 @@ export interface GetPersonFilesQuery {
 }
 
 // 获取个人文件列表响应接口
-export type GetPersonFilesResponse = PaginationResponse<FileNode>
+export type GetPersonFilesResponse = Models.PaginationResponse<FileNode>
 
 // 获取家庭云文件列表查询参数
 export interface GetFamilyFilesQuery {
@@ -60,7 +59,7 @@ export interface GetFamilyFilesQuery {
 }
 
 // 获取家庭云文件列表响应接口
-export type GetFamilyFilesResponse = PaginationResponse<FileNode>
+export type GetFamilyFilesResponse = Models.PaginationResponse<FileNode>
 
 // 获取订阅用户资源列表查询参数
 export interface GetSubscribeUserQuery {
@@ -71,7 +70,7 @@ export interface GetSubscribeUserQuery {
 }
 
 // 获取订阅用户资源列表响应接口
-export interface GetSubscribeUserResponse extends PaginationResponse<ShareResourceInfo> {
+export interface GetSubscribeUserResponse extends Models.PaginationResponse<ShareResourceInfo> {
   name: string // 订阅用户名
 }
 

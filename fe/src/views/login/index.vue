@@ -67,13 +67,12 @@ import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { PersonOutline, LockClosedOutline } from '@vicons/ionicons5'
 import { type LoginRequest } from '@/api/auth'
-import { useSystemStore } from '@/stores/system'
-import { useUserStore } from '@/stores/user'
+import { useSystemStore, useAuthStore } from '@/stores'
 
 const router = useRouter()
 const message = useMessage()
 const systemStore = useSystemStore()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 
 const title = computed(() => systemStore.systemInfo.title)
 
@@ -107,7 +106,7 @@ const handleLogin = () => {
     ?.validate()
     .then(() => {
       loading.value = true
-      return userStore.userLogin(formData)
+      return authStore.userLogin(formData)
     })
     .then(() => {
       message.success('登录成功')

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -78,87 +78,34 @@ const router = createRouter({
   ],
 })
 
-// 用户状态初始化标记
-let userStateInitialized = false
-
 // 路由守卫
 router.beforeEach((to, _, next) => {
-  const userStore = useUserStore()
+  const authStore = useAuthStore()
 
-  // 首次访问时初始化用户状态
-  const initPromise = !userStateInitialized
-    ? userStore.initUserState().then(() => {
-        userStateInitialized = true
-      })
-    : Promise.resolve()
+  // 检查是否需要认证
+  if (to.meta.requiresAuth) {
+    // 需要认证的路由
+    if (!authStore.isLogin) {
+      // 未登录，跳转到登录页
+      next('/@login')
+      return
+    }
 
-  initPromise
-    .then(() => {
-      // 检查是否需要认证
-      if (to.meta.requiresAuth) {
-        // 需要认证的路由
-        if (!userStore.isLoggedIn) {
-          // 未登录，跳转到登录页
-          next('/@login')
-          return
-        }
+    // 检查是否需要管理员权限
+    if (to.meta.requiresAdmin && !authStore.isAdmin) {
+      // 需要管理员权限但用户不是管理员，跳转到仪表板首页
+      next('/@dashboard')
+      return
+    }
 
-        // 验证登录状态
-        return userStore
-          .checkLoginStatus()
-          .then((isValid) => {
-            if (!isValid) {
-              // token 无效，跳转到登录页
-              next('/@login')
-              return
-            }
-
-            // 检查是否需要管理员权限
-            if (to.meta.requiresAdmin && !userStore.isAdmin) {
-              // 需要管理员权限但用户不是管理员，跳转到仪表板首页
-              next('/@dashboard')
-              return
-            }
-
-            next()
-          })
-          .catch((error) => {
-            // 验证失败，跳转到登录页
-            console.error('路由守卫验证失败:', error)
-            next('/@login')
-          })
-      } else if (to.path === '/@login' && userStore.isLoggedIn) {
-        // 已登录用户访问登录页，验证 token 是否有效
-        return userStore
-          .checkLoginStatus()
-          .then((isValid) => {
-            if (isValid) {
-              // token 有效，跳转到仪表板
-              next('/@dashboard')
-            } else {
-              // token 无效，允许访问登录页
-              next()
-            }
-          })
-          .catch((error) => {
-            // 验证失败，允许访问登录页
-            console.error('登录页面验证失败:', error)
-            next()
-          })
-      } else {
-        // 不需要认证的路由，直接通过
-        next()
-      }
-    })
-    .catch((error) => {
-      console.error('用户状态初始化失败:', error)
-      // 初始化失败，如果是需要认证的路由，跳转到登录页
-      if (to.meta.requiresAuth) {
-        next('/@login')
-      } else {
-        next()
-      }
-    })
+    next()
+  } else if (to.path === '/@login' && authStore.isLogin) {
+    // 已登录用户访问登录页，跳转到仪表板
+    next('/@dashboard')
+  } else {
+    // 不需要认证的路由，直接通过
+    next()
+  }
 })
 
 export default router

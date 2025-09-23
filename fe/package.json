@@ -33,8 +33,6 @@
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@rushstack/eslint-patch": "^1.12.0",
-    "@stylistic/stylelint-config": "^3.0.1",
-    "@stylistic/stylelint-plugin": "^4.0.0",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
@@ -48,11 +46,11 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.0",
     "postcss": "^8.5.6",
-    "postcss-html": "^1.8.0",
+    "postcss-html": "^1.6.0",
     "prettier": "^3.0.2",
-    "stylelint": "^16.24.0",
+    "stylelint": "^16.0.0",
     "stylelint-config-prettier": "^9.0.5",
-    "stylelint-config-standard": "^39.0.0",
+    "stylelint-config-standard": "^36.0.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.9",
     "vue-tsc": "^1.8.8"
