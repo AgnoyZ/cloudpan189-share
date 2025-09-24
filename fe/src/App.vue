@@ -24,6 +24,7 @@ const theme = computed(() => (themeStore.isDark ? darkTheme : null))
 // 应用启动时初始化主题和启动系统信息自动刷新
 onMounted(() => {
   themeStore.initTheme()
-  systemStore.startAutoRefresh()
+  systemStore.load()
+  systemStore.refresh()
 })
 </script>

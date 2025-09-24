@@ -13,7 +13,7 @@
 
     <div class="login-card">
       <div class="login-header">
-        <h1>{{ title || '云盘分享系统' }}</h1>
+        <h1>{{ systemInfo.title || '云盘分享系统' }}</h1>
         <p>请登录您的账户</p>
       </div>
 
@@ -62,9 +62,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMessage } from 'naive-ui'
+import { useMessage, type FormInst } from 'naive-ui'
 import { PersonOutline, LockClosedOutline } from '@vicons/ionicons5'
 import { type LoginRequest } from '@/api/auth'
 import { useSystemStore, useAuthStore } from '@/stores'
@@ -74,9 +74,9 @@ const message = useMessage()
 const systemStore = useSystemStore()
 const authStore = useAuthStore()
 
-const title = computed(() => systemStore.systemInfo.title)
+const systemInfo = systemStore.get()
 
-const formRef = ref()
+const formRef = ref<FormInst>()
 const loading = ref(false)
 
 const formData = reactive<LoginRequest>({
@@ -106,7 +106,7 @@ const handleLogin = () => {
     ?.validate()
     .then(() => {
       loading.value = true
-      return authStore.userLogin(formData)
+      return authStore.login(formData)
     })
     .then(() => {
       message.success('登录成功')

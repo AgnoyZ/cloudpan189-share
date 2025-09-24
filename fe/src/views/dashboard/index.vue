@@ -59,26 +59,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
 import { NGrid, NGridItem, NCard, NDescriptions, NDescriptionsItem, NTag, NText } from 'naive-ui'
-import { useAuthStore, useSystemStore } from '@/stores'
+import { useUserStore } from '@/stores/modules/user'
+import { useSystemStore } from '@/stores'
 
-const authStore = useAuthStore()
+const userStore = useUserStore()
 const systemStore = useSystemStore()
 
 // 用户信息
-const userInfo = computed(
-  () =>
-    authStore.user || {
-      username: '',
-      status: 0,
-      groupName: '',
-      isAdmin: false,
-    }
-)
+const userInfo = userStore.get()
 
 // 系统信息
-const systemInfo = computed(() => systemStore.systemInfo)
+const systemInfo = systemStore.get()
 
 // 获取用户状态类型
 const getUserStatusType = (status: number) => {
@@ -105,12 +97,6 @@ const getUserStatusText = (status: number) => {
       return '禁用'
   }
 }
-
-onMounted(() => {
-  // 获取最新的用户信息和系统信息
-  authStore.fetchUserInfo()
-  systemStore.fetchSystemInfo()
-})
 </script>
 
 <style scoped>

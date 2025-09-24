@@ -103,4 +103,13 @@ declare namespace Models {
     total: number
     data: T[]
   }
+
+  interface SystemInfo {
+    baseURL: string
+    enableAuth: boolean
+    initialized: boolean
+    runTime: number // 运行时间 单位 s
+    runTimeHuman: string // 运行时间 格式 例如：1年2月3天4小时5分6秒
+    title: string
+  }
 }

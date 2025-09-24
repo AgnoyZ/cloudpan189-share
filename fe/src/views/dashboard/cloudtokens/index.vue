@@ -103,6 +103,7 @@ import {
   useMessage,
   type DataTableColumns,
   type PaginationProps,
+  type FormInst,
 } from 'naive-ui'
 import {
   CreateOutline,
@@ -133,7 +134,7 @@ const currentUpdateToken = ref<Models.CloudToken | null>(null)
 const showEditModal = ref(false)
 const currentEditToken = ref<Models.CloudToken | null>(null)
 const editLoading = ref(false)
-const editFormRef = ref()
+const editFormRef = ref<FormInst>()
 const editForm = reactive({
   name: '',
 })

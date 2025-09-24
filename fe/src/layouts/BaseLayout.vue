@@ -93,9 +93,9 @@
             <n-dropdown :options="userMenuOptions" @select="handleUserMenuSelect">
               <div class="user-info">
                 <n-avatar round :size="isMobile ? 'medium' : 'small'" class="user-avatar">
-                  {{ authStore.username.charAt(0).toUpperCase() }}
+                  {{ userInfo.username.charAt(0).toUpperCase() }}
                 </n-avatar>
-                <n-text v-if="!isMobile" class="username">{{ authStore.username }}</n-text>
+                <n-text v-if="!isMobile" class="username">{{ userInfo.username }}</n-text>
                 <n-icon v-if="!isMobile" size="16" class="dropdown-icon">
                   <ChevronDownIcon />
                 </n-icon>
@@ -149,15 +149,18 @@ import {
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
+import { useUserStore } from '@/stores/modules/user'
 
 const router = useRouter()
 const route = useRoute()
 const message = useMessage()
 const authStore = useAuthStore()
+const userStore = useUserStore()
 const systemStore = useSystemStore()
 
 // 系统信息
 const systemInfo = computed(() => systemStore.systemInfo)
+const userInfo = userStore.get()
 
 // 响应式检测
 const isMobile = ref(false)
@@ -180,7 +183,7 @@ const checkScreenSize = () => {
 
 // 面包屑导航
 const breadcrumbs = computed(() => {
-  const matched = route.matched.filter((item) => item.meta && item.meta.title)
+  const matched = route.matched.filter((item) => item.meta?.title)
   return matched.map((item) => ({
     title: item.meta?.title as string,
     path: item.path,
@@ -198,7 +201,7 @@ const menuOptions = computed((): MenuOption[] => {
   ]
 
   // 管理员菜单
-  if (authStore.isAdmin) {
+  if (userStore.isAdmin) {
     baseMenus.push(
       {
         label: '用户管理',
@@ -279,7 +282,7 @@ const handleUserMenuSelect = (key: string) => {
 
 // 处理退出登录
 const handleLogout = () => {
-  authStore.userLogout()
+  authStore.logout()
   message.success('已退出登录')
   router.push('/@login')
 }
@@ -290,7 +293,7 @@ onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
 
-  console.log('BaseLayout mounted', authStore.isLogin, authStore.user)
+  userStore.refresh()
 })
 
 // 清理事件监听器

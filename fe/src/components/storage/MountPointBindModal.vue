@@ -92,7 +92,6 @@ import { addStorage, type AddStorageRequest, type AddStorageResponse } from '@/a
 import type { ApiResponse } from '@/utils/api'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { getOsTypeDisplayName, getOsTypeColor } from '@/utils/osType'
-import type { CloudToken } from '@/types/models'
 
 // Props
 interface MountItem {
@@ -133,7 +132,7 @@ const visible = computed({
 // 状态管理
 const state = reactive({
   submitLoading: false,
-  cloudTokens: [] as CloudToken[],
+  cloudTokens: [] as Models.CloudToken[],
 })
 
 // 批量操作状态
@@ -226,12 +225,15 @@ const columns: DataTableColumns<TableRow> = [
 
 // 初始化表格数据
 const initTableData = () => {
-  tableData.value = props.items.map((item, index) => ({
-    ...item,
-    id: `item_${index}`,
-    localPath: `/${item.name}`,
-    selectedCloudToken: props.defaultCloudToken,
-  }))
+  tableData.value = props.items.map(
+    (item, index) =>
+      ({
+        ...item,
+        id: `item_${index}`,
+        localPath: `/${item.name}`,
+        selectedCloudToken: props.defaultCloudToken,
+      }) as TableRow
+  )
 }
 
 // 获取云盘令牌列表

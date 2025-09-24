@@ -1,15 +1,5 @@
 import { api, type ApiResponse } from '@/utils/api'
 
-// 系统信息响应接口
-export interface SystemInfo {
-  baseURL: string
-  enableAuth: boolean
-  initialized: boolean
-  runTime: number // 运行时间 单位 s
-  runTimeHuman: string // 运行时间 格式 例如：1年2月3天4小时5分6秒
-  title: string
-}
-
 // 系统初始化请求接口
 export interface InitSystemRequest {
   baseURL: string // 系统基础URL
@@ -22,7 +12,7 @@ export interface InitSystemRequest {
 // ===== 系统设置接口 =====
 
 // 获取系统信息
-export const getSystemInfo = (): Promise<ApiResponse<SystemInfo>> => {
+export const getSystemInfo = (): Promise<ApiResponse<Models.SystemInfo>> => {
   return api.get('/setting/info').then((res) => res.data)
 }
 

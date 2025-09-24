@@ -6,5 +6,6 @@ declare namespace StorageType {
     refreshToken: string
     expireTime: number
     user: Models.User
+    systemInfo: Models.SystemInfo
   }
 }
