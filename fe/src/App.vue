@@ -15,6 +15,7 @@
 import { computed, onMounted } from 'vue'
 import { darkTheme } from 'naive-ui'
 import { useThemeStore, useSystemStore } from '@/stores'
+import router from './router'
 
 const themeStore = useThemeStore()
 const systemStore = useSystemStore()
@@ -25,6 +26,10 @@ const theme = computed(() => (themeStore.isDark ? darkTheme : null))
 onMounted(() => {
   themeStore.initTheme()
   systemStore.load()
-  systemStore.refresh()
+  systemStore.refresh().then((res) => {
+    if (!res?.data?.initialized) {
+      router.replace('/@init')
+    }
+  })
 })
 </script>

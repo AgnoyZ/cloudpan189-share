@@ -1,8 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores'
 
-const authStore = useAuthStore()
-
 // 响应数据类型
 export interface ApiResponse<T = unknown> {
   msg: string
@@ -22,6 +20,7 @@ export const api = axios.create({
 // 请求拦截器
 api.interceptors.request.use(
   (config) => {
+    const authStore = useAuthStore()
     // 从存储获取 token
     const token = authStore.getToken()
     if (token) {
@@ -53,7 +52,7 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response) {
       const { status, data } = error.response
-
+      const authStore = useAuthStore()
       switch (status) {
         case 401:
           window.location.href = '/@login'

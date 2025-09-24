@@ -34,13 +34,15 @@ export const useSystemStore = defineStore('system', () => {
   }
 
   const refresh = () => {
-    getSystemInfo()
+    return getSystemInfo()
       .then((response) => {
         if (response.data) {
           store(response.data)
         } else {
           error.value = response.msg || '获取系统信息失败'
         }
+
+        return response
       })
       .catch((err) => {
         error.value = err instanceof Error ? err.message : '网络错误'

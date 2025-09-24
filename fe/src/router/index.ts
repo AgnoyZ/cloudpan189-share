@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores'
+import { useAuthStore, useSystemStore } from '@/stores'
+import { useUserStore } from '@/stores/modules/user'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,6 +16,15 @@ const router = createRouter({
       meta: {
         requiresAuth: false,
         title: '登录',
+      },
+    },
+    {
+      path: '/@init',
+      name: 'Init',
+      component: () => import('@/views/init/index.vue'),
+      meta: {
+        requiresAuth: false,
+        title: '初始化',
       },
     },
     {
@@ -81,6 +91,20 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, _, next) => {
   const authStore = useAuthStore()
+  const userStore = useUserStore()
+  const systemStore = useSystemStore()
+
+  // 检查系统是否已初始化
+  if (!systemStore.get().initialized && to.name !== 'Init') {
+    next('/@init')
+    return
+  }
+
+  // 如果系统已初始化但访问初始化页面，跳转到登录页
+  if (systemStore.get().initialized && to.name === 'Init') {
+    next('/@login')
+    return
+  }
 
   // 检查是否需要认证
   if (to.meta.requiresAuth) {
@@ -92,7 +116,7 @@ router.beforeEach((to, _, next) => {
     }
 
     // 检查是否需要管理员权限
-    if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    if (to.meta.requiresAdmin && !userStore.isAdmin) {
       // 需要管理员权限但用户不是管理员，跳转到仪表板首页
       next('/@dashboard')
       return

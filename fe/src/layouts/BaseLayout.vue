@@ -159,7 +159,7 @@ const userStore = useUserStore()
 const systemStore = useSystemStore()
 
 // 系统信息
-const systemInfo = computed(() => systemStore.systemInfo)
+const systemInfo = systemStore.get()
 const userInfo = userStore.get()
 
 // 响应式检测
