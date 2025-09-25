@@ -106,12 +106,18 @@
       </n-layout-header>
 
       <!-- 内容区域 -->
-      <n-layout-content class="content">
+      <n-layout-content class="content" :native-scrollbar="false">
         <div class="content-wrapper">
           <router-view />
         </div>
       </n-layout-content>
     </n-layout>
+
+    <!-- 修改密码弹窗 -->
+    <ChangePasswordModal
+      v-model:show="showChangePasswordModal"
+      @success="handleChangePasswordSuccess"
+    />
   </n-layout>
 </template>
 
@@ -146,10 +152,12 @@ import {
   KeyOutline as TokenIcon,
   MenuOutline as MenuIcon,
   ServerOutline as StorageIcon,
+  PersonOutline as ProfileIcon,
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
 import { useUserStore } from '@/stores'
+import ChangePasswordModal from '@/components/profile/ChangePasswordModal.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -168,6 +176,9 @@ const mobileMenuVisible = ref(false)
 
 // 侧边栏折叠状态
 const collapsed = ref(false)
+
+// 修改密码弹窗
+const showChangePasswordModal = ref(false)
 
 // 当前激活的菜单项
 const activeKey = computed(() => route.path)
@@ -197,6 +208,11 @@ const menuOptions = computed((): MenuOption[] => {
       label: '仪表盘',
       key: '/@dashboard',
       icon: () => h(NIcon, null, { default: () => h(HomeIcon) }),
+    },
+    {
+      label: '个人资料',
+      key: '/@dashboard/profile',
+      icon: () => h(NIcon, null, { default: () => h(ProfileIcon) }),
     },
   ]
 
@@ -272,12 +288,18 @@ const handleUserMenuSelect = (key: string) => {
       router.push('/@dashboard/profile')
       break
     case 'change-password':
-      router.push('/@dashboard/change-password')
+      showChangePasswordModal.value = true
       break
     case 'logout':
       handleLogout()
       break
   }
+}
+
+// 修改密码成功回调
+const handleChangePasswordSuccess = () => {
+  // 密码修改成功后的处理，组件内部已经处理了成功提示和退出登录
+  console.log('密码修改成功')
 }
 
 // 处理退出登录
@@ -426,7 +448,7 @@ onUnmounted(() => {
 
 .content {
   padding: 24px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .content-wrapper {

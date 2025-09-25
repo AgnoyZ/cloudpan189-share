@@ -83,6 +83,15 @@ const router = createRouter({
             requiresAdmin: true,
           },
         },
+        {
+          path: 'profile',
+          name: 'Profile',
+          component: () => import('@/views/dashboard/profile/index.vue'),
+          meta: {
+            title: '个人资料',
+            requiresAuth: true,
+          },
+        },
       ],
     },
   ],
