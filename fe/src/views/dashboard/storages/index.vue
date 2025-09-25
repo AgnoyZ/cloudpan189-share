@@ -67,14 +67,32 @@
           <div class="storage-info">
             <div class="storage-title">
               <n-text strong class="storage-name">{{ storage.name || '未命名存储' }}</n-text>
-              <n-tag size="small" type="info" class="storage-id-tag"> ID: {{ storage.id }} </n-tag>
             </div>
             <n-ellipsis class="storage-path" :tooltip="{ placement: 'top' }">
               {{ storage.fullPath || '-' }}
             </n-ellipsis>
           </div>
           <div class="storage-actions">
-            <!-- 操作按钮区域，暂时留空 -->
+            <n-button size="small" quaternary circle @click="handleDelete(storage)">
+              <template #icon>
+                <n-icon :size="16">
+                  <TrashOutline />
+                </n-icon>
+              </template>
+            </n-button>
+            <n-dropdown
+              :options="getRefreshOptions(storage.id)"
+              @select="handleRefreshSelect"
+              trigger="click"
+            >
+              <n-button size="small" quaternary circle>
+                <template #icon>
+                  <n-icon :size="16">
+                    <RefreshOutline />
+                  </n-icon>
+                </template>
+              </n-button>
+            </n-dropdown>
           </div>
         </div>
 
@@ -204,6 +222,15 @@
       v-model:show="showSubscribeMountModal"
       @confirm="handleSubscribeMountConfirm"
     />
+
+    <!-- 文件分享挂载弹窗 -->
+    <ShareMountModal v-model:show="showShareMountModal" @confirm="handleShareMountConfirm" />
+
+    <!-- 个人文件夹挂载弹窗 -->
+    <PersonMountModal v-model:show="showPersonMountModal" @confirm="handlePersonMountConfirm" />
+
+    <!-- 家庭文件夹挂载弹窗 -->
+    <FamilyMountModal v-model:show="showFamilyMountModal" @confirm="handleFamilyMountConfirm" />
   </div>
 </template>
 
@@ -222,8 +249,11 @@ import {
   NEllipsis,
   NIcon,
   NModal,
+  NDropdown,
   useMessage,
+  useDialog,
   type PaginationProps,
+  type DropdownOption,
 } from 'naive-ui'
 import {
   SearchOutline,
@@ -233,12 +263,18 @@ import {
   TimeOutline,
   ServerOutline,
   AddOutline,
+  TrashOutline,
 } from '@vicons/ionicons5'
-import { getStorageList } from '@/api/storage'
+import { getStorageList, refreshStorage, deleteStorage } from '@/api/storage'
 import type { StorageInfo } from '@/api/storage'
 import { formatDateTime } from '@/utils/time'
 import { getOsTypeDisplayName, getOsTypeColor, mountTypeConfigs } from '@/utils/osType'
-import { SubscribeMountModal } from '@/components/storage'
+import {
+  SubscribeMountModal,
+  ShareMountModal,
+  PersonMountModal,
+  FamilyMountModal,
+} from '@/components/storage'
 
 // 表格数据
 const tableData = ref<StorageInfo[]>([])
@@ -248,9 +284,13 @@ const searchKeyword = ref('')
 // 弹窗控制
 const showAddModal = ref(false)
 const showSubscribeMountModal = ref(false)
+const showShareMountModal = ref(false)
+const showPersonMountModal = ref(false)
+const showFamilyMountModal = ref(false)
 
-// 消息提示
+// 消息提示和对话框
 const message = useMessage()
+const dialog = useDialog()
 
 // 分页配置
 const paginationReactive = reactive<PaginationProps>({
@@ -331,6 +371,15 @@ const handleSelectMountType = (mountType: string) => {
   if (mountType === 'subscribe') {
     // 打开订阅号挂载弹窗
     showSubscribeMountModal.value = true
+  } else if (mountType === 'share_folder') {
+    // 打开文件分享挂载弹窗
+    showShareMountModal.value = true
+  } else if (mountType === 'person_folder') {
+    // 打开个人文件夹挂载弹窗
+    showPersonMountModal.value = true
+  } else if (mountType === 'family_folder') {
+    // 打开家庭文件夹挂载弹窗
+    showFamilyMountModal.value = true
   } else {
     // 其他类型暂时显示提示
     message.info(
@@ -353,6 +402,133 @@ const handleSubscribeMountConfirm = (data: unknown) => {
   }
 }
 
+// 处理文件分享挂载确认
+const handleShareMountConfirm = (data: unknown) => {
+  console.log('文件分享挂载数据:', data)
+
+  // 检查是否是成功回调
+  if (typeof data === 'object' && data !== null && 'success' in data) {
+    message.success('挂载点创建成功')
+    // 刷新列表
+    fetchStorageList()
+  } else {
+    console.log('其他类型的回调数据:', data)
+  }
+}
+
+// 处理个人文件夹挂载确认
+const handlePersonMountConfirm = (data: unknown) => {
+  console.log('个人文件夹挂载数据:', data)
+
+  // 检查是否是成功回调
+  if (typeof data === 'object' && data !== null && 'success' in data) {
+    message.success('挂载点创建成功')
+    // 刷新列表
+    fetchStorageList()
+  } else {
+    console.log('其他类型的回调数据:', data)
+  }
+}
+
+// 处理家庭文件夹挂载确认
+const handleFamilyMountConfirm = (data: unknown) => {
+  console.log('家庭文件夹挂载数据:', data)
+
+  // 检查是否是成功回调
+  if (typeof data === 'object' && data !== null && 'success' in data) {
+    message.success('挂载点创建成功')
+    // 刷新列表
+    fetchStorageList()
+  } else {
+    console.log('其他类型的回调数据:', data)
+  }
+}
+
+// 获取刷新选项
+const getRefreshOptions = (storageId: number): DropdownOption[] => {
+  return [
+    {
+      label: '普通刷新',
+      key: `normal-${storageId}`,
+      props: {
+        onClick: () => handleRefresh(storageId, false),
+      },
+    },
+    {
+      label: '深度刷新',
+      key: `deep-${storageId}`,
+      props: {
+        onClick: () => handleRefresh(storageId, true),
+      },
+    },
+  ]
+}
+
+// 处理刷新选择
+const handleRefreshSelect = (key: string) => {
+  // 这个函数实际上不会被调用，因为我们使用了 props.onClick
+  console.log('刷新选择:', key)
+}
+
+// 处理刷新
+const handleRefresh = (storageId: number, deep: boolean) => {
+  const storage = tableData.value.find((s) => s.id === storageId)
+  const refreshType = deep ? '深度刷新' : '普通刷新'
+
+  message.loading(`正在执行${refreshType}...`)
+
+  refreshStorage({ id: storageId, deep })
+    .then((response) => {
+      if (response.code === 200) {
+        message.success(`${storage?.name || '存储'} ${refreshType}成功`)
+        // 刷新列表
+        fetchStorageList()
+      } else {
+        message.error(
+          `${refreshType}失败: ${(response as { message?: string }).message || '未知错误'}`
+        )
+      }
+    })
+    .catch((error) => {
+      console.error('刷新存储失败:', error)
+      message.error(`刷新失败: ${error instanceof Error ? error.message : '网络错误'}`)
+    })
+    .finally(() => {
+      // 可以在这里添加清理逻辑
+    })
+}
+
+// 处理删除
+const handleDelete = (storage: StorageInfo) => {
+  dialog.warning({
+    title: '确认删除',
+    content: `确定要删除存储挂载点 "${storage.name || '未命名存储'}" 吗？此操作不可撤销。`,
+    positiveText: '确认删除',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      message.loading(`正在删除 ${storage.name || '存储'}...`)
+
+      deleteStorage({ id: storage.id })
+        .then((response) => {
+          if (response.code === 200) {
+            message.success(`${storage.name || '存储'} 删除成功`)
+            // 刷新列表
+            fetchStorageList()
+          } else {
+            message.error(`删除失败: ${(response as { message?: string }).message || '未知错误'}`)
+          }
+        })
+        .catch((error) => {
+          console.error('删除存储失败:', error)
+          message.error(`删除失败: ${error instanceof Error ? error.message : '网络错误'}`)
+        })
+        .finally(() => {
+          // 可以在这里添加清理逻辑
+        })
+    },
+  })
+}
+
 // 初始化
 onMounted(() => {
   console.log('页面挂载，开始获取数据')
@@ -361,11 +537,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 页面整体样式 */
 .storages-page {
-  padding: 0;
+  padding: 24px;
   background: var(--n-color-target);
+  min-height: 100vh;
 }
 
+/* 头部搜索区域 */
 .header {
   margin-bottom: 24px;
   display: flex;
@@ -373,13 +552,19 @@ onMounted(() => {
   align-items: center;
   padding: 20px;
   background: var(--n-card-color);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+  border: 1px solid var(--n-border-color);
 }
 
 .header-left {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.header-right {
+  flex-shrink: 0;
 }
 
 /* 加载状态 */
@@ -387,28 +572,29 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 300px;
+  min-height: 400px;
   background: var(--n-card-color);
-  border-radius: 8px;
-  margin: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--n-border-color);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 }
 
-/* 卡片网格布局 */
+/* 存储卡片网格布局 */
 .storage-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
-  padding: 0 20px;
   margin-bottom: 24px;
 }
 
-/* 卡片样式 */
+/* 单个存储卡片样式 */
 .storage-card {
   background: var(--n-card-color);
   border-radius: 12px;
   border: 1px solid var(--n-border-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
 }
 
 .storage-card:hover {
@@ -423,10 +609,12 @@ onMounted(() => {
   justify-content: space-between;
   align-items: flex-start;
   padding: 0;
+  margin-bottom: 0;
 }
 
 .storage-info {
   flex: 1;
+  min-width: 0; /* 确保flex子项可以收缩 */
 }
 
 .storage-title {
@@ -441,23 +629,52 @@ onMounted(() => {
   font-weight: 600;
   color: var(--n-text-color);
   line-height: 1.4;
-}
 
-.storage-id-tag {
-  font-size: 11px;
-  font-weight: 500;
+  /* 单行显示，超出省略号 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* 确保为操作按钮留出空间 */
+  max-width: calc(100% - 80px);
 }
 
 .storage-path {
   font-size: 13px;
   color: var(--n-text-color-2);
   line-height: 1.4;
-  max-width: 100%;
+
+  /* 最多两行显示，超出省略号 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 }
 
 .storage-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+.storage-actions .n-button {
+  background-color: var(--n-color-target);
+  border: 1px solid var(--n-border-color);
+  transition: all 0.3s ease;
+  width: 32px;
+  height: 32px;
+}
+
+.storage-actions .n-button:hover {
+  border-color: var(--n-primary-color);
+  transform: scale(1.1);
+}
+
+.storage-actions .n-button:hover .n-icon {
+  color: var(--n-primary-color);
 }
 
 /* 卡片内容 */
@@ -492,6 +709,7 @@ onMounted(() => {
 
 .info-icon {
   color: var(--n-text-color-3);
+  flex-shrink: 0;
 }
 
 .info-value {
@@ -522,9 +740,10 @@ onMounted(() => {
   font-size: 12px;
   color: var(--n-text-color-3);
   background: var(--n-color-target);
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-weight: 500;
+  border: 1px solid var(--n-border-color);
 }
 
 /* 空状态 */
@@ -533,7 +752,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 300px;
+  min-height: 400px;
   background: var(--n-card-color);
   border-radius: 12px;
   border: 2px dashed var(--n-border-color);
@@ -543,11 +762,11 @@ onMounted(() => {
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin: 24px 20px;
   padding: 20px;
   background: var(--n-card-color);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+  border: 1px solid var(--n-border-color);
 }
 
 /* 响应式设计 */
@@ -566,37 +785,50 @@ onMounted(() => {
 }
 
 @media (width <= 768px) {
+  .storages-page {
+    padding: 16px;
+  }
+
   .storage-cards {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 14px;
-    padding: 0 16px;
   }
 
   .header {
-    margin: 0 16px 20px;
     padding: 16px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
   }
 
-  .pagination-container {
-    margin: 20px 16px;
-    padding: 16px;
+  .header-left {
+    justify-content: center;
+  }
+
+  .header-right {
+    align-self: center;
+  }
+
+  .storage-name {
+    max-width: calc(100% - 70px);
   }
 }
 
 @media (width <= 480px) {
+  .storages-page {
+    padding: 12px;
+  }
+
   .storage-cards {
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 0 12px;
   }
 
   .header {
-    margin: 0 12px 16px;
     padding: 12px;
   }
 
   .pagination-container {
-    margin: 16px 12px;
     padding: 12px;
   }
 
@@ -607,6 +839,19 @@ onMounted(() => {
 
   .info-item.full-width {
     grid-column: 1;
+  }
+
+  .storage-name {
+    max-width: calc(100% - 60px);
+  }
+
+  .storage-actions {
+    gap: 4px;
+  }
+
+  .storage-actions .n-button {
+    width: 28px;
+    height: 28px;
   }
 }
 
@@ -670,7 +915,7 @@ onMounted(() => {
   line-height: 1.4;
 }
 
-/* 弹窗响应式设计 - 保持一行一个的风格 */
+/* 弹窗响应式设计 */
 @media (width >= 768px) {
   .mount-type-grid {
     gap: 16px;

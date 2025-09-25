@@ -187,31 +187,34 @@ watch(
 )
 
 // 搜索文件
-const handleSearch = async () => {
+const handleSearch = () => {
   if (!visible.value) return
 
   loading.value = true
-  try {
-    const params: FileSearchQuery = {
-      keyword: searchKeyword.value || undefined,
-      global: true,
-      pageSize: pagination.value.pageSize,
-      currentPage: pagination.value.page,
-    }
 
-    const response = await searchFiles(params)
-    if (response.code === 200 && response.data) {
-      fileList.value = response.data.data
-      pagination.value.itemCount = response.data.total
-    } else {
-      message.error(response.msg || '搜索文件失败')
-    }
-  } catch (error) {
-    console.error('搜索文件失败:', error)
-    message.error('搜索文件失败')
-  } finally {
-    loading.value = false
+  const params: FileSearchQuery = {
+    keyword: searchKeyword.value || undefined,
+    global: true,
+    pageSize: pagination.value.pageSize,
+    currentPage: pagination.value.page,
   }
+
+  return searchFiles(params)
+    .then((response) => {
+      if (response.code === 200 && response.data) {
+        fileList.value = response.data.data
+        pagination.value.itemCount = response.data.total
+      } else {
+        message.error(response.msg || '搜索文件失败')
+      }
+    })
+    .catch((error) => {
+      console.error('搜索文件失败:', error)
+      message.error('搜索文件失败')
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 // 处理选择变化
@@ -253,32 +256,34 @@ const handleCancel = () => {
 }
 
 // 确认绑定
-const handleConfirm = async () => {
+const handleConfirm = () => {
   if (!props.groupId || selectedFileIds.value.length === 0) {
     message.warning('请选择要绑定的文件')
     return
   }
 
   submitting.value = true
-  try {
-    const response = await batchBindFiles({
-      groupId: props.groupId,
-      fileIds: selectedFileIds.value,
-    })
 
-    if (response.code === 200) {
-      message.success('文件绑定成功')
-      visible.value = false
-      emit('success')
-    } else {
-      message.error(response.msg || '文件绑定失败')
-    }
-  } catch (error) {
-    console.error('文件绑定失败:', error)
-    message.error('文件绑定失败')
-  } finally {
-    submitting.value = false
-  }
+  return batchBindFiles({
+    groupId: props.groupId,
+    fileIds: selectedFileIds.value,
+  })
+    .then((response) => {
+      if (response.code === 200) {
+        message.success('文件绑定成功')
+        visible.value = false
+        emit('success')
+      } else {
+        message.error(response.msg || '文件绑定失败')
+      }
+    })
+    .catch((error) => {
+      console.error('文件绑定失败:', error)
+      message.error('文件绑定失败')
+    })
+    .finally(() => {
+      submitting.value = false
+    })
 }
 </script>
 

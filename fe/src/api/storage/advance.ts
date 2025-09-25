@@ -74,6 +74,22 @@ export interface GetSubscribeUserResponse extends Models.PaginationResponse<Shar
   name: string // 订阅用户名
 }
 
+// 分享信息接口
+export interface ShareInfo {
+  id: string
+  name: string
+  shareId: number
+  shareTime: string
+  isFolder: boolean
+  accessCode: string
+}
+
+// 获取分享信息查询参数
+export interface GetShareInfoQuery {
+  shareCode: string // 分享码
+  shareAccessCode?: string // 分享访问码（可选）
+}
+
 // 获取家庭云列表查询参数
 export interface GetFamilyListQuery {
   cloudToken: number // 云盘令牌ID
@@ -107,4 +123,9 @@ export const getSubscribeUser = (
   params: GetSubscribeUserQuery
 ): Promise<ApiResponse<GetSubscribeUserResponse>> => {
   return api.get('/storage/advance/get_subscribe_user', { params }).then((res) => res.data)
+}
+
+// 获取分享信息
+export const getShareInfo = (params: GetShareInfoQuery): Promise<ApiResponse<ShareInfo>> => {
+  return api.get('/storage/advance/share_info', { params }).then((res) => res.data)
 }

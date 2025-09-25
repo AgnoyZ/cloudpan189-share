@@ -39,8 +39,8 @@ export const mountTypeConfigs = [
   // },
   {
     value: OS_TYPES.SHARE_FOLDER,
-    label: '分享文件夹',
-    description: '挂载天翼云盘分享的文件夹',
+    label: '文件分享',
+    description: '挂载天翼云盘文件分享',
     icon: FolderOutline,
     color: '#f57c00',
   },

@@ -237,15 +237,16 @@ const initTableData = () => {
 }
 
 // 获取云盘令牌列表
-const fetchCloudTokens = async () => {
-  try {
-    const response = await getCloudTokenList({ currentPage: 1, pageSize: 100 })
-    if (response.code === 200 && response.data) {
-      state.cloudTokens = response.data.data || []
-    }
-  } catch (error) {
-    console.error('获取云盘令牌列表失败:', error)
-  }
+const fetchCloudTokens = () => {
+  return getCloudTokenList({ currentPage: 1, pageSize: 100 })
+    .then((response) => {
+      if (response.code === 200 && response.data) {
+        state.cloudTokens = response.data.data || []
+      }
+    })
+    .catch((error) => {
+      console.error('获取云盘令牌列表失败:', error)
+    })
 }
 
 // 批量应用令牌
@@ -325,7 +326,7 @@ const handleMountResults = (responses: ApiResponse<AddStorageResponse>[]) => {
 }
 
 // 确认挂载
-const handleConfirm = async () => {
+const handleConfirm = () => {
   // 验证数据
   if (hasInvalidRows.value) {
     message.warning('请填写所有挂载路径')
@@ -334,20 +335,21 @@ const handleConfirm = async () => {
 
   state.submitLoading = true
 
-  try {
-    // 构建请求数据
-    const requests = buildRequests()
+  // 构建请求数据
+  const requests = buildRequests()
 
-    // 批量添加存储挂载
-    const responses = await Promise.all(requests.map((request) => addStorage(request)))
-
-    handleMountResults(responses)
-  } catch (error) {
-    console.error('批量挂载失败:', error)
-    message.error('批量挂载失败')
-  } finally {
-    state.submitLoading = false
-  }
+  // 批量添加存储挂载
+  return Promise.all(requests.map((request) => addStorage(request)))
+    .then((responses) => {
+      handleMountResults(responses)
+    })
+    .catch((error) => {
+      console.error('批量挂载失败:', error)
+      message.error('批量挂载失败')
+    })
+    .finally(() => {
+      state.submitLoading = false
+    })
 }
 
 // 重置状态

@@ -361,7 +361,7 @@ const handleApiResponse = (
 }
 
 // 搜索用户资源
-const handleSearchUser = async () => {
+const handleSearchUser = () => {
   if (!isValidSubscribeUserId.value) {
     message.warning('请输入订阅用户ID')
     return
@@ -369,20 +369,21 @@ const handleSearchUser = async () => {
 
   searchState.loading = true
 
-  try {
-    const response = await getSubscribeUser({
-      subscribeUser: searchState.subscribeUserId.trim(),
-      currentPage: PAGINATION_CONFIG.DEFAULT_PAGE,
-      pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
+  return getSubscribeUser({
+    subscribeUser: searchState.subscribeUserId.trim(),
+    currentPage: PAGINATION_CONFIG.DEFAULT_PAGE,
+    pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
+  })
+    .then((response) => {
+      handleApiResponse(response, true)
     })
-
-    handleApiResponse(response, true)
-  } catch (error) {
-    console.error('搜索用户资源失败:', error)
-    message.error('搜索用户资源失败')
-  } finally {
-    searchState.loading = false
-  }
+    .catch((error) => {
+      console.error('搜索用户资源失败:', error)
+      message.error('搜索用户资源失败')
+    })
+    .finally(() => {
+      searchState.loading = false
+    })
 }
 
 // 搜索资源
@@ -399,26 +400,27 @@ const handleResetResourceSearch = () => {
 }
 
 // 获取资源列表
-const fetchResourceList = async () => {
+const fetchResourceList = () => {
   if (!isValidSubscribeUserId.value) return
 
   resourceState.loading = true
 
-  try {
-    const response = await getSubscribeUser({
-      subscribeUser: searchState.subscribeUserId.trim(),
-      name: resourceState.searchKeyword || undefined,
-      currentPage: resourcePagination.page,
-      pageSize: resourcePagination.pageSize,
+  return getSubscribeUser({
+    subscribeUser: searchState.subscribeUserId.trim(),
+    name: resourceState.searchKeyword || undefined,
+    currentPage: resourcePagination.page,
+    pageSize: resourcePagination.pageSize,
+  })
+    .then((response) => {
+      handleApiResponse(response)
     })
-
-    handleApiResponse(response)
-  } catch (error) {
-    console.error('获取资源列表失败:', error)
-    message.error('获取资源列表失败')
-  } finally {
-    resourceState.loading = false
-  }
+    .catch((error) => {
+      console.error('获取资源列表失败:', error)
+      message.error('获取资源列表失败')
+    })
+    .finally(() => {
+      resourceState.loading = false
+    })
 }
 
 // 分页处理
