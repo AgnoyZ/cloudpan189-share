@@ -12,6 +12,7 @@ type Handler interface {
 	GetFamilyFiles() httpcontext.HandlerFunc
 	GetPersonFiles() httpcontext.HandlerFunc
 	GetSubscribeUser() httpcontext.HandlerFunc
+	GetShareInfo() httpcontext.HandlerFunc
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeStorageAdvanceStartCode)
@@ -21,6 +22,7 @@ var (
 	codeStorageAdvanceQueryPathFailed             = bi.Next("查询路径失败")
 	codeStorageAdvanceQuerySubscribeUserError     = bi.Next("查询订阅信息失败")
 	codeStorageAdvanceQuerySubscribeUserListError = bi.Next("查询订阅用户列表失败")
+	codeStorageAdvanceGetShareInfoError           = bi.Next("获取分享详情失败")
 )
 
 type handler struct {

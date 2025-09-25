@@ -1274,6 +1274,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/storage/advance/share_info": {
+            "get": {
+                "description": "根据分享码获取分享的详细信息，包括文件名、是否为文件夹、分享时间等",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储高级功能"
+                ],
+                "summary": "获取分享信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"abc123\"",
+                        "description": "分享码",
+                        "name": "shareCode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"1234\"",
+                        "description": "分享访问码",
+                        "name": "shareAccessCode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取分享信息成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取分享详情失败，code=8005",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/storage/cloud/family/files": {
             "get": {
                 "description": "根据云盘令牌和家庭云ID获取家庭云文件列表，支持分页查询",
@@ -3370,6 +3447,29 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareInfo": {
+            "type": "object",
+            "properties": {
+                "accessCode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isFolder": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shareId": {
+                    "type": "integer"
+                },
+                "shareTime": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareResourceInfo": {
             "type": "object",
             "properties": {
@@ -4544,7 +4644,6 @@ const docTemplate = `{
         },
         "time.Duration": {
             "type": "integer",
-            "format": "int64",
             "enum": [
                 -9223372036854775808,
                 9223372036854775807,

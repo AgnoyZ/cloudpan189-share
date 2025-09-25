@@ -131,6 +131,7 @@ func Start(svc bootstrap.ServiceContext) error {
 			storageAdvanceRouter.GET("/family/files", wrap(storageAdvanceHandler.GetFamilyFiles()))
 			storageAdvanceRouter.GET("/family/list", wrap(storageAdvanceHandler.FamilyList()))
 			storageAdvanceRouter.GET("/get_subscribe_user", wrap(storageAdvanceHandler.GetSubscribeUser()))
+			storageAdvanceRouter.GET("/share_info", wrap(storageAdvanceHandler.GetShareInfo()))
 		}
 	}
 
