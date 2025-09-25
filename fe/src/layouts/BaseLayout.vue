@@ -149,7 +149,7 @@ import {
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
-import { useUserStore } from '@/stores/modules/user'
+import { useUserStore } from '@/stores'
 
 const router = useRouter()
 const route = useRoute()

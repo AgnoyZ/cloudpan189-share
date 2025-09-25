@@ -60,8 +60,7 @@
 
 <script setup lang="ts">
 import { NGrid, NGridItem, NCard, NDescriptions, NDescriptionsItem, NTag, NText } from 'naive-ui'
-import { useUserStore } from '@/stores/modules/user'
-import { useSystemStore } from '@/stores'
+import { useSystemStore, useUserStore } from '@/stores'
 
 const userStore = useUserStore()
 const systemStore = useSystemStore()

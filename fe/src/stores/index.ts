@@ -7,6 +7,7 @@ export const pinia = createPinia()
 export { useAuthStore } from './modules/auth'
 export { useSystemStore } from './modules/system'
 export { useThemeStore } from './modules/theme'
+export { useUserStore } from './modules/user'
 
 // 默认导出 pinia 实例
 export default pinia
