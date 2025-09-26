@@ -541,7 +541,7 @@ onMounted(() => {
 .storages-page {
   padding: 24px;
   background: var(--n-color-target);
-  min-height: 100vh;
+  flex: 1;
 }
 
 /* 头部搜索区域 */
@@ -614,7 +614,9 @@ onMounted(() => {
 
 .storage-info {
   flex: 1;
-  min-width: 0; /* 确保flex子项可以收缩 */
+  min-width: 0;
+
+  /* 确保flex子项可以收缩 */
 }
 
 .storage-title {
@@ -646,7 +648,6 @@ onMounted(() => {
 
   /* 最多两行显示，超出省略号 */
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -770,21 +771,21 @@ onMounted(() => {
 }
 
 /* 响应式设计 */
-@media (width <= 1400px) {
+@media (width <=1400px) {
   .storage-cards {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 18px;
   }
 }
 
-@media (width <= 1200px) {
+@media (width <=1200px) {
   .storage-cards {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
   }
 }
 
-@media (width <= 768px) {
+@media (width <=768px) {
   .storages-page {
     padding: 16px;
   }
@@ -807,6 +808,9 @@ onMounted(() => {
 
   .header-right {
     align-self: center;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .storage-name {
@@ -814,7 +818,7 @@ onMounted(() => {
   }
 }
 
-@media (width <= 480px) {
+@media (width <=480px) {
   .storages-page {
     padding: 12px;
   }
@@ -916,7 +920,7 @@ onMounted(() => {
 }
 
 /* 弹窗响应式设计 */
-@media (width >= 768px) {
+@media (width >=768px) {
   .mount-type-grid {
     gap: 16px;
   }

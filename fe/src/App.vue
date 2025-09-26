@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider :theme="theme">
+  <n-config-provider :theme="theme" :theme-overrides="themeOverrides">
     <n-global-style />
     <n-message-provider>
       <n-notification-provider>
@@ -13,15 +13,16 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { darkTheme } from 'naive-ui'
 import { useThemeStore, useSystemStore, useUserStore } from '@/stores'
+import { createTheme, createThemeOverrides } from '@/theme'
 import router from './router'
 
 const themeStore = useThemeStore()
 const systemStore = useSystemStore()
 const userStore = useUserStore()
 
-const theme = computed(() => (themeStore.isDark ? darkTheme : null))
+const theme = computed(() => createTheme(themeStore.isDark))
+const themeOverrides = computed(() => createThemeOverrides(themeStore.isDark))
 
 // 应用启动时初始化主题和启动系统信息自动刷新
 onMounted(() => {

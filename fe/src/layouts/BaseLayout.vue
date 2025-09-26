@@ -55,7 +55,7 @@
     </n-drawer>
 
     <!-- 主内容区域 -->
-    <n-layout>
+    <n-layout style="flex: 1; display: flex; flex-direction: column">
       <!-- 顶部导航栏 -->
       <n-layout-header bordered class="header">
         <div class="header-content">
@@ -63,7 +63,7 @@
             <!-- 移动端菜单按钮 -->
             <n-button
               v-if="isMobile"
-              quaternary
+              text
               circle
               class="mobile-menu-btn"
               @click="mobileMenuVisible = true"
@@ -327,6 +327,8 @@ onUnmounted(() => {
 <style scoped>
 .base-layout {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
@@ -387,6 +389,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--n-color);
 }
 
 .header-content {
@@ -411,6 +417,23 @@ onUnmounted(() => {
 
 .mobile-menu-btn {
   margin-right: 8px;
+  color: var(--n-text-color-1) !important;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+  background-color: var(--n-hover-color) !important;
+  color: var(--n-primary-color) !important;
+}
+
+.mobile-menu-btn:active {
+  background-color: var(--n-pressed-color) !important;
+  color: var(--n-primary-color-pressed) !important;
+}
+
+/* 确保图标在所有主题下都有足够的对比度 */
+.mobile-menu-btn .n-icon {
+  color: inherit;
 }
 
 .mobile-title {
@@ -448,12 +471,15 @@ onUnmounted(() => {
 
 .content {
   padding: 24px;
-  overflow: hidden;
+  overflow: auto;
+  flex: 1; /* 自动占用剩余空间 */
+  height: calc(100vh - 64px); /* 减去header高度 */
 }
 
 .content-wrapper {
   max-width: 1200px;
   margin: 0 auto;
+  min-height: 100%;
 }
 
 /* 响应式设计 */
@@ -483,6 +509,7 @@ onUnmounted(() => {
   .content {
     padding: 16px;
     padding-bottom: env(safe-area-inset-bottom, 16px);
+    height: calc(100vh - 56px); /* 移动端减去header高度 */
 
     /* 适配刘海屏底部安全区域 */
   }
@@ -549,6 +576,7 @@ onUnmounted(() => {
 
   .content {
     padding: 12px 16px;
+    height: calc(100vh - 48px); /* 横屏模式减去header高度 */
   }
 }
 </style>
