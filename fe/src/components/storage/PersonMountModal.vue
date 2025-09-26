@@ -183,6 +183,7 @@
   <MountPointBindModal
     v-model:show="mountBindState.show"
     :items="mountBindState.items"
+    :default-cloud-token="tokenState.selectedTokenId || undefined"
     @success="handleMountBindSuccess"
   />
 </template>
@@ -273,6 +274,7 @@ const mountBindState = reactive({
     name: string
     osType: string
     cloudToken: number
+    disableSwitchCloudToken: boolean
     fileId: string
   }>,
 })
@@ -539,6 +541,7 @@ const handleConfirm = () => {
       name: fileState.selectedFile.name,
       osType: OS_TYPES.PERSON_FOLDER,
       cloudToken: tokenState.selectedTokenId,
+      disableSwitchCloudToken: true, // 个人文件夹禁止修改令牌
       fileId: fileState.selectedFile.id,
     },
   ]

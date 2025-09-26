@@ -49,7 +49,7 @@ export const mountTypeConfigs = [
     label: '个人文件夹',
     description: '挂载个人天翼云盘文件夹',
     icon: PersonOutline,
-    color: '#388e3c',
+    color: '#1976d2',
   },
   {
     value: OS_TYPES.FAMILY_FOLDER,
@@ -90,7 +90,7 @@ export const getOsTypeColor = (osType: string) => {
     subscribe: { color: '#e3f2fd', textColor: '#1976d2' }, // 蓝色系
     subscribe_share_folder: { color: '#f3e5f5', textColor: '#7b1fa2' }, // 紫色系
     share_folder: { color: '#fff3e0', textColor: '#f57c00' }, // 橙色系
-    person_folder: { color: '#e8f5e8', textColor: '#388e3c' }, // 绿色系
+    person_folder: { color: '#e3f2fd', textColor: '#1976d2' }, // 蓝色系
     family_folder: { color: '#fce4ec', textColor: '#c2185b' }, // 粉色系
   }
   return colorMap[osType] || { color: '#f5f5f5', textColor: '#666666' }

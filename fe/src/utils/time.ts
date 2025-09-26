@@ -2,6 +2,8 @@
  * 时间相关工具函数
  */
 
+import dayjs from 'dayjs'
+
 /**
  * 格式化剩余时间
  * @param expiresIn 过期时间戳（毫秒）
@@ -39,5 +41,5 @@ export const formatRemainingTime = (expiresIn: number | null | undefined): strin
  * @returns 格式化后的时间字符串
  */
 export const formatDateTime = (timestamp: number | string): string => {
-  return new Date(timestamp).toLocaleString('zh-CN')
+  return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')
 }

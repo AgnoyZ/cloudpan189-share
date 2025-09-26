@@ -13,19 +13,20 @@
       <!-- 批量操作区域 -->
       <div class="batch-actions">
         <div class="batch-operations">
-          <div class="batch-token-select">
+          <div class="batch-token-select" v-if="!allTokenSwitchDisabled">
             <n-text depth="2" style="margin-right: 8px">批量设置令牌：</n-text>
             <n-select
               v-model:value="batchState.selectedToken"
               :options="cloudTokenOptions"
               placeholder="选择要批量应用的令牌"
               clearable
+              :disabled="allTokenSwitchDisabled"
               style="width: 180px; margin-right: 8px"
             />
             <n-button
               type="primary"
               size="small"
-              :disabled="batchState.selectedToken === undefined"
+              :disabled="batchState.selectedToken === undefined || allTokenSwitchDisabled"
               @click="handleBatchApplyToken"
             >
               一键应用
@@ -101,6 +102,7 @@ interface MountItem {
   shareCode?: string
   shareAccessCode?: string
   cloudToken?: number
+  disableSwitchCloudToken?: boolean
   fileId?: string
   familyId?: string
 }
@@ -165,6 +167,11 @@ const hasValidPathPrefix = computed(
 
 const hasInvalidRows = computed(() => tableData.value.some((row) => !row.localPath.trim()))
 
+// 检查是否所有项目都禁用令牌切换
+const allTokenSwitchDisabled = computed(
+  () => tableData.value.length > 0 && tableData.value.every((row) => row.disableSwitchCloudToken)
+)
+
 // 表格列定义
 const columns: DataTableColumns<TableRow> = [
   {
@@ -215,6 +222,7 @@ const columns: DataTableColumns<TableRow> = [
         options: cloudTokenOptions.value,
         placeholder: '选择云盘令牌',
         clearable: true,
+        disabled: row.disableSwitchCloudToken,
         onUpdateValue: (value: number | undefined) => {
           tableData.value[index].selectedCloudToken = value
         },
@@ -256,12 +264,29 @@ const handleBatchApplyToken = () => {
     return
   }
 
-  // 将选中的令牌应用到所有行
+  if (allTokenSwitchDisabled.value) {
+    message.warning('所有项目都禁止修改令牌')
+    return
+  }
+
+  // 将选中的令牌应用到所有未禁用的行
+  let appliedCount = 0
+  let skippedCount = 0
+
   tableData.value.forEach((row) => {
-    row.selectedCloudToken = batchState.selectedToken
+    if (!row.disableSwitchCloudToken) {
+      row.selectedCloudToken = batchState.selectedToken
+      appliedCount++
+    } else {
+      skippedCount++
+    }
   })
 
-  message.success('已批量应用令牌设置')
+  if (skippedCount > 0) {
+    message.success(`已批量应用令牌设置到 ${appliedCount} 个项目，跳过 ${skippedCount} 个禁用项目`)
+  } else {
+    message.success('已批量应用令牌设置')
+  }
 }
 
 // 批量应用路径前缀
@@ -411,6 +436,16 @@ watch(
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.batch-token-warning {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--n-warning-color-suppl);
+  border: 1px solid var(--n-warning-color);
+  border-radius: 4px;
+  margin-top: 8px;
 }
 
 .table-container {

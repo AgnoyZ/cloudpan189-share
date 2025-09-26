@@ -91,6 +91,9 @@ declare namespace Models {
     enableAutoRefresh: boolean
     refreshInterval: number
     enableDeepRefresh: boolean
+    autoRefreshBeginAt: string
+    autoRefreshDays: number
+    isInAutoRefreshPeriod: boolean // 是否在自动刷新时间范围内
     lastState: string
     createdAt: string
     updatedAt: string

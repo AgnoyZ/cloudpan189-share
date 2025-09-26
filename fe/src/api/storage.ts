@@ -35,6 +35,16 @@ export interface RefreshStorageRequest {
   deep?: boolean // 深度刷新
 }
 
+// 切换自动刷新配置请求接口
+export interface ToggleAutoRefreshRequest {
+  id: number // 挂载点ID
+  enableAutoRefresh: boolean // 是否启用自动刷新
+  autoRefreshDays?: number // 自动刷新持续天数，单位天，最小值1，最大值365
+  refreshInterval?: number // 刷新间隔，单位分钟，最小值30，最大值1440
+  refreshBeginAt?: string // 自动刷新开始时间，格式：yyyy-MM-dd，默认为当前时间
+  enableDeepRefresh?: boolean // 是否启用深度刷新
+}
+
 // 存储挂载列表查询参数
 export interface StorageListQuery {
   currentPage?: number // 当前页码，默认为1
@@ -70,4 +80,9 @@ export const getStorageList = (
 // 刷新存储挂载
 export const refreshStorage = (data: RefreshStorageRequest): Promise<ApiResponse> => {
   return api.post('/storage/refresh', data).then((res) => res.data)
+}
+
+// 切换自动刷新配置
+export const toggleAutoRefresh = (data: ToggleAutoRefreshRequest): Promise<ApiResponse> => {
+  return api.post('/storage/toggle_auto_refresh', data).then((res) => res.data)
 }
