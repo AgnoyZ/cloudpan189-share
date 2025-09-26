@@ -611,6 +611,10 @@ definitions:
     type: object
   internal_handler_http_storage.storageDTO:
     properties:
+      autoRefreshBeginAt:
+        type: string
+      autoRefreshDays:
+        type: integer
       createdAt:
         type: string
       enableAutoRefresh:
@@ -623,6 +627,9 @@ definitions:
         type: string
       id:
         type: integer
+      isInAutoRefreshPeriod:
+        description: 是否在自动刷新时间范围内
+        type: boolean
       lastState:
         type: string
       name:
@@ -642,6 +649,40 @@ definitions:
         type: string
       updatedAt:
         type: string
+    type: object
+  internal_handler_http_storage.toggleAutoRefreshRequest:
+    properties:
+      autoRefreshDays:
+        description: 自动刷新持续天数，单位天，最小值1，最大值365
+        example: 7
+        maximum: 365
+        minimum: 1
+        type: integer
+      enableAutoRefresh:
+        description: 是否启用自动刷新
+        example: true
+        type: boolean
+      enableDeepRefresh:
+        description: 是否启用深度刷新
+        example: false
+        type: boolean
+      id:
+        description: 挂载点ID
+        example: 1
+        type: integer
+      refreshBeginAt:
+        description: 自动刷新开始时间，格式：yyyy-MM-dd HH:mm:ss，默认为当前时间
+        example: "2023-01-01"
+        type: string
+      refreshInterval:
+        description: 刷新间隔，单位分钟，最小值30，最大值1440
+        example: 30
+        maximum: 1440
+        minimum: 30
+        type: integer
+    required:
+    - enableAutoRefresh
+    - id
     type: object
   internal_handler_http_storage_advance.getFamilyFilesResponse:
     properties:
@@ -2271,6 +2312,45 @@ paths:
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
       summary: 刷新存储挂载
+      tags:
+      - 存储管理
+  /api/storage/toggle_auto_refresh:
+    post:
+      consumes:
+      - application/json
+      description: 启用或禁用存储挂载点的自动刷新功能，并可配置相关参数
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 自动刷新配置信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_storage.toggleAutoRefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 自动刷新配置更新成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 更新自动刷新开始时间失败，code=4029
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 切换自动刷新配置
       tags:
       - 存储管理
   /api/task_state/file_log/list:

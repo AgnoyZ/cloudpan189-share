@@ -9,7 +9,6 @@ import (
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
-	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/ptr"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
 	"github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
@@ -86,10 +85,7 @@ func (s *RefreshFileScheduler) doJob() bool {
 
 		return false
 	case <-time.After(time.Minute):
-		mountPoints, err := s.mountPointService.List(ctx, &mountpoint.ListRequest{
-			NoPaginate:        true,
-			EnableAutoRefresh: ptr.Of(true),
-		})
+		mountPoints, err := s.mountPointService.GetAutoRefreshList(ctx, &mountpoint.GetAutoRefreshListRequest{})
 		if err != nil {
 			ctx.Error("查询挂载点失败", zap.Error(err))
 

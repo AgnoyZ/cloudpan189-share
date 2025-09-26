@@ -175,7 +175,7 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 
 				fileConverters, err = h.cloudBridgeService.GetShareFiles(ctx, shareId, inputFile.CloudId, shareMode, accessCode, isFolder)
 			case models.OsTypePersonFolder:
-				mountInfo, mountErr := h.mountPointService.Query(ctx, inputFile.ID)
+				mountInfo, mountErr := h.mountPointService.Query(ctx, inputFile.TopId)
 				if mountErr != nil {
 					ctx.Error("查询挂载点失败", zap.Int64("file_id", inputFile.ID), zap.Error(mountErr))
 
@@ -191,7 +191,7 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 
 				fileConverters, err = h.cloudBridgeService.GetCloudFiles(ctx, cloudbridgeSvi.NewAuthToken(token.AccessToken, token.ExpiresIn), inputFile.CloudId)
 			case models.OsTypeFamilyFolder:
-				mountInfo, mountErr := h.mountPointService.Query(ctx, inputFile.ID)
+				mountInfo, mountErr := h.mountPointService.Query(ctx, inputFile.TopId)
 				if mountErr != nil {
 					ctx.Error("查询挂载点失败", zap.Int64("file_id", inputFile.ID), zap.Error(mountErr))
 

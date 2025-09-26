@@ -121,7 +121,7 @@ func invalidParamsBusinessError(err error) BusinessError {
 	return &businessError{
 		businessCode: invalidParamsCode,
 		message:      utils.TranslateValidationError(err),
-		httpCode:     http.StatusUnauthorized,
+		httpCode:     http.StatusBadRequest,
 		stackError:   errors.WithStack(err),
 	}
 }

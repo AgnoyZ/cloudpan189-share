@@ -123,6 +123,7 @@ func Start(svc bootstrap.ServiceContext) error {
 			storageRouter.POST("/delete", wrap(storageHandler.Delete()))
 			storageRouter.GET("/list", wrap(storageHandler.List()))
 			storageRouter.POST("/refresh", wrap(storageHandler.Refresh()))
+			storageRouter.POST("/toggle_auto_refresh", wrap(storageHandler.ToggleAutoRefresh()))
 		}
 
 		storageAdvanceRouter := openapiRouter.Group("/storage/advance", wrap(userMiddleware.Auth()))

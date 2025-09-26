@@ -17,6 +17,7 @@ type Handler interface {
 	Delete() httpcontext.HandlerFunc
 	List() httpcontext.HandlerFunc
 	Refresh() httpcontext.HandlerFunc
+	ToggleAutoRefresh() httpcontext.HandlerFunc
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeStorageStartCode)
@@ -48,6 +49,9 @@ var (
 	busCodeStorageSendTaskFail             = bi.Next("下发任务失败")
 	busCodeStorageQueryCloudTokenError     = bi.Next("查询 cloudToken 失败")
 	busCodeStorageQueryFileTaskLogError    = bi.Next("查询文件任务日志失败")
+	busCodeStorageToggleAutoRefreshError   = bi.Next("切换自动刷新失败")
+	busCodeStorageUpdateRefreshIntervalErr = bi.Next("更新刷新间隔失败")
+	busCodeStorageTimeFormatErr            = bi.Next("时间格式错误")
 )
 
 const (

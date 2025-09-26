@@ -18,9 +18,10 @@ type listRequest struct {
 }
 
 type storageDTO struct {
-	ID        int64                 `json:"id"`
-	TaskLogs  []*models.FileTaskLog `json:"taskLogs"`
-	TokenName string                `json:"tokenName"`
+	ID                    int64                 `json:"id"`
+	TaskLogs              []*models.FileTaskLog `json:"taskLogs"`
+	TokenName             string                `json:"tokenName"`
+	IsInAutoRefreshPeriod bool                  `json:"isInAutoRefreshPeriod"` // 是否在自动刷新时间范围内
 	*models.MountPoint
 }
 
@@ -159,10 +160,11 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			}
 
 			dtoList = append(dtoList, &storageDTO{
-				ID:         item.FileId,
-				TaskLogs:   taskLogs,
-				TokenName:  tokenName,
-				MountPoint: item,
+				ID:                    item.FileId,
+				TaskLogs:              taskLogs,
+				TokenName:             tokenName,
+				MountPoint:            item,
+				IsInAutoRefreshPeriod: item.IsInAutoRefreshPeriod(),
 			})
 		}
 

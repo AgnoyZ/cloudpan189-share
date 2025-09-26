@@ -15,7 +15,8 @@ type Service interface {
 	Count(ctx context.Context, req *ListRequest) (int64, error)
 	Delete(ctx context.Context, fileId int64) error
 	EnableAutoRefresh(ctx context.Context, fileId int64, enable bool) error
-	UpdateRefreshInterval(ctx context.Context, fileId int64, interval int) error
+	GetAutoRefreshList(ctx context.Context, req *GetAutoRefreshListRequest) ([]*models.MountPoint, error)
+	UpdateRefreshConfig(ctx context.Context, fileId int64, config RefreshConfig) error
 }
 
 type service struct {
