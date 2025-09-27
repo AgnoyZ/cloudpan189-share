@@ -45,6 +45,12 @@ export interface ToggleAutoRefreshRequest {
   enableDeepRefresh?: boolean // 是否启用深度刷新
 }
 
+// 修改存储挂载点令牌请求接口
+export interface ModifyTokenRequest {
+  id: number // 挂载点ID
+  tokenId: number // 新的令牌ID
+}
+
 // 存储挂载列表查询参数
 export interface StorageListQuery {
   currentPage?: number // 当前页码，默认为1
@@ -56,6 +62,8 @@ export interface StorageListQuery {
 export interface StorageInfo extends Models.MountPoint {
   tokenName?: string // 关联的token名称
   taskLogs?: Models.FileTaskLog[] // 关联的任务日志
+  isInAutoRefreshPeriod: boolean // 是否在自动刷新时间范围内 早于超过都是false
+  fileCount: number // 文件数量
 }
 
 // ===== 存储管理接口 =====
@@ -85,4 +93,9 @@ export const refreshStorage = (data: RefreshStorageRequest): Promise<ApiResponse
 // 切换自动刷新配置
 export const toggleAutoRefresh = (data: ToggleAutoRefreshRequest): Promise<ApiResponse> => {
   return api.post('/storage/toggle_auto_refresh', data).then((res) => res.data)
+}
+
+// 修改存储挂载点令牌
+export const modifyToken = (data: ModifyTokenRequest): Promise<ApiResponse> => {
+  return api.post('/storage/modify_token', data).then((res) => res.data)
 }

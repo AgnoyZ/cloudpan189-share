@@ -23,12 +23,20 @@ export interface FileSearchResponse {
 // 文件打开相关接口
 export interface FileChild extends Models.VirtualFile {
   href: string
+  apiPath: string
+}
+
+export interface BreadcrumbItem {
+  href: string
+  name: string
 }
 
 export interface FileOpenResponse extends Models.VirtualFile {
   href: string
+  apiPath: string
   children?: FileChild[]
   childrenTotal: number
+  breadcrumbs: BreadcrumbItem[]
 }
 
 // 下载链接相关接口

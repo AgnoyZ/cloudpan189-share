@@ -18,6 +18,7 @@ type Handler interface {
 	List() httpcontext.HandlerFunc
 	Refresh() httpcontext.HandlerFunc
 	ToggleAutoRefresh() httpcontext.HandlerFunc
+	ModifyToken() httpcontext.HandlerFunc
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeStorageStartCode)
@@ -52,6 +53,8 @@ var (
 	busCodeStorageToggleAutoRefreshError   = bi.Next("切换自动刷新失败")
 	busCodeStorageUpdateRefreshIntervalErr = bi.Next("更新刷新间隔失败")
 	busCodeStorageTimeFormatErr            = bi.Next("时间格式错误")
+	busCodeStorageQueryFileCountError      = bi.Next("查询文件数量失败")
+	busCodeStorageModifyTokenFailed        = bi.Next("修改令牌失败")
 )
 
 const (

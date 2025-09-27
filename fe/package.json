@@ -25,9 +25,11 @@
     "@vicons/ionicons5": "^0.12.0",
     "axios": "^1.5.0",
     "dayjs": "^1.11.18",
+    "hls.js": "^1.6.13",
     "localforage": "^1.10.0",
     "naive-ui": "^2.34.4",
     "pinia": "^2.1.6",
+    "plyr": "^3.8.3",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
   },

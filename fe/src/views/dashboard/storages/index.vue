@@ -32,6 +32,7 @@
           </template>
           重置
         </n-button>
+        <n-text> 上次刷新时间：{{ refreshTime.format('YYYY-MM-DD HH:mm:ss') }} </n-text>
       </div>
       <div class="header-right">
         <n-button type="primary" @click="showAddModal = true">
@@ -63,43 +64,51 @@
         hoverable
         :bordered="false"
       >
-        <div class="card-header">
-          <div class="storage-info">
-            <div class="storage-title">
-              <n-text strong class="storage-name">{{ storage.name || '未命名存储' }}</n-text>
+        <template #header>
+          <div class="card-header">
+            <div class="storage-info">
+              <div class="storage-title">
+                <n-text strong class="storage-name">{{ storage.name || '未命名存储' }}</n-text>
+              </div>
+              <n-ellipsis class="storage-path" :tooltip="{ placement: 'top' }">
+                {{ storage.fullPath || '-' }}
+              </n-ellipsis>
             </div>
-            <n-ellipsis class="storage-path" :tooltip="{ placement: 'top' }">
-              {{ storage.fullPath || '-' }}
-            </n-ellipsis>
-          </div>
-          <div class="storage-actions">
-            <n-button size="small" quaternary circle @click="handleDelete(storage)">
-              <template #icon>
-                <n-icon :size="16">
-                  <TrashOutline />
-                </n-icon>
-              </template>
-            </n-button>
-            <n-dropdown
-              :options="getRefreshOptions(storage.id)"
-              @select="handleRefreshSelect"
-              trigger="click"
-            >
-              <n-button size="small" quaternary circle>
+            <div class="storage-actions">
+              <n-button size="small" quaternary circle @click="handleModifyToken(storage)">
                 <template #icon>
                   <n-icon :size="16">
-                    <RefreshOutline />
+                    <KeyOutline />
                   </n-icon>
                 </template>
               </n-button>
-            </n-dropdown>
+              <n-button size="small" quaternary circle @click="handleDelete(storage)">
+                <template #icon>
+                  <n-icon :size="16">
+                    <TrashOutline />
+                  </n-icon>
+                </template>
+              </n-button>
+              <n-dropdown
+                :options="getRefreshOptions(storage.id)"
+                @select="handleRefreshSelect"
+                trigger="click"
+              >
+                <n-button size="small" quaternary circle>
+                  <template #icon>
+                    <n-icon :size="16">
+                      <RefreshOutline />
+                    </n-icon>
+                  </template>
+                </n-button>
+              </n-dropdown>
+            </div>
           </div>
-        </div>
-
-        <n-divider style="margin: 16px 0" />
+        </template>
 
         <div class="card-content">
-          <div class="info-grid">
+          <!-- 基础信息区域 - 使用flex容器包裹前三个字段 -->
+          <div class="basic-info-container">
             <div class="info-item">
               <div class="info-label">
                 <n-icon :size="14" class="info-icon">
@@ -122,39 +131,110 @@
               <n-text class="info-value">{{ storage.tokenName || '未绑定' }}</n-text>
             </div>
 
-            <div class="info-item full-width">
+            <div class="info-item">
               <div class="info-label">
                 <n-icon :size="14" class="info-icon">
-                  <RefreshOutline />
+                  <DocumentsOutline />
                 </n-icon>
-                <span>自动刷新</span>
+                <span>文件数量</span>
               </div>
-              <div class="refresh-info">
-                <n-tag :type="storage.enableAutoRefresh ? 'success' : 'default'" size="small">
-                  {{ storage.enableAutoRefresh ? '已启用' : '未启用' }}
-                </n-tag>
-                <div v-if="storage.enableAutoRefresh" class="refresh-details">
-                  <n-text depth="3" class="refresh-detail">
-                    {{ storage.refreshInterval }}分钟间隔
-                  </n-text>
+              <n-text class="info-value">{{ storage.fileCount || 0 }}</n-text>
+            </div>
+          </div>
+
+          <div class="additional-info">
+            <div class="info-item">
+              <div class="refresh-header">
+                <div class="refresh-title-section">
+                  <div class="info-label">
+                    <n-icon :size="14" class="info-icon">
+                      <RefreshOutline />
+                    </n-icon>
+                    <span>自动刷新</span>
+                  </div>
+                  <n-tag
+                    v-if="storage.enableAutoRefresh"
+                    :type="storage.isInAutoRefreshPeriod ? 'success' : 'warning'"
+                    size="small"
+                  >
+                    {{ computedRefreshStatusText(storage) }}
+                  </n-tag>
+                  <n-tag v-else type="default" size="small">未启用</n-tag>
+                </div>
+                <n-button size="tiny" type="primary" @click="handleEditAutoRefresh(storage)">
+                  编辑
+                </n-button>
+              </div>
+              <div v-if="storage.enableAutoRefresh" class="refresh-details">
+                <div class="refresh-status">
+                  <n-text depth="3" class="refresh-detail"> {{ storage.refreshInterval }}m </n-text>
                   <n-text depth="3" class="refresh-detail">
                     {{ storage.enableDeepRefresh ? '深度刷新' : '普通刷新' }}
                   </n-text>
                 </div>
+                <n-text depth="3" class="refresh-period">
+                  {{ formatRefreshPeriod(storage) }}
+                </n-text>
               </div>
             </div>
 
-            <div class="info-item full-width">
-              <div class="info-label">
-                <n-icon :size="14" class="info-icon">
-                  <TimeOutline />
-                </n-icon>
-                <span>更新时间</span>
+            <!-- 最近一次运行日志 -->
+            <div v-if="storage.taskLogs && storage.taskLogs.length > 0" class="info-item">
+              <div class="task-log-header">
+                <div class="task-log-left">
+                  <n-popover trigger="hover">
+                    <template #trigger>
+                      <div class="info-label">
+                        <n-icon :size="14" class="info-icon">
+                          <component :is="getTaskStatusInfo(storage.taskLogs[0].status).icon" />
+                        </n-icon>
+                        <span>最近运行</span>
+                        <n-text depth="3" class="task-log-time">
+                          {{ formatTaskLogTime(storage.taskLogs[0]) }}
+                        </n-text>
+                      </div>
+                    </template>
+                    <n-text depth="1"> {{ storage.taskLogs[0].title }}; </n-text>
+                    <n-text depth="2">
+                      {{ storage.taskLogs[0].desc }}
+                    </n-text>
+                  </n-popover>
+                </div>
+
+                <n-popover trigger="hover" :disabled="storage.taskLogs[0].result ? false : true">
+                  <template #trigger>
+                    <n-tag :type="getTaskStatusInfo(storage.taskLogs[0].status).type" size="small">
+                      {{ getTaskStatusInfo(storage.taskLogs[0].status).text }}
+                    </n-tag>
+                  </template>
+                  {{ storage.taskLogs[0].result }}
+                </n-popover>
               </div>
-              <n-text class="info-value">{{ formatDateTime(storage.updatedAt) }}</n-text>
+              <div class="task-log-content"></div>
             </div>
           </div>
         </div>
+
+        <template #footer>
+          <div class="card-footer">
+            <div class="footer-time">
+              <n-icon :size="12" class="footer-icon">
+                <TimeOutline />
+              </n-icon>
+              <n-text depth="3" class="footer-text">
+                创建时间：{{ formatDateTime(storage.createdAt) }}
+              </n-text>
+            </div>
+            <div class="footer-time">
+              <n-icon :size="12" class="footer-icon">
+                <TimeOutline />
+              </n-icon>
+              <n-text depth="3" class="footer-text">
+                更新时间：{{ formatDateTime(storage.updatedAt) }}
+              </n-text>
+            </div>
+          </div>
+        </template>
       </n-card>
 
       <!-- 空状态 -->
@@ -231,11 +311,102 @@
 
     <!-- 家庭文件夹挂载弹窗 -->
     <FamilyMountModal v-model:show="showFamilyMountModal" @confirm="handleFamilyMountConfirm" />
+
+    <!-- 自动刷新配置弹窗 -->
+    <n-modal v-model:show="showAutoRefreshModal" preset="dialog" title="自动刷新配置">
+      <div class="auto-refresh-config">
+        <n-form
+          ref="autoRefreshFormRef"
+          :model="autoRefreshForm"
+          :rules="autoRefreshRules"
+          label-placement="left"
+          label-width="120px"
+        >
+          <n-form-item label="启用自动刷新" path="enableAutoRefresh">
+            <n-switch v-model:value="autoRefreshForm.enableAutoRefresh" />
+          </n-form-item>
+
+          <template v-if="autoRefreshForm.enableAutoRefresh">
+            <n-form-item label="刷新间隔(分钟)" path="refreshInterval">
+              <n-input-number
+                v-model:value="autoRefreshForm.refreshInterval"
+                :min="30"
+                :max="1440"
+                placeholder="30-1440分钟"
+                style="width: 100%"
+              />
+            </n-form-item>
+
+            <n-form-item label="持续天数" path="autoRefreshDays">
+              <n-input-number
+                v-model:value="autoRefreshForm.autoRefreshDays"
+                :min="1"
+                :max="365"
+                placeholder="1-365天"
+                style="width: 100%"
+              />
+            </n-form-item>
+
+            <n-form-item label="开始日期" path="refreshBeginAt">
+              <n-date-picker
+                v-model:value="autoRefreshForm.refreshBeginAt"
+                type="date"
+                placeholder="选择开始日期"
+                style="width: 100%"
+              />
+            </n-form-item>
+
+            <n-form-item label="深度刷新" path="enableDeepRefresh">
+              <n-switch v-model:value="autoRefreshForm.enableDeepRefresh" />
+            </n-form-item>
+          </template>
+        </n-form>
+      </div>
+
+      <template #action>
+        <n-button @click="showAutoRefreshModal = false">取消</n-button>
+        <n-button type="primary" @click="handleAutoRefreshConfirm" :loading="autoRefreshSubmitting">
+          确认
+        </n-button>
+      </template>
+    </n-modal>
+
+    <!-- 修改令牌弹窗 -->
+    <n-modal v-model:show="showModifyTokenModal" preset="dialog" title="修改绑定令牌">
+      <div class="modify-token-config">
+        <n-form label-placement="left" label-width="100px">
+          <n-form-item label="存储名称">
+            <n-text>{{ currentModifyStorage?.name || '未命名存储' }}</n-text>
+          </n-form-item>
+
+          <n-form-item label="当前令牌">
+            <n-text depth="3">{{ currentModifyStorage?.tokenName || '未绑定' }}</n-text>
+          </n-form-item>
+
+          <n-form-item label="选择令牌">
+            <n-select
+              v-model:value="selectedTokenId"
+              :options="cloudTokenOptions"
+              placeholder="请选择要绑定的令牌"
+              clearable
+              style="width: 100%"
+            />
+          </n-form-item>
+        </n-form>
+      </div>
+
+      <template #action>
+        <n-button @click="showModifyTokenModal = false">取消</n-button>
+        <n-button type="primary" @click="handleModifyTokenConfirm" :loading="modifyTokenSubmitting">
+          确认修改
+        </n-button>
+      </template>
+    </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import {
   NInput,
   NButton,
@@ -245,15 +416,22 @@ import {
   NSpin,
   NEmpty,
   NPagination,
-  NDivider,
   NEllipsis,
   NIcon,
   NModal,
   NDropdown,
+  NForm,
+  NFormItem,
+  NSwitch,
+  NInputNumber,
+  NDatePicker,
+  NSelect,
   useMessage,
   useDialog,
   type PaginationProps,
   type DropdownOption,
+  type FormInst,
+  type FormRules,
 } from 'naive-ui'
 import {
   SearchOutline,
@@ -264,17 +442,27 @@ import {
   ServerOutline,
   AddOutline,
   TrashOutline,
+  DocumentsOutline,
 } from '@vicons/ionicons5'
-import { getStorageList, refreshStorage, deleteStorage } from '@/api/storage'
+import {
+  getStorageList,
+  refreshStorage,
+  deleteStorage,
+  toggleAutoRefresh,
+  modifyToken,
+} from '@/api/storage'
 import type { StorageInfo } from '@/api/storage'
+import { getCloudTokenList } from '@/api/cloudtoken'
 import { formatDateTime } from '@/utils/time'
 import { getOsTypeDisplayName, getOsTypeColor, mountTypeConfigs } from '@/utils/osType'
+import { getTaskStatusInfo } from '@/utils/taskStatus'
 import {
   SubscribeMountModal,
   ShareMountModal,
   PersonMountModal,
   FamilyMountModal,
 } from '@/components/storage'
+import dayjs from 'dayjs'
 
 // 表格数据
 const tableData = ref<StorageInfo[]>([])
@@ -287,6 +475,43 @@ const showSubscribeMountModal = ref(false)
 const showShareMountModal = ref(false)
 const showPersonMountModal = ref(false)
 const showFamilyMountModal = ref(false)
+const showAutoRefreshModal = ref(false)
+const showModifyTokenModal = ref(false)
+
+// 自动刷新配置表单
+const autoRefreshFormRef = ref<FormInst>()
+const autoRefreshSubmitting = ref(false)
+const currentEditStorage = ref<StorageInfo | null>(null)
+
+const autoRefreshForm = ref({
+  enableAutoRefresh: false,
+  refreshInterval: 60,
+  autoRefreshDays: 7,
+  refreshBeginAt: null as number | null,
+  enableDeepRefresh: false,
+})
+
+const autoRefreshRules: FormRules = {
+  refreshInterval: [
+    {
+      type: 'number',
+      min: 30,
+      max: 1440,
+      message: '刷新间隔必须在30-1440分钟之间',
+      trigger: 'blur',
+    },
+  ],
+  autoRefreshDays: [
+    {
+      type: 'number',
+      min: 1,
+      max: 365,
+      message: '持续天数必须在1-365天之间',
+      trigger: 'blur',
+    },
+  ],
+  refreshBeginAt: [],
+}
 
 // 消息提示和对话框
 const message = useMessage()
@@ -314,6 +539,8 @@ const handlePageSizeChange = (pageSize: number) => {
   paginationReactive.page = 1
   fetchStorageList()
 }
+
+const refreshTime = ref(dayjs())
 
 // 获取存储列表
 const fetchStorageList = () => {
@@ -343,6 +570,7 @@ const fetchStorageList = () => {
     })
     .finally(() => {
       loading.value = false
+      refreshTime.value = dayjs()
     })
 }
 
@@ -529,10 +757,215 @@ const handleDelete = (storage: StorageInfo) => {
   })
 }
 
+// 处理编辑自动刷新
+const handleEditAutoRefresh = (storage: StorageInfo) => {
+  currentEditStorage.value = storage
+
+  // 填充表单数据
+  autoRefreshForm.value = {
+    enableAutoRefresh: storage.enableAutoRefresh || false,
+    refreshInterval: storage.refreshInterval || 60,
+    autoRefreshDays: storage.autoRefreshDays || 7,
+    refreshBeginAt: storage.autoRefreshBeginAt
+      ? new Date(storage.autoRefreshBeginAt).getTime()
+      : Date.now(),
+    enableDeepRefresh: storage.enableDeepRefresh || false,
+  }
+
+  showAutoRefreshModal.value = true
+}
+
+// 处理自动刷新配置确认
+const handleAutoRefreshConfirm = () => {
+  if (!currentEditStorage.value) return
+
+  autoRefreshFormRef.value?.validate((errors) => {
+    if (errors) {
+      message.error('请检查表单输入')
+      return
+    }
+
+    autoRefreshSubmitting.value = true
+
+    const refreshBeginAt = autoRefreshForm.value.refreshBeginAt
+      ? dayjs(autoRefreshForm.value.refreshBeginAt).format('YYYY-MM-DD')
+      : dayjs().format('YYYY-MM-DD')
+
+    toggleAutoRefresh({
+      id: currentEditStorage.value!.id,
+      enableAutoRefresh: autoRefreshForm.value.enableAutoRefresh,
+      refreshInterval: autoRefreshForm.value.enableAutoRefresh
+        ? autoRefreshForm.value.refreshInterval
+        : undefined,
+      autoRefreshDays: autoRefreshForm.value.enableAutoRefresh
+        ? autoRefreshForm.value.autoRefreshDays
+        : undefined,
+      refreshBeginAt: autoRefreshForm.value.enableAutoRefresh ? refreshBeginAt : undefined,
+      enableDeepRefresh: autoRefreshForm.value.enableAutoRefresh
+        ? autoRefreshForm.value.enableDeepRefresh
+        : undefined,
+    })
+      .then((response) => {
+        if (response.code === 200) {
+          message.success('自动刷新配置更新成功')
+          showAutoRefreshModal.value = false
+          fetchStorageList()
+        } else {
+          message.error(`配置更新失败: ${(response as { message?: string }).message || '未知错误'}`)
+        }
+      })
+      .catch((error) => {
+        console.error('更新自动刷新配置失败:', error)
+        message.error(`配置更新失败: ${error instanceof Error ? error.message : '网络错误'}`)
+      })
+      .finally(() => {
+        autoRefreshSubmitting.value = false
+      })
+  })
+}
+
+// 格式化刷新周期显示
+const formatRefreshPeriod = (storage: StorageInfo) => {
+  if (!storage.autoRefreshBeginAt || !storage.autoRefreshDays) {
+    return '未设置刷新周期'
+  }
+
+  const beginDate = new Date(storage.autoRefreshBeginAt)
+  const endDate = new Date(beginDate)
+  endDate.setDate(beginDate.getDate() + storage.autoRefreshDays)
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  }
+
+  return `${formatDate(beginDate)} ~ ${formatDate(endDate)} (${storage.autoRefreshDays}天)`
+}
+
+const computedRefreshStatusText = (storage: StorageInfo): string => {
+  if (storage.isInAutoRefreshPeriod) {
+    return '待执行'
+  }
+  let refreshBeginAt = dayjs(storage.autoRefreshBeginAt)
+  if (refreshBeginAt.isAfter(dayjs())) {
+    return '未到开始时间'
+  } else {
+    return '已失效'
+  }
+}
+
+// 修改令牌相关变量
+const modifyTokenSubmitting = ref(false)
+const currentModifyStorage = ref<StorageInfo | null>(null)
+const cloudTokenOptions = ref<{ label: string; value: number }[]>([])
+const selectedTokenId = ref<number | null>(null)
+
+// 处理修改令牌
+const handleModifyToken = (storage: StorageInfo) => {
+  currentModifyStorage.value = storage
+  selectedTokenId.value = storage.tokenId || null
+
+  // 获取云盘令牌列表
+  getCloudTokenList({ noPaginate: true })
+    .then((response) => {
+      if (response.code === 200 && response.data) {
+        cloudTokenOptions.value = response.data.data.map((token) => ({
+          label: token.name || `令牌${token.id}`,
+          value: token.id,
+        }))
+        // 添加"解绑"选项
+        cloudTokenOptions.value.unshift({
+          label: '解绑令牌',
+          value: 0,
+        })
+        showModifyTokenModal.value = true
+      } else {
+        message.error('获取令牌列表失败')
+      }
+    })
+    .catch((error) => {
+      console.error('获取云盘令牌列表失败:', error)
+      message.error('获取令牌列表失败')
+    })
+}
+
+// 确认修改令牌
+const handleModifyTokenConfirm = () => {
+  if (!currentModifyStorage.value) return
+
+  modifyTokenSubmitting.value = true
+
+  const tokenId = selectedTokenId.value === 0 ? 0 : selectedTokenId.value || 0
+
+  modifyToken({
+    id: currentModifyStorage.value.id,
+    tokenId,
+  })
+    .then((response) => {
+      if (response.code === 200) {
+        const actionText = tokenId === 0 ? '解绑' : '修改绑定'
+        message.success(`令牌${actionText}成功`)
+        showModifyTokenModal.value = false
+        fetchStorageList()
+      } else {
+        message.error(`令牌修改失败: ${(response as { message?: string }).message || '未知错误'}`)
+      }
+    })
+    .catch((error) => {
+      console.error('修改令牌失败:', error)
+      message.error(`令牌修改失败: ${error instanceof Error ? error.message : '网络错误'}`)
+    })
+    .finally(() => {
+      modifyTokenSubmitting.value = false
+    })
+}
+
+// 格式化任务日志时间
+const formatTaskLogTime = (taskLog: Models.FileTaskLog) => {
+  if (!taskLog.beginAt) {
+    return '未知时间'
+  }
+
+  const beginTime = dayjs(taskLog.beginAt)
+  const startTime = beginTime.format('MM-DD HH:mm')
+
+  // 如果任务已完成或失败，显示开始时间和持续时间
+  if ((taskLog.status === 'completed' || taskLog.status === 'failed') && taskLog.duration) {
+    const duration = taskLog.duration
+    let durationText = ''
+
+    if (duration < 1000) {
+      durationText = `${duration}ms`
+    } else if (duration < 60000) {
+      durationText = `${Math.round(duration / 1000)}s`
+    } else {
+      const minutes = Math.floor(duration / 60000)
+      const seconds = Math.round((duration % 60000) / 1000)
+      durationText = `${minutes}m${seconds}s`
+    }
+
+    return `${startTime} (用时 ${durationText})`
+  }
+
+  // 否则只显示开始时间
+  return startTime
+}
+
+const intervalTimer = ref<NodeJS.Timeout | null>(null)
 // 初始化
 onMounted(() => {
   console.log('页面挂载，开始获取数据')
   fetchStorageList()
+  intervalTimer.value = setInterval(() => {
+    fetchStorageList()
+  }, 1000 * 10)
+})
+onUnmounted(() => {
+  console.log('页面卸载，清除定时器')
+  clearInterval(intervalTimer.value!)
 })
 </script>
 
@@ -683,10 +1116,11 @@ onMounted(() => {
   padding: 0;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+/* 基础信息容器 - 使用flex布局实现三个字段的对齐 */
+.basic-info-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .info-item {
@@ -695,8 +1129,21 @@ onMounted(() => {
   gap: 8px;
 }
 
-.info-item.full-width {
-  grid-column: 1 / -1;
+.basic-info-container .info-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60px;
+  gap: 8px;
+  text-align: center;
+}
+
+.additional-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .info-label {
@@ -709,7 +1156,6 @@ onMounted(() => {
 }
 
 .info-icon {
-  color: var(--n-text-color-3);
   flex-shrink: 0;
 }
 
@@ -719,8 +1165,24 @@ onMounted(() => {
   font-weight: 500;
 }
 
+/* 时间行样式 - 一行显示，两边对齐 */
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.time-row .info-label {
+  flex-shrink: 0;
+}
+
+.time-row .info-value {
+  text-align: right;
+  flex-shrink: 0;
+}
+
 .info-tag {
-  align-self: flex-start;
   font-weight: 500;
 }
 
@@ -731,20 +1193,138 @@ onMounted(() => {
   gap: 8px;
 }
 
-.refresh-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .refresh-detail {
   font-size: 12px;
-  color: var(--n-text-color-3);
-  background: var(--n-color-target);
+  color: #666;
+  background: #fff;
   padding: 4px 8px;
   border-radius: 4px;
   font-weight: 500;
   border: 1px solid var(--n-border-color);
+}
+
+/* 自动刷新头部样式 */
+.refresh-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.refresh-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.refresh-title-section .info-label {
+  flex-shrink: 0;
+}
+
+/* 刷新详情样式 - 复用 time-row 的 flex 布局 */
+.refresh-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 刷新状态样式 - 左侧内容 */
+.refresh-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 刷新周期样式 - 右侧内容，使用灰色调避免与编辑按钮冲突 */
+.refresh-period {
+  font-size: 12px;
+  color: var(--n-text-color);
+  padding: 4px 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border: 1px solid var(--n-border-color);
+  font-weight: 500;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* 任务日志样式 */
+.task-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.task-log-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  gap: 5px;
+}
+
+.task-log-left .info-label {
+  flex-shrink: 0;
+}
+
+.task-log-time {
+  font-size: 12px;
+  color: var(--n-text-color-3);
+}
+
+.task-log-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px;
+  border-radius: 6px;
+  margin-top: 2px;
+}
+
+.task-log-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--n-text-color);
+  margin-bottom: 2px;
+}
+
+.task-log-desc {
+  font-size: 13px;
+  color: var(--n-text-color-2);
+  line-height: 1.4;
+  word-break: break-all;
+
+  /* 确保省略号正确显示 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-log-error {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: rgb(245 108 108 / 8%);
+  border: 1px solid rgb(245 108 108 / 20%);
+  border-radius: 4px;
+  border-left: 3px solid #f56c6c;
+}
+
+.task-log-error .n-text {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* 卡片底部样式 */
+.card-footer {
+  padding: 0 0 16px;
 }
 
 /* 空状态 */
@@ -836,15 +1416,6 @@ onMounted(() => {
     padding: 12px;
   }
 
-  .info-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .info-item.full-width {
-    grid-column: 1;
-  }
-
   .storage-name {
     max-width: calc(100% - 60px);
   }
@@ -915,7 +1486,6 @@ onMounted(() => {
 
 .mount-type-desc {
   font-size: 13px;
-  color: var(--n-text-color-3);
   line-height: 1.4;
 }
 

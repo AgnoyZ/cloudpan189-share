@@ -6,10 +6,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/',
-      redirect: '/@login',
-    },
-    {
       path: '/@login',
       name: 'Login',
       component: () => import('@/views/login/index.vue'),
@@ -93,6 +89,24 @@ const router = createRouter({
           },
         },
       ],
+    },
+    {
+      path: '/',
+      name: 'FileBrowser',
+      component: () => import('@/views/file-browser/index.vue'),
+      meta: {
+        title: '文件浏览',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'FileBrowserPath',
+      component: () => import('@/views/file-browser/index.vue'),
+      meta: {
+        title: '文件浏览',
+        requiresAuth: true,
+      },
     },
   ],
 })

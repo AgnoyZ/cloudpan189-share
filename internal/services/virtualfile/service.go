@@ -32,6 +32,7 @@ type Service interface {
 	Update(ctx context.Context, id int64, opts []utils.Field, hooks ...UpdateHook) error
 	ModifyAddition(ctx context.Context, id int64, key string, value any) error
 	BatchUpdatePlus(ctx context.Context, values []utils.Field, exps []clause.Expression) error
+	GroupCountByTopId(ctx context.Context, req *GroupCountByTopIdRequest) ([]*GroupCountByTopId, error)
 }
 
 type service struct {

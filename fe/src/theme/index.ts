@@ -107,8 +107,7 @@ export const lightThemeOverrides: GlobalThemeOverrides = {
     paddingMedium: '20px',
     paddingLarge: '24px',
     paddingHuge: '28px',
-    boxShadow:
-      '0 1px 2px -2px rgba(0, 0, 0, 0.08), 0 3px 6px 0 rgba(0, 0, 0, 0.06), 0 5px 12px 4px rgba(0, 0, 0, 0.04)',
+    boxShadow: '0 2px 8px 0 rgba(99, 110, 123, 0.08), 0 1px 3px 0 rgba(99, 110, 123, 0.12)',
   },
 
   // 表格组件自定义
@@ -277,8 +276,7 @@ export const darkThemeOverrides: GlobalThemeOverrides = {
     paddingMedium: '20px',
     paddingLarge: '24px',
     paddingHuge: '28px',
-    boxShadow:
-      '0 1px 2px -2px rgba(0, 0, 0, 0.24), 0 3px 6px 0 rgba(0, 0, 0, 0.18), 0 5px 12px 4px rgba(0, 0, 0, 0.12)',
+    boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.12)',
   },
 
   // 表格组件自定义

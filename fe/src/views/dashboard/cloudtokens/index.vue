@@ -427,18 +427,14 @@ const handleConfirmEdit = () => {
 // 删除令牌
 const handleDelete = (tokenId: number) => {
   deleteCloudToken({ id: tokenId })
-    .then((response) => {
-      if (response.code === 200) {
-        message.success('删除令牌成功')
-        // 刷新令牌列表
-        fetchTokenList()
-      } else {
-        message.error(response.msg || '删除令牌失败')
-      }
+    .then(() => {
+      message.success('删除令牌成功')
+      // 刷新令牌列表
+      fetchTokenList()
     })
     .catch((error) => {
       console.error('删除令牌失败:', error)
-      message.error('删除令牌失败')
+      message.error(error.message || '删除令牌失败')
     })
 }
 

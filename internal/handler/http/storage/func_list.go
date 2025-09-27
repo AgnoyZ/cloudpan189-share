@@ -7,6 +7,7 @@ import (
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	mountpointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
+	"github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 )
@@ -22,6 +23,7 @@ type storageDTO struct {
 	TaskLogs              []*models.FileTaskLog `json:"taskLogs"`
 	TokenName             string                `json:"tokenName"`
 	IsInAutoRefreshPeriod bool                  `json:"isInAutoRefreshPeriod"` // 是否在自动刷新时间范围内
+	FileCount             int64                 `json:"fileCount"`
 	*models.MountPoint
 }
 
@@ -80,6 +82,7 @@ func (h *handler) List() httpcontext.HandlerFunc {
 		var (
 			tokenMap       map[int64]string
 			taskLogMapList map[int64][]*models.FileTaskLog
+			fileCountMap   map[int64]int64
 		)
 
 		// 查询令牌名字
@@ -141,6 +144,18 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			}
 		}
 
+		// 查询文件数量
+		{
+			fileCountList, err := h.virtualFileService.GroupCountByTopId(ctx.GetContext(), &virtualfile.GroupCountByTopIdRequest{})
+			if err != nil {
+				ctx.Fail(busCodeStorageQueryFileCountError.WithError(err))
+
+				return
+			}
+
+			fileCountMap = lo.SliceToMap(fileCountList, func(item *virtualfile.GroupCountByTopId) (int64, int64) { return item.TopId, item.Count })
+		}
+
 		dtoList := make([]*storageDTO, 0, len(list))
 
 		for _, item := range list {
@@ -165,6 +180,7 @@ func (h *handler) List() httpcontext.HandlerFunc {
 				TokenName:             tokenName,
 				MountPoint:            item,
 				IsInAutoRefreshPeriod: item.IsInAutoRefreshPeriod(),
+				FileCount:             fileCountMap[item.FileId],
 			})
 		}
 

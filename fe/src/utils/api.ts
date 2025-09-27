@@ -54,6 +54,8 @@ api.interceptors.response.use(
       const { status, data } = error.response
       const authStore = useAuthStore()
       switch (status) {
+        case 400:
+          return Promise.reject(new Error(data.msg || '请求失败'))
         case 401:
           window.location.href = '/@login'
           authStore.logout()

@@ -28,3 +28,8 @@ body {
 .dark body {
   background-color: #101014;
 }
+
+/* 卡片组件自定义样式 */
+.n-card {
+  --n-padding-bottom: 6px !important;
+}

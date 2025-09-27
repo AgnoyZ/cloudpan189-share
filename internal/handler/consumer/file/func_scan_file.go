@@ -15,13 +15,14 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	"github.com/xxcheng123/cloudpan189-share/internal/types/apierrcode"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/converter"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 	"go.uber.org/zap"
 )
 
 func (h *handler) ScanFile() taskcontext.HandlerFunc {
-	return func(ctx *taskcontext.Context) error {
+	return func(ctx *taskcontext.Context) (scanErr error) {
 		req := new(topic.FileScanFileRequest)
 
 		if err := ctx.Unmarshal(req); err != nil {
@@ -56,9 +57,9 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 			fmt.Sprintf("扫描目录: %s", ctx.GetContext().String(consts.CtxKeyFullPath, topFile.Name)),
 			filetasklog.WithFile(topFile.ID),
 			filetasklog.WithDesc(fmt.Sprintf(
-				"深度扫描: %t, 调用者: %s, 文件ID: %d, 目录名: %s, 上级ID: %d, 挂载点ID: %d",
-				req.Deep,
+				"调用者: %s,深度扫描: %t,  文件ID: %d, 目录名: %s, 上级ID: %d, 挂载点ID: %d",
 				ctx.GetContext().String(consts.CtxKeyInvokeHandlerName, "unknown"),
+				req.Deep,
 				req.FileId,
 				topFile.Name,
 				topFile.ParentId,
@@ -74,8 +75,9 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 		_ = h.fileTaskLogService.Running(ctx.GetContext(), tracker)
 
 		defer func() {
-			// todo taskengine 超时可能会导致这个写入失败
-			if err := h.fileTaskLogService.Completed(ctx.GetContext(), tracker, tracker.WithCost()); err != nil {
+			if scanErr != nil {
+				_ = h.fileTaskLogService.Failed(ctx.GetContext(), tracker, tracker.WithCost(), utils.WithField("result", scanErr.Error()))
+			} else if err := h.fileTaskLogService.Completed(ctx.GetContext(), tracker, tracker.WithCost()); err != nil {
 				logger.Error("更新文件任务日志失败", zap.Int64("file_id", req.FileId), zap.Error(err))
 			}
 		}()
@@ -394,6 +396,10 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 			return nextWalkFiles, nil
 		}); err != nil {
 			ctx.GetContext().Error("执行时有错误", zap.Error(err))
+
+			if apiErr, ok := apierrcode.As(err); ok {
+				return apiErr
+			}
 		}
 
 		return nil

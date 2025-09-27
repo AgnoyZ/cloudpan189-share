@@ -22,16 +22,41 @@ const (
 
 type childDTO struct {
 	*models.VirtualFile
+	Href    string `json:"href"`
+	ApiPath string `json:"apiPath"`
+}
+
+type breadcrumbItem struct {
 	Href string `json:"href"`
+	Name string `json:"name"`
 }
 
 type openResponse struct {
 	*models.VirtualFile
-	Href          string      `json:"href"`
-	Children      []*childDTO `json:"children,omitempty"`
-	ChildrenTotal int64       `json:"childrenTotal"`
+	Href          string            `json:"href"`
+	ApiPath       string            `json:"apiPath"`
+	Children      []*childDTO       `json:"children,omitempty"`
+	ChildrenTotal int64             `json:"childrenTotal"`
+	Breadcrumbs   []*breadcrumbItem `json:"breadcrumbs"`
 }
 
+// Open 打开文件或目录
+// @Summary 打开文件或目录
+// @Description 根据完整路径打开文件或目录，返回文件信息、子文件列表和面包屑导航
+// @Tags 文件管理
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param fullPath path string true "文件或目录的完整路径" example("/folder1/subfolder")
+// @Success 200 {object} httpcontext.Response{data=openResponse} "打开文件或目录成功"
+// @Failure 400 {object} httpcontext.Response "参数验证失败，code=99998"
+// @Failure 400 {object} httpcontext.Response "路径切割失败，code=6016"
+// @Failure 400 {object} httpcontext.Response "路径不合法，需要 / 开头的路径，code=6017"
+// @Failure 400 {object} httpcontext.Response "文件不存在，code=6018"
+// @Failure 400 {object} httpcontext.Response "查询文件失败，code=6004"
+// @Failure 401 {object} httpcontext.Response "未授权访问"
+// @Failure 403 {object} httpcontext.Response "权限不足"
+// @Router /api/file/open/{fullPath} [get]
 func (h *handler) Open() httpcontext.HandlerFunc {
 	return func(ctx *httpcontext.Context) {
 		req := new(openRequest)
@@ -101,15 +126,28 @@ func (h *handler) Open() httpcontext.HandlerFunc {
 		for _, child := range children {
 			childrenDTO = append(childrenDTO, &childDTO{
 				VirtualFile: child,
-				Href:        utils.PathEscape(openBaseURL, path.Join(req.FullPath, child.Name)),
+				ApiPath:     utils.PathEscape(openBaseURL, path.Join(req.FullPath, child.Name)),
+				Href:        utils.PathEscape(path.Join(req.FullPath, child.Name)),
 			})
+		}
+
+		var breadcrumbs []*breadcrumbItem
+		var currentHref string
+		for _, p := range paths {
+			breadcrumbs = append(breadcrumbs, &breadcrumbItem{
+				Href: utils.PathEscape(openBaseURL, path.Join(currentHref, p)),
+				Name: p,
+			})
+			currentHref = path.Join(currentHref, p)
 		}
 
 		ctx.Success(&openResponse{
 			VirtualFile:   file,
-			Href:          utils.PathEscape(openBaseURL, req.FullPath),
+			ApiPath:       utils.PathEscape(openBaseURL, req.FullPath),
+			Href:          utils.PathEscape(req.FullPath),
 			Children:      childrenDTO,
 			ChildrenTotal: childrenCount,
+			Breadcrumbs:   breadcrumbs,
 		})
 	}
 }

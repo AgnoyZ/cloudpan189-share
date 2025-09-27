@@ -50,7 +50,10 @@ func (h *handler) Refresh() httpcontext.HandlerFunc {
 		}
 
 		body, _ := json.Marshal(taskReq)
-		if err = h.taskEngine.PushMessage(ctx.GetContext().WithValue(consts.CtxKeyFullPath, mountPoint.FullPath), taskReq.Topic(), body); err != nil {
+		if err = h.taskEngine.PushMessage(ctx.GetContext().
+			WithValue(consts.CtxKeyFullPath, mountPoint.FullPath).
+			WithValue(consts.CtxKeyInvokeHandlerName, "手动刷新"),
+			taskReq.Topic(), body); err != nil {
 			ctx.Fail(busCodeStorageAddTaskFailed.WithError(err))
 
 			return

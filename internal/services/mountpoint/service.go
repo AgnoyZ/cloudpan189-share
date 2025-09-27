@@ -17,6 +17,7 @@ type Service interface {
 	EnableAutoRefresh(ctx context.Context, fileId int64, enable bool) error
 	GetAutoRefreshList(ctx context.Context, req *GetAutoRefreshListRequest) ([]*models.MountPoint, error)
 	UpdateRefreshConfig(ctx context.Context, fileId int64, config RefreshConfig) error
+	ModifyToken(ctx context.Context, fid int64, tokenId int64) error
 }
 
 type service struct {

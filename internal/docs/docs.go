@@ -663,6 +663,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/file/open/{fullPath}": {
+            "get": {
+                "description": "根据完整路径打开文件或目录，返回文件信息、子文件列表和面包屑导航",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文件管理"
+                ],
+                "summary": "打开文件或目录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"/folder1/subfolder\"",
+                        "description": "文件或目录的完整路径",
+                        "name": "fullPath",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "打开文件或目录成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_file.openResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "查询文件失败，code=6004",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/file/search": {
             "get": {
                 "description": "根据关键词搜索虚拟文件，支持全局搜索或指定目录搜索",
@@ -1351,268 +1421,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/storage/cloud/family/files": {
-            "get": {
-                "description": "根据云盘令牌和家庭云ID获取家庭云文件列表，支持分页查询",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "存储管理"
-                ],
-                "summary": "获取家庭云文件列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "页码，从1开始",
-                        "name": "pageNum",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "每页数量，最大100",
-                        "name": "pageSize",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "云盘令牌ID",
-                        "name": "cloudToken",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "家庭云ID",
-                        "name": "familyId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "\"\"",
-                        "description": "父目录ID，默认为空（根目录）",
-                        "name": "parentId",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取家庭云文件列表成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage.getFamilyFilesResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "获取家庭云文件列表失败",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权访问",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "权限不足",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/storage/cloud/family/list": {
-            "get": {
-                "description": "根据云盘令牌获取用户的家庭云列表",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "存储管理"
-                ],
-                "summary": "获取家庭云列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "云盘令牌ID",
-                        "name": "cloudToken",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取家庭云列表成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.GetFamilyListResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "获取家庭云列表失败",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权访问",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "权限不足",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/storage/cloud/person/files": {
-            "get": {
-                "description": "根据云盘令牌获取个人文件列表，支持分页查询",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "存储管理"
-                ],
-                "summary": "获取个人文件列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "页码，从1开始",
-                        "name": "pageNum",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "每页数量，最大100",
-                        "name": "pageSize",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "云盘令牌ID",
-                        "name": "cloudToken",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "-11",
-                        "description": "父目录ID，默认为-11（根目录）",
-                        "name": "parentId",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取文件列表成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage.getPersonFilesResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "获取文件列表失败",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权访问",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "权限不足",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/storage/delete": {
             "post": {
                 "description": "删除指定的存储挂载点，同时清理相关文件",
@@ -1736,6 +1544,65 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "查询挂载点失败，code=3019",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/storage/modify_token": {
+            "post": {
+                "description": "修改指定存储挂载点关联的云盘令牌",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "修改存储挂载点令牌",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "修改令牌请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_storage.modifyTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "令牌修改成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "修改令牌失败，code=4030",
                         "schema": {
                             "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
                         }
@@ -3677,6 +3544,99 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_handler_http_file.breadcrumbItem": {
+            "type": "object",
+            "properties": {
+                "href": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_http_file.childDTO": {
+            "type": "object",
+            "properties": {
+                "addition": {
+                    "description": "额外信息 例如分享id 文件夹id 等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
+                        }
+                    ]
+                },
+                "apiPath": {
+                    "type": "string"
+                },
+                "cloudId": {
+                    "description": "云端的文件ID",
+                    "type": "string"
+                },
+                "createDate": {
+                    "description": "云盘记录的创建时间",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "数据库记录的创建时间",
+                    "type": "string"
+                },
+                "hash": {
+                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
+                    "type": "string"
+                },
+                "href": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDir": {
+                    "description": "是否为目录",
+                    "type": "boolean"
+                },
+                "isTop": {
+                    "description": "是否最顶层文件夹",
+                    "type": "boolean"
+                },
+                "modifyDate": {
+                    "description": "云盘记录的修改时间",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "文件名",
+                    "type": "string"
+                },
+                "osType": {
+                    "description": "读取文件的方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "上级文件ID",
+                    "type": "integer"
+                },
+                "rev": {
+                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "文件大小",
+                    "type": "integer"
+                },
+                "topId": {
+                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "数据库记录的修改时间",
+                    "type": "string"
+                }
+            }
+        },
         "internal_handler_http_file.createDownloadURLRequest": {
             "type": "object",
             "required": [
@@ -3696,6 +3656,103 @@ const docTemplate = `{
                 "downloadUrl": {
                     "type": "string",
                     "example": "/api/file/download/123456?sign=abc\u0026uuid=def\u0026timestamp=1234567890\u0026signer=v1"
+                }
+            }
+        },
+        "internal_handler_http_file.openResponse": {
+            "type": "object",
+            "properties": {
+                "addition": {
+                    "description": "额外信息 例如分享id 文件夹id 等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
+                        }
+                    ]
+                },
+                "apiPath": {
+                    "type": "string"
+                },
+                "breadcrumbs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handler_http_file.breadcrumbItem"
+                    }
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handler_http_file.childDTO"
+                    }
+                },
+                "childrenTotal": {
+                    "type": "integer"
+                },
+                "cloudId": {
+                    "description": "云端的文件ID",
+                    "type": "string"
+                },
+                "createDate": {
+                    "description": "云盘记录的创建时间",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "数据库记录的创建时间",
+                    "type": "string"
+                },
+                "hash": {
+                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
+                    "type": "string"
+                },
+                "href": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDir": {
+                    "description": "是否为目录",
+                    "type": "boolean"
+                },
+                "isTop": {
+                    "description": "是否最顶层文件夹",
+                    "type": "boolean"
+                },
+                "modifyDate": {
+                    "description": "云盘记录的修改时间",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "文件名",
+                    "type": "string"
+                },
+                "osType": {
+                    "description": "读取文件的方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "上级文件ID",
+                    "type": "integer"
+                },
+                "rev": {
+                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "文件大小",
+                    "type": "integer"
+                },
+                "topId": {
+                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "数据库记录的修改时间",
+                    "type": "string"
                 }
             }
         },
@@ -3949,46 +4006,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.getFamilyFilesResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode"
-                    }
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_handler_http_storage.getPersonFilesResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode"
-                    }
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "internal_handler_http_storage.listResponse": {
             "type": "object",
             "properties": {
@@ -4013,6 +4030,24 @@ const docTemplate = `{
                     "description": "总记录数",
                     "type": "integer",
                     "example": 100
+                }
+            }
+        },
+        "internal_handler_http_storage.modifyTokenRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "description": "挂载点ID",
+                    "type": "integer",
+                    "example": 1001
+                },
+                "tokenId": {
+                    "description": "新的令牌ID",
+                    "type": "integer",
+                    "example": 123
                 }
             }
         },
@@ -4051,6 +4086,9 @@ const docTemplate = `{
                 },
                 "enableDeepRefresh": {
                     "type": "boolean"
+                },
+                "fileCount": {
+                    "type": "integer"
                 },
                 "fileId": {
                     "type": "integer"
@@ -4098,7 +4136,6 @@ const docTemplate = `{
         "internal_handler_http_storage.toggleAutoRefreshRequest": {
             "type": "object",
             "required": [
-                "enableAutoRefresh",
                 "id"
             ],
             "properties": {
@@ -4756,6 +4793,7 @@ const docTemplate = `{
         },
         "time.Duration": {
             "type": "integer",
+            "format": "int64",
             "enum": [
                 -9223372036854775808,
                 9223372036854775807,
