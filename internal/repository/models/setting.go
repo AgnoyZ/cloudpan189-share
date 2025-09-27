@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Setting struct {
@@ -23,13 +25,34 @@ func (s *Setting) TableName() string {
 	return "setting"
 }
 
+// AfterFind GORM hook: 在查询完成后注入默认值
+func (s *Setting) AfterFind(tx *gorm.DB) (err error) {
+	s.Addition.applyDefaults()
+
+	return nil
+}
+
+// SettingAddition 系统附加配置
 type SettingAddition struct {
-	Keep                      string `json:"keep"`
+	Keep                      string `json:"-"`
 	LocalProxy                bool   `json:"localProxy"`
 	MultipleStream            bool   `json:"multipleStream"`
-	MultipleStreamThreadCount int    `json:"multipleStreamThreadCount,default=4"`
-	MultipleStreamChunkSize   int64  `json:"multipleStreamChunkSize,default=4194304"`
+	MultipleStreamThreadCount int    `json:"multipleStreamThreadCount"`
+	MultipleStreamChunkSize   int64  `json:"multipleStreamChunkSize"`
 	TaskThreadCount           int    `json:"taskThreadCount"`
+}
+
+// applyDefaults 统一填充默认值，确保零值时也能获得期望配置
+func (sa *SettingAddition) applyDefaults() {
+	if sa.MultipleStreamThreadCount <= 0 {
+		sa.MultipleStreamThreadCount = 4
+	}
+	if sa.MultipleStreamChunkSize <= 0 {
+		sa.MultipleStreamChunkSize = 4 * 1024 * 1024 // 4MiB
+	}
+	if sa.TaskThreadCount <= 0 {
+		sa.TaskThreadCount = 1
+	}
 }
 
 // Value 实现 driver.Valuer 接口 - 将结构体转换为数据库值

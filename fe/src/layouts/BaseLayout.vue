@@ -153,6 +153,7 @@ import {
   MenuOutline as MenuIcon,
   ServerOutline as StorageIcon,
   PersonOutline as ProfileIcon,
+  FolderOpenOutline as FileBrowserIcon,
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
@@ -201,9 +202,14 @@ const breadcrumbs = computed(() => {
   }))
 })
 
-// 菜单选项
+/**
+ * 菜单选项
+ * 折叠状态下返回扁平菜单（不显示分组标题，避免样式错乱）
+ * 展开状态下返回分组菜单（主要功能 / 文件浏览 / 管理功能）
+ */
 const menuOptions = computed((): MenuOption[] => {
-  const baseMenus: MenuOption[] = [
+  // 基础项（非分组）
+  const mainItems: MenuOption[] = [
     {
       label: '仪表盘',
       key: '/@dashboard',
@@ -216,38 +222,76 @@ const menuOptions = computed((): MenuOption[] => {
     },
   ]
 
-  // 管理员菜单
-  if (userStore.isAdmin) {
-    baseMenus.push(
-      {
-        label: '用户管理',
-        key: '/@dashboard/users',
-        icon: () => h(NIcon, null, { default: () => h(UsersIcon) }),
-      },
-      {
-        label: '用户组管理',
-        key: '/@dashboard/usergroups',
-        icon: () => h(NIcon, null, { default: () => h(UserGroupsIcon) }),
-      },
-      {
-        label: '令牌管理',
-        key: '/@dashboard/cloudtokens',
-        icon: () => h(NIcon, null, { default: () => h(TokenIcon) }),
-      },
-      {
-        label: '存储管理',
-        key: '/@dashboard/storages',
-        icon: () => h(NIcon, null, { default: () => h(StorageIcon) }),
-      },
-      {
-        label: '系统设置',
-        key: '/@dashboard/settings',
-        icon: () => h(NIcon, null, { default: () => h(SettingsIcon) }),
-      }
-    )
+  const browseItems: MenuOption[] = [
+    {
+      label: '文件浏览',
+      key: '/@dashboard/file-browser',
+      icon: () => h(NIcon, null, { default: () => h(FileBrowserIcon) }),
+    },
+  ]
+
+  const adminItems: MenuOption[] = [
+    {
+      label: '用户管理',
+      key: '/@dashboard/users',
+      icon: () => h(NIcon, null, { default: () => h(UsersIcon) }),
+    },
+    {
+      label: '用户组管理',
+      key: '/@dashboard/usergroups',
+      icon: () => h(NIcon, null, { default: () => h(UserGroupsIcon) }),
+    },
+    {
+      label: '令牌管理',
+      key: '/@dashboard/cloudtokens',
+      icon: () => h(NIcon, null, { default: () => h(TokenIcon) }),
+    },
+    {
+      label: '存储管理',
+      key: '/@dashboard/storages',
+      icon: () => h(NIcon, null, { default: () => h(StorageIcon) }),
+    },
+    {
+      label: '系统设置',
+      key: '/@dashboard/settings',
+      icon: () => h(NIcon, null, { default: () => h(SettingsIcon) }),
+    },
+  ]
+
+  // 折叠时：扁平菜单（仅图标项，无分组标题）
+  if (collapsed.value) {
+    const flat: MenuOption[] = [...mainItems, ...browseItems]
+    if (userStore.isAdmin) {
+      flat.push(...adminItems)
+    }
+    return flat
   }
 
-  return baseMenus
+  // 展开时：分组菜单
+  const mainGroup: MenuOption = {
+    type: 'group',
+    label: '主要功能',
+    key: 'group-main',
+    children: mainItems,
+  }
+
+  const browseGroup: MenuOption = {
+    type: 'group',
+    label: '文件浏览',
+    key: 'group-browse',
+    children: browseItems,
+  }
+
+  const groups: MenuOption[] = [mainGroup, browseGroup]
+  if (userStore.isAdmin) {
+    groups.push({
+      type: 'group',
+      label: '管理功能',
+      key: 'group-admin',
+      children: adminItems,
+    })
+  }
+  return groups
 })
 
 // 用户菜单选项

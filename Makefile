@@ -156,7 +156,7 @@ test:
 
 # 运行 linter
 lint:
-	@echo "🔍 Running linter..."
+	@echo "Running linter..."
 	golangci-lint run
 
 # 生成 Swagger 文档

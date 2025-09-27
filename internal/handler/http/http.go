@@ -175,6 +175,22 @@ func Start(svc bootstrap.ServiceContext) error {
 		openapiRouter.POST("/setting/init_system", wrap(settingHandler.InitSystem()))
 		openapiRouter.GET("/setting/info", wrap(settingHandler.Info()))
 	}
+	{
+		settingBaseRouter := openapiRouter.Group("/setting", wrap(userMiddleware.Auth()))
+		{
+			settingBaseRouter.GET("/addition", wrap(settingHandler.Addition()))
+		}
+	}
+
+	{
+		settingAdminRouter := openapiRouter.Group("/setting", wrap(userMiddleware.Auth(true)))
+		{
+			settingAdminRouter.POST("/modify_title", wrap(settingHandler.ModifyTitle()))
+			settingAdminRouter.POST("/modify_base_url", wrap(settingHandler.ModifyBaseURL()))
+			settingAdminRouter.POST("/toggle_enable_auth", wrap(settingHandler.ToggleEnableAuth()))
+			settingAdminRouter.POST("/modify_addition", wrap(settingHandler.ModifyAddition()))
+		}
+	}
 
 	logger.Info("http handler start", zap.Int("port", port))
 

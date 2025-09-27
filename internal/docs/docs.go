@@ -839,6 +839,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/setting/addition": {
+            "get": {
+                "description": "获取系统的 SettingAddition，仅登录用户可访问",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统设置"
+                ],
+                "summary": "查询系统附加设置",
+                "responses": {
+                    "200": {
+                        "description": "获取系统附加设置成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "查询系统配置失败，code=2003",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/setting/info": {
             "get": {
                 "description": "获取系统运行状态信息，包括运行时间、基础URL、初始化状态和认证启用状态",
@@ -913,6 +966,214 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "初始化超级管理员时发生错误，code=6002",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/setting/modify_addition": {
+            "post": {
+                "description": "更新系统的 SettingAddition（可选字段更新），仅管理员可操作",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统设置"
+                ],
+                "summary": "修改系统附加设置",
+                "parameters": [
+                    {
+                        "description": "系统附加设置（仅填写需要修改的字段）",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_setting.modifyAdditionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "系统附加设置更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "更新系统附加设置失败，code=6006",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/setting/modify_base_url": {
+            "post": {
+                "description": "更新系统基础URL，仅管理员可操作",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统设置"
+                ],
+                "summary": "修改系统基础URL",
+                "parameters": [
+                    {
+                        "description": "新的系统基础URL",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_setting.modifyBaseURLRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "系统基础URL更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "更新系统基础URL失败，code=6004",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/setting/modify_title": {
+            "post": {
+                "description": "更新系统标题，仅管理员可操作",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统设置"
+                ],
+                "summary": "修改系统标题",
+                "parameters": [
+                    {
+                        "description": "新的系统标题",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_setting.modifyTitleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "系统标题更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "更新系统标题失败，code=6003",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/setting/toggle_enable_auth": {
+            "post": {
+                "description": "启用或关闭系统鉴权，仅管理员可操作",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统设置"
+                ],
+                "summary": "切换系统鉴权开关",
+                "parameters": [
+                    {
+                        "description": "鉴权开关设置",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_setting.toggleEnableAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "系统鉴权开关更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "更新系统鉴权开关失败，code=6005",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
                         "schema": {
                             "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
                         }
@@ -3316,6 +3577,26 @@ const docTemplate = `{
                 "OsTypeFamilyFile"
             ]
         },
+        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition": {
+            "type": "object",
+            "properties": {
+                "localProxy": {
+                    "type": "boolean"
+                },
+                "multipleStream": {
+                    "type": "boolean"
+                },
+                "multipleStreamChunkSize": {
+                    "type": "integer"
+                },
+                "multipleStreamThreadCount": {
+                    "type": "integer"
+                },
+                "taskThreadCount": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_xxcheng123_cloudpan189-share_internal_repository_models.User": {
             "type": "object",
             "properties": {
@@ -3927,6 +4208,83 @@ const docTemplate = `{
                     "description": "系统标题",
                     "type": "string",
                     "example": "我的云盘系统"
+                }
+            }
+        },
+        "internal_handler_http_setting.modifyAdditionRequest": {
+            "type": "object",
+            "properties": {
+                "localProxy": {
+                    "description": "是否启用本地代理（可选）",
+                    "type": "boolean",
+                    "example": false
+                },
+                "multipleStream": {
+                    "description": "是否启用多线程分流（可选）",
+                    "type": "boolean",
+                    "example": true
+                },
+                "multipleStreamChunkSize": {
+                    "description": "分片大小，单位字节（可选，\u003e=1MiB）",
+                    "type": "integer",
+                    "minimum": 1048576,
+                    "example": 4194304
+                },
+                "multipleStreamThreadCount": {
+                    "description": "多线程数量（可选）",
+                    "type": "integer",
+                    "maximum": 64,
+                    "minimum": 1,
+                    "example": 4
+                },
+                "taskThreadCount": {
+                    "description": "任务线程数量（可选）",
+                    "type": "integer",
+                    "maximum": 32,
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "internal_handler_http_setting.modifyBaseURLRequest": {
+            "type": "object",
+            "required": [
+                "baseURL"
+            ],
+            "properties": {
+                "baseURL": {
+                    "description": "系统基础URL",
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "https://example.com"
+                }
+            }
+        },
+        "internal_handler_http_setting.modifyTitleRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "description": "系统标题",
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "我的云盘系统"
+                }
+            }
+        },
+        "internal_handler_http_setting.toggleEnableAuthRequest": {
+            "type": "object",
+            "required": [
+                "enableAuth"
+            ],
+            "properties": {
+                "enableAuth": {
+                    "description": "是否启用鉴权",
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },

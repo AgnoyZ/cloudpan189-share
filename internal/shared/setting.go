@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	SaltKey string
-	BaseURL string
+	SaltKey    string
+	BaseURL    string
+	EnableAuth bool
 
 	SettingAddition = models.SettingAddition{}
 )

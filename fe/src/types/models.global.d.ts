@@ -114,4 +114,13 @@ declare namespace Models {
     runTimeHuman: string // 运行时间 格式 例如：1年2月3天4小时5分6秒
     title: string
   }
+
+  // 系统附加设置（对应后端 models.SettingAddition）
+  interface SettingAddition {
+    localProxy: boolean
+    multipleStream: boolean
+    multipleStreamThreadCount: number
+    multipleStreamChunkSize: number
+    taskThreadCount: number
+  }
 }

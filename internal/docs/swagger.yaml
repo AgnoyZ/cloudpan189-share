@@ -195,6 +195,19 @@ definitions:
     - OsTypePersonFile
     - OsTypeFamilyFolder
     - OsTypeFamilyFile
+  github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition:
+    properties:
+      localProxy:
+        type: boolean
+      multipleStream:
+        type: boolean
+      multipleStreamChunkSize:
+        type: integer
+      multipleStreamThreadCount:
+        type: integer
+      taskThreadCount:
+        type: integer
+    type: object
   github_com_xxcheng123_cloudpan189-share_internal_repository_models.User:
     properties:
       createdAt:
@@ -622,6 +635,64 @@ definitions:
     - superPassword
     - superUsername
     - title
+    type: object
+  internal_handler_http_setting.modifyAdditionRequest:
+    properties:
+      localProxy:
+        description: 是否启用本地代理（可选）
+        example: false
+        type: boolean
+      multipleStream:
+        description: 是否启用多线程分流（可选）
+        example: true
+        type: boolean
+      multipleStreamChunkSize:
+        description: 分片大小，单位字节（可选，>=1MiB）
+        example: 4194304
+        minimum: 1048576
+        type: integer
+      multipleStreamThreadCount:
+        description: 多线程数量（可选）
+        example: 4
+        maximum: 64
+        minimum: 1
+        type: integer
+      taskThreadCount:
+        description: 任务线程数量（可选）
+        example: 1
+        maximum: 32
+        minimum: 1
+        type: integer
+    type: object
+  internal_handler_http_setting.modifyBaseURLRequest:
+    properties:
+      baseURL:
+        description: 系统基础URL
+        example: https://example.com
+        maxLength: 255
+        type: string
+    required:
+    - baseURL
+    type: object
+  internal_handler_http_setting.modifyTitleRequest:
+    properties:
+      title:
+        description: 系统标题
+        example: 我的云盘系统
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - title
+    type: object
+  internal_handler_http_setting.toggleEnableAuthRequest:
+    properties:
+      enableAuth:
+        description: 是否启用鉴权
+        example: true
+        type: boolean
+    required:
+    - enableAuth
     type: object
   internal_handler_http_storage.addRequest:
     properties:
@@ -1803,6 +1874,38 @@ paths:
       summary: 搜索文件
       tags:
       - 文件管理
+  /api/setting/addition:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统的 SettingAddition，仅登录用户可访问
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取系统附加设置成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition'
+              type: object
+        "400":
+          description: 查询系统配置失败，code=2003
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 查询系统附加设置
+      tags:
+      - 系统设置
   /api/setting/info:
     get:
       consumes:
@@ -1851,6 +1954,142 @@ paths:
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
       summary: 初始化系统
+      tags:
+      - 系统设置
+  /api/setting/modify_addition:
+    post:
+      consumes:
+      - application/json
+      description: 更新系统的 SettingAddition（可选字段更新），仅管理员可操作
+      parameters:
+      - description: 系统附加设置（仅填写需要修改的字段）
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_setting.modifyAdditionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统附加设置更新成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 更新系统附加设置失败，code=6006
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 修改系统附加设置
+      tags:
+      - 系统设置
+  /api/setting/modify_base_url:
+    post:
+      consumes:
+      - application/json
+      description: 更新系统基础URL，仅管理员可操作
+      parameters:
+      - description: 新的系统基础URL
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_setting.modifyBaseURLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统基础URL更新成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 更新系统基础URL失败，code=6004
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 修改系统基础URL
+      tags:
+      - 系统设置
+  /api/setting/modify_title:
+    post:
+      consumes:
+      - application/json
+      description: 更新系统标题，仅管理员可操作
+      parameters:
+      - description: 新的系统标题
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_setting.modifyTitleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统标题更新成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 更新系统标题失败，code=6003
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 修改系统标题
+      tags:
+      - 系统设置
+  /api/setting/toggle_enable_auth:
+    post:
+      consumes:
+      - application/json
+      description: 启用或关闭系统鉴权，仅管理员可操作
+      parameters:
+      - description: 鉴权开关设置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http_setting.toggleEnableAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统鉴权开关更新成功
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "400":
+          description: 更新系统鉴权开关失败，code=6005
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 切换系统鉴权开关
       tags:
       - 系统设置
   /api/storage/add:

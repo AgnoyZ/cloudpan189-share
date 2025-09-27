@@ -80,6 +80,7 @@ func assignShared(db *gorm.DB) (err error) {
 
 	shared.SaltKey = setting.SaltKey
 	shared.BaseURL = setting.BaseURL
+	shared.EnableAuth = setting.EnableAuth
 	shared.SettingAddition = setting.Addition
 
 	return nil

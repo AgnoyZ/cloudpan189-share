@@ -80,6 +80,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'settings',
+          name: 'Settings',
+          component: () => import('@/views/dashboard/settings/index.vue'),
+          meta: {
+            title: '系统设置',
+            requiresAuth: true,
+            requiresAdmin: true,
+          },
+        },
+        {
           path: 'profile',
           name: 'Profile',
           component: () => import('@/views/dashboard/profile/index.vue'),

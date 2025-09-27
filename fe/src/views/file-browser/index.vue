@@ -25,6 +25,18 @@
           </template>
           返回上级
         </n-button>
+        <n-button text @click="goAdmin">
+          <template #icon>
+            <n-icon :component="SettingsOutline" />
+          </template>
+          后台
+        </n-button>
+        <n-button text @click="showSearch = true">
+          <template #icon>
+            <n-icon :component="SearchOutline" />
+          </template>
+          搜索
+        </n-button>
         <n-button text @click="refreshCurrentPath" :loading="loading">
           <template #icon>
             <n-icon :component="RefreshOutline" />
@@ -54,6 +66,14 @@
       <!-- 文件：显示文件详情 -->
       <FileDetail v-else :file-info="fileInfo" :loading="false" />
     </template>
+
+    <!-- 搜索弹窗 -->
+    <SearchFilesDialog
+      :show="showSearch"
+      :currentDirId="fileInfo && fileInfo.isDir ? fileInfo.id : null"
+      @update:show="(v) => (showSearch = v)"
+      @select="onSearchSelect"
+    />
   </div>
 </template>
 
@@ -61,15 +81,22 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NIcon, NBreadcrumb, NBreadcrumbItem, NSpin, useMessage } from 'naive-ui'
-import { HomeOutline, RefreshOutline, ArrowUndoOutline } from '@vicons/ionicons5'
+import {
+  HomeOutline,
+  RefreshOutline,
+  ArrowUndoOutline,
+  SearchOutline,
+  SettingsOutline,
+} from '@vicons/ionicons5'
 import {
   openFile,
   createDownloadUrl,
   type FileChild,
   type BreadcrumbItem,
   type FileOpenResponse,
+  type FileSearchItem,
 } from '@/api/file'
-import { FileList, FileDetail } from '@/components/file-browser'
+import { FileList, FileDetail, SearchFilesDialog } from '@/components/file-browser'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,6 +107,7 @@ const loading = ref(false)
 const fileInfo = ref<FileOpenResponse | null>(null)
 const currentPath = ref('/')
 const breadcrumbs = ref<BreadcrumbItem[]>([])
+const showSearch = ref(false)
 
 // 计算属性
 const canGoBack = computed(() => breadcrumbs.value.length > 0)
@@ -119,6 +147,22 @@ const navigateToPath = (path: string) => {
 
 const refreshCurrentPath = () => {
   loadPath(currentPath.value)
+}
+
+const goAdmin = () => {
+  // 后台首页路由，如有自定义请改成你的后台路径
+  router.push({ path: '/@dashboard' })
+}
+
+const onSearchSelect = (row: FileSearchItem) => {
+  // 目录：直接进入目录；文件：进入其所在目录
+  let targetPath = row.fullPath || '/'
+  if (!row.isDir) {
+    const idx = targetPath.lastIndexOf('/')
+    targetPath = idx > 0 ? targetPath.slice(0, idx) : '/'
+  }
+  showSearch.value = false
+  navigateToPath(targetPath)
 }
 
 const goBack = () => {
@@ -184,6 +228,15 @@ watch(
   border-radius: 8px;
   margin-bottom: 20px;
   border: 1px solid #e9ecef;
+
+  /* 使顶部栏在页面滚动时保持固定在顶部 */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  /* 贴顶时更清晰的层级与视觉分隔 */
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+  backdrop-filter: saturate(180%) blur(2px);
 }
 
 .breadcrumb-section {
