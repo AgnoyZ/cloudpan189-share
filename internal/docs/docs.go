@@ -1942,6 +1942,85 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/storage/select_list": {
+            "get": {
+                "description": "返回用于选择的简化数据（不分页），仅包含必要字段",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "获取存储挂载点简化列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"/aaa\"",
+                        "description": "路径过滤（模糊匹配）",
+                        "name": "path",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"挂载点\"",
+                        "description": "名称过滤（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取简化列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/internal_handler_http_storage.selectItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "查询挂载点失败，code=3019",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/storage/toggle_auto_refresh": {
             "post": {
                 "description": "启用或禁用存储挂载点的自动刷新功能，并可配置相关参数",
@@ -4424,6 +4503,26 @@ const docTemplate = `{
                     "description": "挂载点ID",
                     "type": "integer",
                     "example": 1001
+                }
+            }
+        },
+        "internal_handler_http_storage.selectItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "fileId",
+                    "type": "integer",
+                    "example": 123
+                },
+                "name": {
+                    "description": "展示名称（挂载点名称）",
+                    "type": "string",
+                    "example": "我的挂载点"
+                },
+                "path": {
+                    "description": "完整路径",
+                    "type": "string",
+                    "example": "/path/aaa"
                 }
             }
         },

@@ -16,6 +16,7 @@ type Handler interface {
 	Add() httpcontext.HandlerFunc
 	Delete() httpcontext.HandlerFunc
 	List() httpcontext.HandlerFunc
+	SelectList() httpcontext.HandlerFunc
 	Refresh() httpcontext.HandlerFunc
 	ToggleAutoRefresh() httpcontext.HandlerFunc
 	ModifyToken() httpcontext.HandlerFunc

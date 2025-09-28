@@ -796,6 +796,21 @@ definitions:
     required:
     - id
     type: object
+  internal_handler_http_storage.selectItem:
+    properties:
+      id:
+        description: fileId
+        example: 123
+        type: integer
+      name:
+        description: 展示名称（挂载点名称）
+        example: 我的挂载点
+        type: string
+      path:
+        description: 完整路径
+        example: /path/aaa
+        type: string
+    type: object
   internal_handler_http_storage.storageDTO:
     properties:
       autoRefreshBeginAt:
@@ -2582,6 +2597,56 @@ paths:
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
       summary: 刷新存储挂载
+      tags:
+      - 存储管理
+  /api/storage/select_list:
+    get:
+      consumes:
+      - application/json
+      description: 返回用于选择的简化数据（不分页），仅包含必要字段
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 路径过滤（模糊匹配）
+        example: '"/aaa"'
+        in: query
+        name: path
+        type: string
+      - description: 名称过滤（模糊匹配）
+        example: '"挂载点"'
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取简化列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_handler_http_storage.selectItem'
+                  type: array
+              type: object
+        "400":
+          description: 查询挂载点失败，code=3019
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 获取存储挂载点简化列表
       tags:
       - 存储管理
   /api/storage/toggle_auto_refresh:

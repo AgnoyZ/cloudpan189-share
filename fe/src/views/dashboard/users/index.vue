@@ -357,7 +357,7 @@ const columns: DataTableColumns<Models.UserInfo> = [
               NButton,
               {
                 size: 'tiny',
-                type: 'default',
+                type: 'primary',
                 secondary: true,
                 onClick: () => handleBindGroup(row),
               },

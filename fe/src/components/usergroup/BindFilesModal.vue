@@ -1,12 +1,12 @@
 <template>
-  <n-modal v-model:show="visible" preset="dialog" title="绑定文件" style="width: 800px">
+  <n-modal v-model:show="visible" preset="dialog" title="绑定存储" style="width: 800px">
     <div class="bind-files-modal">
       <!-- 搜索区域 -->
       <div class="search-section">
         <n-space>
           <n-input
             v-model:value="searchKeyword"
-            placeholder="搜索文件..."
+            placeholder="搜索存储挂载点..."
             clearable
             @keyup.enter="handleSearch"
           >
@@ -18,34 +18,40 @@
         </n-space>
       </div>
 
-      <!-- 文件列表 -->
+      <!-- 存储列表 -->
       <div class="file-list-section">
         <n-data-table
           :columns="columns"
-          :data="fileList"
+          :data="storageList"
           :loading="loading"
-          :pagination="pagination"
           :row-key="(row) => row.id"
-          :checked-row-keys="selectedFileIds"
+          :checked-row-keys="selectedStorageIds"
           @update:checked-row-keys="handleSelectionChange"
         />
       </div>
 
-      <!-- 已选择的文件 -->
-      <div class="selected-section" v-if="selectedFileIds.length > 0">
-        <n-divider />
+      <!-- 已选择的存储 -->
+      <div class="selected-section" v-if="selectedStorageIds.length > 0">
+        <n-divider style="margin: 12px 0 8px" />
         <div class="selected-header">
-          <span>已选择 {{ selectedFileIds.length }} 个文件</span>
+          <span>已选择 {{ selectedStorageIds.length }} 个存储挂载点</span>
           <n-button text type="error" @click="clearSelection">清空选择</n-button>
         </div>
         <div class="selected-files">
+          <!-- 显示前10个标签 -->
           <n-tag
-            v-for="fileId in selectedFileIds"
-            :key="fileId"
+            v-for="storageId in displayedStorageIds"
+            :key="storageId"
+            size="small"
             closable
-            @close="removeSelection(fileId)"
+            :title="getFullStorageName(storageId)"
+            @close="removeSelection(storageId)"
           >
-            {{ getFileName(fileId) }}
+            {{ getStorageName(storageId) }}
+          </n-tag>
+          <!-- 如果超过10个，显示省略提示 -->
+          <n-tag v-if="selectedStorageIds.length > 10" size="small" type="info">
+            +{{ selectedStorageIds.length - 10 }} 更多...
           </n-tag>
         </div>
       </div>
@@ -57,7 +63,7 @@
         <n-button
           type="primary"
           :loading="submitting"
-          :disabled="selectedFileIds.length === 0"
+          :disabled="selectedStorageIds.length === 0"
           @click="handleConfirm"
         >
           确定绑定
@@ -82,14 +88,12 @@ import {
   type DataTableColumns,
 } from 'naive-ui'
 import { SearchOutline } from '@vicons/ionicons5'
-import { searchFiles, type FileSearchQuery, type FileSearchItem } from '@/api/file'
-import { batchBindFiles } from '@/api/usergroup'
+import { getStorageSelectList, type StorageSelectItem } from '@/api/storage'
+import { batchBindFiles, getBindFiles } from '@/api/usergroup'
 
 interface Props {
   show: boolean
-  groupId?: number
-  groupName?: string
-  initialFileIds?: number[]
+  userGroupInfo?: Models.UserGroup | null
 }
 
 interface Emits {
@@ -99,9 +103,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   show: false,
-  groupId: 0,
-  groupName: '',
-  initialFileIds: () => [],
+  userGroupInfo: null,
 })
 
 const emit = defineEmits<Emits>()
@@ -116,57 +118,32 @@ const visible = computed({
 const searchKeyword = ref('')
 const loading = ref(false)
 const submitting = ref(false)
-const fileList = ref<FileSearchItem[]>([])
-const selectedFileIds = ref<number[]>([])
+const storageList = ref<StorageSelectItem[]>([])
+const selectedStorageIds = ref<number[]>([])
 
-// 分页配置
-const pagination = ref({
-  page: 1,
-  pageSize: 10,
-  itemCount: 0,
-  showSizePicker: true,
-  pageSizes: [10, 20, 50],
-  onChange: (page: number) => {
-    pagination.value.page = page
-    handleSearch()
-  },
-  onUpdatePageSize: (pageSize: number) => {
-    pagination.value.pageSize = pageSize
-    pagination.value.page = 1
-    handleSearch()
-  },
+// 显示的存储ID列表（最多显示10个）
+const displayedStorageIds = computed(() => {
+  return selectedStorageIds.value.slice(0, 10)
 })
 
 // 表格列配置
-const columns: DataTableColumns<FileSearchItem> = [
+const columns: DataTableColumns<StorageSelectItem> = [
   {
     type: 'selection',
   },
   {
-    title: '文件名',
+    title: '存储名称',
     key: 'name',
     ellipsis: {
       tooltip: true,
     },
   },
   {
-    title: '类型',
-    key: 'isDir',
-    width: 80,
-    render: (row) => (row.isDir ? '文件夹' : '文件'),
-  },
-  {
-    title: '路径',
-    key: 'fullPath',
+    title: '存储路径',
+    key: 'path',
     ellipsis: {
       tooltip: true,
     },
-  },
-  {
-    title: '大小',
-    key: 'size',
-    width: 100,
-    render: (row) => (row.isDir ? '-' : formatFileSize(row.size)),
   },
 ]
 
@@ -177,40 +154,55 @@ watch(
     if (newShow) {
       // 重置状态
       searchKeyword.value = ''
-      selectedFileIds.value = [...props.initialFileIds]
-      // 初始加载文件列表
+      selectedStorageIds.value = []
+      // 初始加载存储列表和已绑定文件
       nextTick(() => {
-        handleSearch()
+        Promise.all([handleSearch(), loadBindFiles()])
       })
     }
   }
 )
 
-// 搜索文件
+// 加载已绑定的文件
+const loadBindFiles = () => {
+  if (!props.userGroupInfo?.id) return Promise.resolve()
+
+  return getBindFiles(props.userGroupInfo.id)
+    .then((response) => {
+      if (response.code === 200 && response.data) {
+        // 预选已绑定的文件ID
+        selectedStorageIds.value = response.data.fileIds || []
+      } else {
+        console.warn('获取已绑定文件失败:', response.msg)
+      }
+    })
+    .catch((error) => {
+      console.error('获取已绑定文件失败:', error)
+    })
+}
+
+// 搜索存储
 const handleSearch = () => {
   if (!visible.value) return
 
   loading.value = true
 
-  const params: FileSearchQuery = {
-    keyword: searchKeyword.value || undefined,
-    global: true,
-    pageSize: pagination.value.pageSize,
-    currentPage: pagination.value.page,
+  const params = {
+    name: searchKeyword.value || undefined,
+    path: searchKeyword.value || undefined,
   }
 
-  return searchFiles(params)
+  return getStorageSelectList(params)
     .then((response) => {
       if (response.code === 200 && response.data) {
-        fileList.value = response.data.data
-        pagination.value.itemCount = response.data.total
+        storageList.value = response.data
       } else {
-        message.error(response.msg || '搜索文件失败')
+        message.error(response.msg || '获取存储列表失败')
       }
     })
     .catch((error) => {
-      console.error('搜索文件失败:', error)
-      message.error('搜索文件失败')
+      console.error('获取存储列表失败:', error)
+      message.error('获取存储列表失败')
     })
     .finally(() => {
       loading.value = false
@@ -219,35 +211,34 @@ const handleSearch = () => {
 
 // 处理选择变化
 const handleSelectionChange = (keys: Array<string | number>) => {
-  selectedFileIds.value = keys.map((key) => Number(key))
+  selectedStorageIds.value = keys.map((key) => Number(key))
 }
 
 // 清空选择
 const clearSelection = () => {
-  selectedFileIds.value = []
+  selectedStorageIds.value = []
 }
 
 // 移除单个选择
-const removeSelection = (fileId: number) => {
-  const index = selectedFileIds.value.indexOf(fileId)
+const removeSelection = (storageId: number) => {
+  const index = selectedStorageIds.value.indexOf(storageId)
   if (index > -1) {
-    selectedFileIds.value.splice(index, 1)
+    selectedStorageIds.value.splice(index, 1)
   }
 }
 
-// 获取文件名
-const getFileName = (fileId: number) => {
-  const file = fileList.value.find((f) => f.id === fileId)
-  return file ? file.name : `文件ID: ${fileId}`
+// 获取存储名称（限制长度）
+const getStorageName = (storageId: number) => {
+  const storage = storageList.value.find((s) => s.id === storageId)
+  const name = storage ? storage.name : `存储ID: ${storageId}`
+  // 限制标签显示长度，超过20个字符显示省略号
+  return name.length > 20 ? name.substring(0, 20) + '...' : name
 }
 
-// 格式化文件大小
-const formatFileSize = (size: number) => {
-  if (size === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(size) / Math.log(k))
-  return parseFloat((size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+// 获取完整存储名称（用于tooltip）
+const getFullStorageName = (storageId: number) => {
+  const storage = storageList.value.find((s) => s.id === storageId)
+  return storage ? storage.name : `存储ID: ${storageId}`
 }
 
 // 取消操作
@@ -257,29 +248,29 @@ const handleCancel = () => {
 
 // 确认绑定
 const handleConfirm = () => {
-  if (!props.groupId || selectedFileIds.value.length === 0) {
-    message.warning('请选择要绑定的文件')
+  if (!props.userGroupInfo?.id || selectedStorageIds.value.length === 0) {
+    message.warning('请选择要绑定的存储')
     return
   }
 
   submitting.value = true
 
   return batchBindFiles({
-    groupId: props.groupId,
-    fileIds: selectedFileIds.value,
+    groupId: props.userGroupInfo.id,
+    fileIds: selectedStorageIds.value,
   })
     .then((response) => {
       if (response.code === 200) {
-        message.success('文件绑定成功')
+        message.success('存储绑定成功')
         visible.value = false
         emit('success')
       } else {
-        message.error(response.msg || '文件绑定失败')
+        message.error(response.msg || '存储绑定失败')
       }
     })
     .catch((error) => {
-      console.error('文件绑定失败:', error)
-      message.error('文件绑定失败')
+      console.error('存储绑定失败:', error)
+      message.error('存储绑定失败')
     })
     .finally(() => {
       submitting.value = false
@@ -297,15 +288,21 @@ const handleConfirm = () => {
 
 .search-section {
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .file-list-section {
   flex: 1;
   min-height: 300px;
+  max-height: 400px;
+  overflow: auto;
 }
 
 .selected-section {
   margin-top: 16px;
+  flex-shrink: 0;
+  max-height: 150px;
+  overflow: hidden;
 }
 
 .selected-header {
@@ -320,7 +317,34 @@ const handleConfirm = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  max-height: 100px;
+  max-height: 120px;
   overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--n-border-color);
+  border-radius: 6px;
+  background-color: var(--n-color-target);
+}
+
+/* 自定义滚动条样式 */
+.file-list-section::-webkit-scrollbar,
+.selected-files::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-list-section::-webkit-scrollbar-track,
+.selected-files::-webkit-scrollbar-track {
+  background: var(--n-scrollbar-color);
+  border-radius: 3px;
+}
+
+.file-list-section::-webkit-scrollbar-thumb,
+.selected-files::-webkit-scrollbar-thumb {
+  background: var(--n-scrollbar-color-hover);
+  border-radius: 3px;
+}
+
+.file-list-section::-webkit-scrollbar-thumb:hover,
+.selected-files::-webkit-scrollbar-thumb:hover {
+  background: var(--n-scrollbar-color-pressed);
 }
 </style>

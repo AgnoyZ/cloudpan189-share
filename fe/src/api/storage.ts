@@ -58,6 +58,17 @@ export interface StorageListQuery {
   path?: string // 路径过滤
 }
 
+export interface StorageSelectListQuery {
+  path?: string // 路径过滤（模糊）
+  name?: string // 名称过滤（模糊）
+}
+
+export interface StorageSelectItem {
+  id: number // fileId
+  name: string // 挂载点名称
+  path: string // 完整路径
+}
+
 // 存储信息接口（扩展挂载点，包含关联数据）
 export interface StorageInfo extends Models.MountPoint {
   tokenName?: string // 关联的token名称
@@ -83,6 +94,13 @@ export const getStorageList = (
   params?: StorageListQuery
 ): Promise<ApiResponse<Models.PaginationResponse<StorageInfo>>> => {
   return api.get('/storage/list', { params }).then((res) => res.data)
+}
+
+// 获取存储挂载点简化选择列表（不分页）
+export const getStorageSelectList = (
+  params?: StorageSelectListQuery
+): Promise<ApiResponse<StorageSelectItem[]>> => {
+  return api.get('/storage/select_list', { params }).then((res) => res.data)
 }
 
 // 刷新存储挂载

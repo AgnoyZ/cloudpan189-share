@@ -114,6 +114,7 @@ func Start(svc bootstrap.ServiceContext) {
 			storageRouter.POST("/add", wrap(storageHandler.Add()))
 			storageRouter.POST("/delete", wrap(storageHandler.Delete()))
 			storageRouter.GET("/list", wrap(storageHandler.List()))
+			storageRouter.GET("/select_list", wrap(storageHandler.SelectList()))
 			storageRouter.POST("/refresh", wrap(storageHandler.Refresh()))
 			storageRouter.POST("/toggle_auto_refresh", wrap(storageHandler.ToggleAutoRefresh()))
 			storageRouter.POST("/modify_token", wrap(storageHandler.ModifyToken()))

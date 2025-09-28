@@ -44,7 +44,7 @@
       @success="handleModifyNameSuccess"
     />
 
-    <!-- 绑定文件弹窗 -->
+    <!-- 绑定存储弹窗 -->
     <BindFilesModal
       v-model:show="showBindFilesModal"
       :user-group-info="currentBindUserGroup"
@@ -276,7 +276,7 @@ const columns: DataTableColumns<Models.UserGroup> = [
                 default: () => '修改',
               }
             ),
-            // 绑定文件按钮
+            // 绑定存储按钮
             h(
               NButton,
               {
@@ -287,7 +287,7 @@ const columns: DataTableColumns<Models.UserGroup> = [
               },
               {
                 icon: () => h(NIcon, { size: 12 }, { default: () => h(LinkOutline) }),
-                default: () => '绑定文件',
+                default: () => '绑定存储',
               }
             ),
             // 删除按钮
