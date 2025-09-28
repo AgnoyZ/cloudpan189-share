@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/configs"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/consumer"
+	"github.com/xxcheng123/cloudpan189-share/internal/handler/dav"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/scheduler"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/shutdown"
@@ -20,6 +23,8 @@ func main() {
 
 	logger := svc.GetLogger("main")
 	taskEngine := svc.GetTaskEngine()
+	httpEngine := svc.GetHTTPEngine()
+	port := svc.GetPort()
 
 	if err = consumer.Start(svc); err != nil {
 		panic(err)
@@ -34,10 +39,12 @@ func main() {
 		panic(err)
 	}
 
-	// 启动HTTP服务在单独的goroutine中，避免阻塞
+	http.Start(svc)
+	dav.Start(svc)
+
 	go func() {
-		if err = http.Start(svc); err != nil {
-			logger.Error("http server failed", zap.Error(err))
+		if err = httpEngine.Run(fmt.Sprintf(":%d", port)); err != nil {
+			panic(err)
 		}
 	}()
 

@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
 
 	"github.com/casbin/casbin/v2"
@@ -19,6 +20,7 @@ type ServiceContext interface {
 	Close()
 	GetPort() int
 	GetTaskEngine() taskengine.TaskEngine
+	GetHTTPEngine() *gin.Engine
 }
 
 type serviceContext struct {
@@ -26,6 +28,7 @@ type serviceContext struct {
 	db         *gorm.DB
 	logger     *zap.Logger
 	taskEngine taskengine.TaskEngine
+	httpEngine *gin.Engine
 }
 
 func (s *serviceContext) GetDB(ctx context.Context) *gorm.DB {
@@ -46,6 +49,10 @@ func (s *serviceContext) GetPort() int {
 
 func (s *serviceContext) GetTaskEngine() taskengine.TaskEngine {
 	return s.taskEngine
+}
+
+func (s *serviceContext) GetHTTPEngine() *gin.Engine {
+	return s.httpEngine
 }
 
 func New(c *configs.RuntimeConfig) (ServiceContext, error) {
@@ -95,11 +102,15 @@ func newServiceContext(c *configs.RuntimeConfig) (ServiceContext, error) {
 		Logger: gLogger,
 	})
 
+	httpEngine := gin.New()
+	httpEngine.Use(gin.Recovery())
+
 	return &serviceContext{
 		config:     c,
 		db:         db,
 		logger:     logger,
 		taskEngine: taskEngine,
+		httpEngine: httpEngine,
 	}, nil
 }
 
@@ -131,6 +142,10 @@ func (m *mockServiceContext) GetPort() int {
 }
 
 func (m *mockServiceContext) GetTaskEngine() taskengine.TaskEngine {
+	return nil
+}
+
+func (m *mockServiceContext) GetHTTPEngine() *gin.Engine {
 	return nil
 }
 

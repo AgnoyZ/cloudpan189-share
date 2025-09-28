@@ -1,8 +1,6 @@
 package http
 
 import (
-	"fmt"
-
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/taskstate"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/cloudtoken"
@@ -12,7 +10,6 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage/advance"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/usergroup"
 
-	"github.com/gin-gonic/gin"
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/user"
@@ -27,27 +24,22 @@ import (
 	userGroupSvi "github.com/xxcheng123/cloudpan189-share/internal/services/usergroup"
 	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
-
-	"go.uber.org/zap"
 )
 
-func Start(svc bootstrap.ServiceContext) error {
+func Start(svc bootstrap.ServiceContext) {
 	const (
 		handlerName = "http"
 	)
 
 	var (
-		engine = gin.New()
+		engine = svc.GetHTTPEngine()
 
 		logger     = svc.GetLogger(handlerName)
-		port       = svc.GetPort()
 		taskEngine = svc.GetTaskEngine()
 
 		wrapper = httpcontext.NewHandlerFuncWrapper(logger)
 		wrap    = wrapper.Wrap
 	)
-
-	engine.Use(gin.Recovery())
 
 	var (
 		userService        = userSvi.NewService(svc)
@@ -191,8 +183,4 @@ func Start(svc bootstrap.ServiceContext) error {
 			settingAdminRouter.POST("/modify_addition", wrap(settingHandler.ModifyAddition()))
 		}
 	}
-
-	logger.Info("http handler start", zap.Int("port", port))
-
-	return engine.Run(fmt.Sprintf(":%d", port))
 }
