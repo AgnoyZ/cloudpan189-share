@@ -5250,7 +5250,6 @@ const docTemplate = `{
         },
         "time.Duration": {
             "type": "integer",
-            "format": "int64",
             "enum": [
                 -9223372036854775808,
                 9223372036854775807,

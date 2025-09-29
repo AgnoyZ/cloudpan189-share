@@ -32,6 +32,7 @@
       :loading="loading"
       :pagination="paginationReactive"
       class="usergroups-table"
+      remote
     />
 
     <!-- 添加用户组弹窗 -->
@@ -97,6 +98,7 @@ const paginationReactive = reactive<PaginationProps>({
   itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
+  prefix: ({ itemCount }) => `共 ${itemCount} 条`,
   onChange: (page: number) => {
     console.log('分页切换到:', page)
     paginationReactive.page = page

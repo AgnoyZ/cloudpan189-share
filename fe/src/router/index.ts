@@ -98,6 +98,26 @@ const router = createRouter({
             requiresAuth: true,
           },
         },
+        {
+          path: 'tasklogs',
+          name: 'TaskLogs',
+          component: () => import('@/views/dashboard/tasklogs/index.vue'),
+          meta: {
+            title: '任务日志',
+            requiresAuth: true,
+            requiresAdmin: true,
+          },
+        },
+        {
+          path: 'enginelogs',
+          name: 'EngineLogs',
+          component: () => import('@/views/dashboard/enginelogs/index.vue'),
+          meta: {
+            title: '执行日志',
+            requiresAuth: true,
+            requiresAdmin: true,
+          },
+        },
       ],
     },
     {

@@ -17,8 +17,8 @@ type ListRequest struct {
 	BeginAt time.Time `form:"beginAt" binding:"omitempty"`
 	EndAt   time.Time `form:"endAt" binding:"omitempty"`
 
-	CurrentPage int    `form:"currentPage" binding:"omitempty,min=1"`
-	PageSize    int    `form:"pageSize" binding:"omitempty,min=1"`
+	CurrentPage int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"` // 当前页码，默认为1
+	PageSize    int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`  // 每页大小，默认为10
 	NoPaginate  bool   `form:"-"`
 	Title       string `form:"title" binding:"omitempty"`
 

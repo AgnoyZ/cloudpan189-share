@@ -123,4 +123,36 @@ declare namespace Models {
     multipleStreamChunkSize: number
     taskThreadCount: number
   }
+
+  // 任务引擎统计信息（对应后端 TaskStats）
+  interface TaskStats {
+    totalTasks: number
+    pendingTasks: number
+    runningTasks: number
+    completedTasks: number
+    failedTasks: number
+  }
+
+  // 处理器结果（对应后端 ProcessorResult）
+  interface ProcessorResult {
+    processorId: string
+    status: string
+    error: string
+    startTime: string
+    endTime: string
+    duration: number // time.Duration
+  }
+
+  // 任务信息（对应后端 TaskInfo）
+  interface TaskInfo {
+    id: string // 任务唯一ID
+    topic: string // 消息主题
+    payload: number[] // 载荷数据
+    status: string // 状态
+    workerId: string // 处理的Worker ID
+    receiveAt: string // 接收时间
+    startAt: string // 开始时间
+    endAt: string // 结束时间
+    results: ProcessorResult[] // 处理器结果
+  }
 }

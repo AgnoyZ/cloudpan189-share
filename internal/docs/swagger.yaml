@@ -1340,7 +1340,6 @@ definitions:
     - 1000000000
     - 60000000000
     - 3600000000000
-    format: int64
     type: integer
     x-enum-varnames:
     - minDuration

@@ -6,7 +6,7 @@
       bordered
       collapse-mode="width"
       :collapsed-width="64"
-      :width="240"
+      :width="200"
       :collapsed="collapsed"
       show-trigger
       @collapse="collapsed = true"
@@ -38,7 +38,7 @@
     <n-drawer
       v-if="isMobile"
       v-model:show="mobileMenuVisible"
-      :width="280"
+      :width="240"
       placement="left"
       class="mobile-drawer"
     >
@@ -154,6 +154,8 @@ import {
   ServerOutline as StorageIcon,
   PersonOutline as ProfileIcon,
   FolderOpenOutline as FileBrowserIcon,
+  DocumentTextOutline as TaskLogIcon,
+  PlayCircleOutline as EngineLogIcon,
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
@@ -250,6 +252,16 @@ const menuOptions = computed((): MenuOption[] => {
       label: '存储管理',
       key: '/@dashboard/storages',
       icon: () => h(NIcon, null, { default: () => h(StorageIcon) }),
+    },
+    {
+      label: '任务日志',
+      key: '/@dashboard/tasklogs',
+      icon: () => h(NIcon, null, { default: () => h(TaskLogIcon) }),
+    },
+    {
+      label: '执行日志',
+      key: '/@dashboard/enginelogs',
+      icon: () => h(NIcon, null, { default: () => h(EngineLogIcon) }),
     },
     {
       label: '系统设置',
