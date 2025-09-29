@@ -52,15 +52,19 @@ func (h *handler) ModifyAddition() httpcontext.HandlerFunc {
 		if req.LocalProxy != nil {
 			merged.LocalProxy = *req.LocalProxy
 		}
+
 		if req.MultipleStream != nil {
 			merged.MultipleStream = *req.MultipleStream
 		}
+
 		if req.MultipleStreamThreadCount != nil {
 			merged.MultipleStreamThreadCount = *req.MultipleStreamThreadCount
 		}
+
 		if req.MultipleStreamChunkSize != nil {
 			merged.MultipleStreamChunkSize = *req.MultipleStreamChunkSize
 		}
+
 		if req.TaskThreadCount != nil {
 			merged.TaskThreadCount = *req.TaskThreadCount
 		}

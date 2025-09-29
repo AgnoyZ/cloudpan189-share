@@ -47,9 +47,11 @@ func (sa *SettingAddition) applyDefaults() {
 	if sa.MultipleStreamThreadCount <= 0 {
 		sa.MultipleStreamThreadCount = 4
 	}
+
 	if sa.MultipleStreamChunkSize <= 0 {
 		sa.MultipleStreamChunkSize = 4 * 1024 * 1024 // 4MiB
 	}
+
 	if sa.TaskThreadCount <= 0 {
 		sa.TaskThreadCount = 1
 	}
@@ -68,6 +70,7 @@ func (sa SettingAddition) Value() (driver.Value, error) {
 func (sa *SettingAddition) Scan(value interface{}) error {
 	if value == nil {
 		*sa = SettingAddition{}
+
 		return nil
 	}
 

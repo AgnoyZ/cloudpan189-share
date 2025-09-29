@@ -132,7 +132,9 @@ func (h *handler) Open() httpcontext.HandlerFunc {
 		}
 
 		var breadcrumbs []*breadcrumbItem
+
 		var currentHref string
+
 		for _, p := range paths {
 			breadcrumbs = append(breadcrumbs, &breadcrumbItem{
 				Href: utils.PathEscape(openBaseURL, path.Join(currentHref, p)),

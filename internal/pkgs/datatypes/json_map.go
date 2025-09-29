@@ -33,6 +33,7 @@ func (m JSONMap) Value() (driver.Value, error) {
 func (m *JSONMap) Scan(val interface{}) error {
 	if val == nil {
 		*m = make(JSONMap)
+
 		return nil
 	}
 
@@ -260,4 +261,27 @@ func (jm JSONMap) Set(key string, value interface{}) {
 	}
 
 	jm[key] = value
+}
+
+// FromStruct 将带有 json 标签的结构体转换为 JSONMap（使用 UseNumber 保留数字精度）
+func FromStruct(v interface{}) (JSONMap, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	b, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+
+	var m map[string]interface{}
+
+	dec := json.NewDecoder(bytes.NewReader(b))
+	dec.UseNumber()
+
+	if err := dec.Decode(&m); err != nil {
+		return nil, err
+	}
+
+	return JSONMap(m), nil
 }

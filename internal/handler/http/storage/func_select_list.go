@@ -40,6 +40,7 @@ func (h *handler) SelectList() httpcontext.HandlerFunc {
 		req := new(selectListRequest)
 		if err := ctx.ShouldBindQuery(req); err != nil {
 			ctx.AbortWithInvalidParams(err)
+
 			return
 		}
 
@@ -52,6 +53,7 @@ func (h *handler) SelectList() httpcontext.HandlerFunc {
 		list, err := h.mountPointService.List(ctx.GetContext(), mpReq)
 		if err != nil {
 			ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
+
 			return
 		}
 

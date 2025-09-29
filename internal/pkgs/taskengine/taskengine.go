@@ -96,6 +96,7 @@ func (t *taskEngine) Start() error {
 
 	for idx := 0; idx < t.options.WorkerCount; idx++ {
 		t.workerGroup.Add(1)
+
 		go t.worker(fmt.Sprintf("worker_%d", idx))
 	}
 
@@ -197,6 +198,7 @@ func (t *taskEngine) processMessage(taskInfo *TaskInfo, workerId string) {
 	// 更新统计
 	if t.options.EnableStats {
 		t.stats.IncrementRunning()
+
 		t.stats.DecrementPending()
 		defer t.stats.DecrementRunning()
 	}
@@ -227,7 +229,9 @@ func (t *taskEngine) processMessage(taskInfo *TaskInfo, workerId string) {
 			// 执行处理器
 			if err := processor.Process(taskCtx.ctx, taskCtx.taskInfo.Payload); err != nil {
 				mu.Lock()
+
 				hasError = true
+
 				mu.Unlock()
 
 				result.Status = TaskStatusFailed
@@ -301,12 +305,15 @@ func (t *taskEngine) newTaskContext(taskInfo *TaskInfo, workerId string) *TaskCo
 func (t *taskEngine) addRunningTask(taskInfo *TaskInfo) {
 	t.tasksMu.Lock()
 	defer t.tasksMu.Unlock()
+
 	t.runningTasks[taskInfo.ID] = taskInfo
 }
 
 func (t *taskEngine) removeRunningTask(taskId string) {
 	t.tasksMu.Lock()
+
 	defer t.tasksMu.Unlock()
+
 	delete(t.runningTasks, taskId)
 }
 

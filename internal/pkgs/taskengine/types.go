@@ -27,6 +27,7 @@ type TaskInfo struct {
 func (t *TaskInfo) SetStatus(status string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
+
 	t.Status = status
 
 	if status == TaskStatusCompleted || status == TaskStatusFailed || status == TaskStatusCancelled {
@@ -46,6 +47,7 @@ func (t *TaskInfo) GetStatus() string {
 func (t *TaskInfo) AddResult(result ProcessorResult) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
+
 	t.Results = append(t.Results, result)
 }
 

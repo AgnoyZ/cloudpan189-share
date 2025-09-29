@@ -15,6 +15,7 @@ func (s *service) InitQrcode(ctx context.Context) (resp *InitQrcodeResponse, err
 	respData, err := client.LoginInit()
 	if err != nil {
 		ctx.Error("登录初始化失败", zap.Error(err))
+
 		return nil, err
 	}
 

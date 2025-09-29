@@ -53,6 +53,7 @@ func (s *service) UpdateRefreshConfig(ctx context.Context, fileId int64, config 
 			zap.Error(err),
 			zap.Int64("fileId", fileId),
 			zap.Any("config", config))
+
 		return err
 	}
 

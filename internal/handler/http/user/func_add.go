@@ -36,7 +36,6 @@ func (h *handler) Add() httpcontext.HandlerFunc {
 			resp *addResponse
 			err  error
 		)
-
 		if resp, err = h.userService.Add(ctx.GetContext(), req); err != nil {
 			ctx.Fail(codeAddUserFailed.WithError(err))
 

@@ -105,7 +105,6 @@ func (s *service) GetSubscribeShareFiles(ctx context.Context, upUserId string, s
 				req.PageNum = int(pageNum)
 				req.PageSize = int(pageSize)
 			})
-
 			if err != nil {
 				ctx.Error("获取共享文件失败", zap.Int64("share_id", shareId), zap.String("file_id", fileId), zap.Int64("page_num", pageNum), zap.Error(err))
 
@@ -160,7 +159,6 @@ func (s *service) GetShareFiles(ctx context.Context, shareId int64, fileId strin
 				req.IconOption = 5
 				req.IsFolder = isFolder
 			})
-
 			if err != nil {
 				ctx.Error("获取分享文件失败", zap.Int64("share_id", shareId), zap.String("file_id", fileId), zap.Error(err))
 
@@ -206,7 +204,6 @@ func (s *service) GetCloudFiles(ctx context.Context, cc AuthToken, fileId string
 				req.Descending = true
 				req.OrderBy = "lastOpTime"
 			})
-
 			if err != nil {
 				ctx.Error("获取云盘文件失败", zap.String("file_id", fileId), zap.Error(err))
 
@@ -250,7 +247,6 @@ func (s *service) GetCloudFamilyFiles(ctx context.Context, cc AuthToken, familyI
 				req.Descending = true
 				req.OrderBy = "lastOpTime"
 			})
-
 			if err != nil {
 				ctx.Error("获取家庭云文件失败", zap.String("family_id", familyId), zap.String("file_id", fileId), zap.Error(err))
 

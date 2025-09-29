@@ -31,6 +31,7 @@ func (h *handler) TaskEngineList() httpcontext.HandlerFunc {
 		// 检查任务引擎是否可用
 		if h.taskEngine == nil {
 			ctx.Fail(codeGetTaskEngineStatsFailed.WithError(nil))
+
 			return
 		}
 

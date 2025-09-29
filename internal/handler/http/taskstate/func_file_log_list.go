@@ -48,6 +48,7 @@ func (h *handler) FileLogList() httpcontext.HandlerFunc {
 		req := new(fileLogListRequest)
 		if err := ctx.ShouldBindQuery(req); err != nil {
 			ctx.AbortWithInvalidParams(err)
+
 			return
 		}
 
@@ -55,6 +56,7 @@ func (h *handler) FileLogList() httpcontext.HandlerFunc {
 		taskLogList, err := h.fileTaskLogService.List(ctx.GetContext(), req)
 		if err != nil {
 			ctx.Fail(codeListTasksFailed.WithError(err))
+
 			return
 		}
 
@@ -64,6 +66,7 @@ func (h *handler) FileLogList() httpcontext.HandlerFunc {
 			total, err = h.fileTaskLogService.Count(ctx.GetContext(), req)
 			if err != nil {
 				ctx.Fail(codeCountTasksFailed.WithError(err))
+
 				return
 			}
 		} else {
@@ -71,6 +74,7 @@ func (h *handler) FileLogList() httpcontext.HandlerFunc {
 		}
 
 		now := time.Now()
+
 		for _, log := range taskLogList {
 			if log.Duration == 0 {
 				log.Duration = now.UnixMilli() - log.BeginAt.UnixMilli()

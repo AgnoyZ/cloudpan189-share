@@ -32,7 +32,6 @@ func (s *service) ParseAccessToken(tokenString string) (int64, string, int, erro
 
 		return []byte(shared.SaltKey), nil
 	})
-
 	if err != nil {
 		return 0, "", 0, err
 	}
@@ -98,7 +97,6 @@ func (s *service) ParseRefreshToken(tokenString string) (int64, string, int, err
 
 		return []byte(shared.SaltKey), nil
 	})
-
 	if err != nil {
 		return 0, "", 0, err
 	}

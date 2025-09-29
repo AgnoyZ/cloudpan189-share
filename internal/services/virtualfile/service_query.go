@@ -63,7 +63,6 @@ func (s *service) FindOrCreateAncestors(ctx context.Context, path string) (int64
 		paths, err = utils.SplitPath(path)
 		pid        int64
 	)
-
 	if err != nil {
 		return 0, err
 	}

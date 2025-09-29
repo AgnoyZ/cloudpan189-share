@@ -5,6 +5,7 @@ import (
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -101,21 +102,29 @@ func (s *service) FindStaleTasksByDuration(ctx context.Context, duration time.Du
 	cutoffTime := s.getDB(ctx).NowFunc().Add(-duration)
 
 	var list []*models.FileTaskLog
-	err := s.getDB(ctx).
+	if err := s.getDB(ctx).
 		Where("updated_at < ?", cutoffTime).
 		Where("status NOT IN (?)", []string{models.StatusCompleted, models.StatusFailed}).
-		Find(&list).Error
+		Find(&list).Error; err != nil {
+		ctx.Error("查询未完成的文件任务失败", zap.Error(err), zap.Duration("duration", duration))
 
-	return list, err
+		return nil, err
+	}
+
+	return list, nil
 }
 
 // FindByFileID 根据文件ID查询相关任务
 func (s *service) FindByFileID(ctx context.Context, fileID int64) ([]*models.FileTaskLog, error) {
 	var list []*models.FileTaskLog
-	err := s.getDB(ctx).
+	if err := s.getDB(ctx).
 		Where("file_id = ?", fileID).
 		Order("created_at DESC").
-		Find(&list).Error
+		Find(&list).Error; err != nil {
+		ctx.Error("查询文件任务日志失败", zap.Error(err), zap.Int64("file_id", fileID))
 
-	return list, err
+		return nil, err
+	}
+
+	return list, nil
 }

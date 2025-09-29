@@ -227,6 +227,7 @@ func (c Context) sanitizeHeaders(headers http.Header, sensitiveHeaders []string)
 		for _, sensitive := range sensitiveHeaders {
 			if strings.ToLower(sensitive) == lowerKey {
 				isSensitive = true
+
 				break
 			}
 		}

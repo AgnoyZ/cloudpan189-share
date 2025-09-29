@@ -13,6 +13,7 @@ func (s *service) FamilyList(ctx context.Context, token client.AuthToken) (*GetF
 		GetFamilyList(ctx)
 	if err != nil {
 		ctx.Error("获取家庭云列表失败", zap.Error(err))
+
 		return nil, err
 	}
 

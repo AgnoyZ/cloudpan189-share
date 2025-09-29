@@ -113,6 +113,7 @@ func FormatDurationHuman(d time.Duration) string {
 	// 小于1小时，显示分钟
 	if d < time.Hour {
 		minutes := d / time.Minute
+
 		return fmt.Sprintf("%d分钟", minutes)
 	}
 

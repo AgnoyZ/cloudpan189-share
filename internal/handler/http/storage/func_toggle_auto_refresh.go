@@ -74,6 +74,7 @@ func (h *handler) ToggleAutoRefresh() httpcontext.HandlerFunc {
 
 				return
 			}
+
 			config.AutoRefreshBeginAt = ptr.Of(formatTime)
 		}
 

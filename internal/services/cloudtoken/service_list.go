@@ -35,6 +35,7 @@ func (s *service) List(ctx context.Context, req *ListRequest) (list []*models.Cl
 	list = make([]*models.CloudToken, 0)
 	if err = query.Find(&list).Error; err != nil {
 		ctx.Error("查询云盘令牌列表失败", zap.Error(err))
+
 		return nil, err
 	}
 
@@ -44,6 +45,7 @@ func (s *service) List(ctx context.Context, req *ListRequest) (list []*models.Cl
 func (s *service) Count(ctx context.Context, req *ListRequest) (count int64, err error) {
 	if err = s.getListQuery(ctx, req).Count(&count).Error; err != nil {
 		ctx.Error("查询云盘令牌数量失败", zap.Error(err))
+
 		return 0, err
 	}
 

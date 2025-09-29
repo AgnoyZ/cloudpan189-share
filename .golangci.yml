@@ -4,17 +4,22 @@ run:
   issues-exit-code: 1
   tests: true
 linters:
+  enable:
+    - nlreturn
+    - wsl_v5
   settings:
-    wsl:
-      force-err-cuddling: true
-      allow-assign-and-call: true
-      allow-multiline-assign: true
-      allow-cuddle-declarations: false
-      allow-trailing-comment: false
-      force-case-trailing-whitespace: 0
-      strict-append: true
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+      enable:
+        - err
   exclusions:
     rules:
       - linters:
           - staticcheck
         text: "SA5008: unknown JSON option"
+      - linters:
+          - nlreturn
+        path: internal/framework/context/trace.go
+        text: "return with no blank line before"

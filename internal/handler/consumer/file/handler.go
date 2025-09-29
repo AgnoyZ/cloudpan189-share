@@ -108,6 +108,7 @@ func (h *handler) walkFile(ctx context.Context, rootId int64, walkFunc walkFunc)
 
 					// 获取信号量
 					semaphore <- struct{}{}
+
 					defer func() { <-semaphore }()
 
 					if err = h.walkFile(ctx, file.ID, walkFunc); err != nil {

@@ -22,8 +22,8 @@ func (s *service) GroupCountByTopId(ctx context.Context, req *GroupCountByTopIdR
 	}
 
 	var result []*GroupCountByTopId
-	err := query.Find(&result).Error
-	if err != nil {
+
+	if err := query.Find(&result).Error; err != nil {
 		ctx.Error("按TopId分组统计失败", zap.Error(err))
 
 		return nil, err

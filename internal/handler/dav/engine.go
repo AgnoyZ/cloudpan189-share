@@ -93,6 +93,7 @@ func (e *workEngine) Open() httpcontext.HandlerFunc {
 
 				return
 			}
+
 			downloadURL := fmt.Sprintf(downloadURLFormat, file.ID, values.Encode())
 
 			ctx.Redirect(http.StatusFound, fmt.Sprintf("%s%s", shared.BaseURL, downloadURL))
