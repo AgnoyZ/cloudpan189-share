@@ -53,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits } from 'vue'
 import { NButton, NIcon, NEmpty, NSpin } from 'naive-ui'
 import {
   FolderOutline,
