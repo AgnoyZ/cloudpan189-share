@@ -1,6 +1,8 @@
 package taskstate
 
 import (
+	"time"
+
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
@@ -66,6 +68,13 @@ func (h *handler) FileLogList() httpcontext.HandlerFunc {
 			}
 		} else {
 			total = int64(len(taskLogList))
+		}
+
+		now := time.Now()
+		for _, log := range taskLogList {
+			if log.Duration == 0 {
+				log.Duration = now.UnixMilli() - log.BeginAt.UnixMilli()
+			}
 		}
 
 		ctx.Success(&fileLogListResponse{

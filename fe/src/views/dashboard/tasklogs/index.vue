@@ -313,6 +313,10 @@ const getTypeText = (type: string) => {
 const formatDuration = (duration: number) => {
   if (!duration || duration <= 0) return '0秒'
 
+  if (duration < 1000) {
+    return `${duration}毫秒`
+  }
+
   const seconds = Math.floor(duration / 1000)
   const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
