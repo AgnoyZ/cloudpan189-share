@@ -3,10 +3,11 @@ package file
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
-	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 
 	cloudBridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	cloudTokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
+	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
+	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 )
@@ -39,6 +40,7 @@ var (
 	busCodeFilePathSplitError           = bi.Next("路径切割失败")
 	busCodeFileInvalidPath              = bi.Next("路径不合法，需要 / 开头的路径")
 	busCodeFileNotFound                 = bi.Next("文件不存在")
+	busCodeQueryTopIdError              = bi.Next("查询文件顶级id失败")
 )
 
 type handler struct {
@@ -47,6 +49,7 @@ type handler struct {
 	cloudTokenService  cloudTokenSvi.Service
 	cloudBridgeService cloudBridgeSvi.Service
 	mountPointService  mountPointSvi.Service
+	group2FileService  group2fileSvi.Service
 }
 
 func NewHandler(
@@ -55,6 +58,7 @@ func NewHandler(
 	cloudTokenService cloudTokenSvi.Service,
 	cloudBridgeService cloudBridgeSvi.Service,
 	mountPointService mountPointSvi.Service,
+	group2FileService group2fileSvi.Service,
 ) Handler {
 	return &handler{
 		virtualFileService: virtualFileService,
@@ -62,5 +66,6 @@ func NewHandler(
 		cloudTokenService:  cloudTokenService,
 		cloudBridgeService: cloudBridgeService,
 		mountPointService:  mountPointService,
+		group2FileService:  group2FileService,
 	}
 }

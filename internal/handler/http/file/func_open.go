@@ -4,6 +4,8 @@ import (
 	"path"
 
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/ptr"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
@@ -95,6 +97,25 @@ func (h *handler) Open() httpcontext.HandlerFunc {
 			return
 		}
 
+		var allowTopIds []int64
+
+		if userGroupId := ctx.GetInt64(consts.CtxKeyUserGroupId); userGroupId != 0 {
+			topIds, err := h.group2FileService.GetBindFiles(ctx.GetContext(), userGroupId)
+			if err != nil {
+				ctx.Fail(busCodeQueryTopIdError.WithError(err))
+
+				return
+			}
+
+			if len(topIds) == 0 || (!lo.Contains(topIds, file.TopId) && file.OsType != models.OsTypeFolder) {
+				ctx.Unauthorized("无权限访问")
+
+				return
+			}
+
+			allowTopIds = topIds
+		}
+
 		var (
 			children      []*models.VirtualFile
 			childrenCount int64 = 0
@@ -119,6 +140,12 @@ func (h *handler) Open() httpcontext.HandlerFunc {
 
 				return
 			}
+		}
+
+		if len(allowTopIds) > 0 {
+			children = lo.Filter(children, func(child *models.VirtualFile, index int) bool {
+				return child.OsType == models.OsTypeFolder || lo.Contains(allowTopIds, child.TopId)
+			})
 		}
 
 		// 转换为 DTO

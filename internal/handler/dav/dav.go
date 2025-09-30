@@ -4,6 +4,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 
+	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
 	userSvi "github.com/xxcheng123/cloudpan189-share/internal/services/user"
 	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
@@ -29,6 +30,7 @@ func Start(svc bootstrap.ServiceContext) {
 		userService        = userSvi.NewService(svc)
 		virtualFileService = virtualfileSvi.NewService(svc)
 		verifyService      = verifySvi.NewService(svc)
+		group2FileService  = group2fileSvi.NewService(svc)
 	)
 
 	davRouter := engine.Group("/dav",
@@ -39,6 +41,7 @@ func Start(svc bootstrap.ServiceContext) {
 	workEngine := &workEngine{
 		verifyService:      verifyService,
 		virtualFileService: virtualFileService,
+		group2FileService:  group2FileService,
 	}
 
 	for _, method := range davMethods {

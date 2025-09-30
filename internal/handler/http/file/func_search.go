@@ -3,6 +3,7 @@ package file
 import (
 	"path"
 
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/ptr"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
@@ -58,10 +59,35 @@ func (h *handler) Search() httpcontext.HandlerFunc {
 			return
 		}
 
+		var allowTopIds []int64
+
+		if userGroupId := ctx.GetInt64(consts.CtxKeyUserGroupId); userGroupId != 0 {
+			topIds, err := h.group2FileService.GetBindFiles(ctx.GetContext(), userGroupId)
+			if err != nil {
+				ctx.Fail(busCodeQueryTopIdError.WithError(err))
+
+				return
+			}
+
+			if len(topIds) == 0 {
+				ctx.Success(&searchResponse{
+					Total:       0,
+					CurrentPage: req.CurrentPage,
+					PageSize:    req.PageSize,
+					Data:        make([]*searchDTO, 0),
+				})
+
+				return
+			}
+
+			allowTopIds = topIds
+		}
+
 		listReq := &virtualfileSvi.ListRequest{
 			Name:        req.Keyword,
 			PageSize:    req.PageSize,
 			CurrentPage: req.CurrentPage,
+			TopIdList:   allowTopIds,
 		}
 
 		if !req.Global {

@@ -3,6 +3,8 @@ package file
 import (
 	"fmt"
 
+	"github.com/samber/lo"
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/shared"
 )
@@ -40,6 +42,28 @@ func (h *handler) CreateDownloadURL() httpcontext.HandlerFunc {
 			ctx.AbortWithInvalidParams(err)
 
 			return
+		}
+
+		if userGroupId := ctx.GetInt64(consts.CtxKeyUserGroupId); userGroupId != 0 {
+			file, err := h.virtualFileService.Query(ctx.GetContext(), req.FileID)
+			if err != nil {
+				ctx.Fail(busCodeFileQueryError.WithError(err))
+
+				return
+			}
+
+			topIds, err := h.group2FileService.GetBindFiles(ctx.GetContext(), userGroupId)
+			if err != nil {
+				ctx.Fail(busCodeQueryTopIdError.WithError(err))
+
+				return
+			}
+
+			if len(topIds) == 0 || !lo.Contains(topIds, file.TopId) {
+				ctx.Unauthorized("无权限访问")
+
+				return
+			}
 		}
 
 		values, err := h.verifyService.SignV1(ctx.GetContext(), req.FileID)

@@ -70,6 +70,7 @@ func (m *AuthMiddleware) Auth() httpcontext.HandlerFunc {
 		ctx.Set(consts.CtxKeyUserId, u.ID)
 		ctx.Set(consts.CtxKeyUsername, username)
 		ctx.Set(consts.CtxKeyIsAdmin, u.IsAdmin)
+		ctx.Set(consts.CtxKeyUserGroupId, u.GroupID)
 
 		ctx.Next()
 	}

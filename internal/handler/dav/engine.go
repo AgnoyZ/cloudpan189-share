@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/ptr"
@@ -14,6 +15,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/shared"
 	"gorm.io/gorm"
 
+	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
 	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 )
@@ -21,6 +23,7 @@ import (
 type workEngine struct {
 	virtualFileService virtualfileSvi.Service
 	verifyService      verifySvi.Service
+	group2FileService  group2fileSvi.Service
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeDavStartCode)
@@ -31,6 +34,7 @@ var (
 	busCodeFilePathSplitError = bi.Next("路径切割失败")
 	busCodeFileInvalidPath    = bi.Next("路径不合法，需要 / 开头的路径")
 	busCodeFileNotFound       = bi.Next("文件不存在")
+	busCodeQueryTopIdError    = bi.Next("查询 TopId 失败")
 )
 
 const (
@@ -70,6 +74,25 @@ func (e *workEngine) Open() httpcontext.HandlerFunc {
 			return
 		}
 
+		var allowTopIds []int64
+
+		if userGroupId := ctx.GetInt64(consts.CtxKeyUserGroupId); userGroupId != 0 {
+			topIds, err := e.group2FileService.GetBindFiles(ctx.GetContext(), userGroupId)
+			if err != nil {
+				ctx.Fail(busCodeQueryTopIdError.WithError(err))
+
+				return
+			}
+
+			if len(topIds) == 0 || (!lo.Contains(topIds, file.TopId) && file.OsType != models.OsTypeFolder) {
+				ctx.Unauthorized("无权限访问")
+
+				return
+			}
+
+			allowTopIds = topIds
+		}
+
 		var (
 			children []*models.VirtualFile
 		)
@@ -99,6 +122,12 @@ func (e *workEngine) Open() httpcontext.HandlerFunc {
 			ctx.Redirect(http.StatusFound, fmt.Sprintf("%s%s", shared.BaseURL, downloadURL))
 
 			return
+		}
+
+		if len(allowTopIds) > 0 {
+			children = lo.Filter(children, func(child *models.VirtualFile, index int) bool {
+				return child.OsType == models.OsTypeFolder || lo.Contains(allowTopIds, child.TopId)
+			})
 		}
 
 		// 设置WebDAV响应头

@@ -91,6 +91,7 @@ func (m *AuthMiddleware) Auth(requireAdmins ...bool) httpcontext.HandlerFunc {
 		ctx.Set(consts.CtxKeyUserId, uid)
 		ctx.Set(consts.CtxKeyUsername, username)
 		ctx.Set(consts.CtxKeyIsAdmin, u.IsAdmin)
+		ctx.Set(consts.CtxKeyUserGroupId, u.GroupID)
 
 		ctx.Next()
 	}

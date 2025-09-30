@@ -21,6 +21,7 @@ type ListRequest struct {
 
 	// ExcludeIdList 排除ID
 	ExcludeIdList []int64 `form:"-"`
+	TopIdList     []int64 `form:"-"`
 
 	AscList  []string `form:"-"`
 	DescList []string `form:"-"`
@@ -98,6 +99,10 @@ func (s *service) getListQuery(ctx context.Context, req *ListRequest) *gorm.DB {
 
 	if len(req.ExcludeIdList) > 0 {
 		query = query.Where("id not in (?)", req.ExcludeIdList)
+	}
+
+	if len(req.TopIdList) > 0 {
+		query = query.Where("top_id in (?)", req.TopIdList)
 	}
 
 	return query
