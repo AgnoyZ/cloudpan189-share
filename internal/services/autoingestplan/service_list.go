@@ -13,6 +13,7 @@ type ListRequest struct {
 	Name        string `form:"name" binding:"omitempty"`
 	CurrentPage int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"`
 	PageSize    int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`
+	NoPaginate  bool   `form:"-"`
 }
 
 // List 列出自动挂载计划
@@ -23,7 +24,7 @@ func (s *service) List(ctx context.Context, req *ListRequest) ([]*models.AutoIng
 	query = query.Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true})
 
 	// 分页（仅在传入正数页码与页大小时生效）
-	if req != nil && req.CurrentPage > 0 && req.PageSize > 0 {
+	if req != nil && !req.NoPaginate && req.CurrentPage > 0 && req.PageSize > 0 {
 		query = query.Offset((req.CurrentPage - 1) * req.PageSize).Limit(req.PageSize)
 	}
 

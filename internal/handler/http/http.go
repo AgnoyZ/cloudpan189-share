@@ -200,7 +200,9 @@ func Start(svc bootstrap.ServiceContext) {
 			autoIngestRouter.GET("/plan/list", wrap(autoIngestHandler.PlanList()))
 			autoIngestRouter.POST("/plan/enable", wrap(autoIngestHandler.EnablePlan()))
 			autoIngestRouter.POST("/plan/disable", wrap(autoIngestHandler.DisablePlan()))
+			autoIngestRouter.POST("/plan/refresh", wrap(autoIngestHandler.Refresh()))
 			autoIngestRouter.POST("/plan/delete", wrap(autoIngestHandler.DeletePlan()))
+			autoIngestRouter.POST("/plan/update", wrap(autoIngestHandler.UpdatePlan()))
 			autoIngestRouter.GET("/log/list", wrap(autoIngestHandler.LogList()))
 		}
 	}

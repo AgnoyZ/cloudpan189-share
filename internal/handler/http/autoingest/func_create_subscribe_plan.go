@@ -97,12 +97,17 @@ func (h *handler) CreateSubscribePlan() httpcontext.HandlerFunc {
 			rs.EnableDeepRefresh = req.RefreshStrategy.EnableDeepRefresh
 		}
 
+		offset := time.Now().Unix()
+		if req.OneClickAddHistory {
+			offset = 1
+		}
+
 		id, err := h.planService.Create(ctx.GetContext(), &models.AutoIngestPlan{
 			Name:               req.Name,
 			Enabled:            enable,
 			AutoIngestInterval: req.AutoIngestInterval,
 			SourceType:         autoingest.SourceTypeSubscribe,
-			Offset:             time.Now().Unix(),
+			Offset:             offset,
 			ParentPath:         req.ParentPath,
 			OnConflict:         autoingest.OnConflict(req.OnConflict),
 			AddCount:           0,
@@ -119,11 +124,7 @@ func (h *handler) CreateSubscribePlan() httpcontext.HandlerFunc {
 
 		if req.OneClickAddHistory {
 			taskReq := &topic.AutoIngestRefreshSubscribeRequest{
-				PlanId:     id,
-				ParentPath: req.ParentPath,
-				OnConflict: autoingest.OnConflict(req.OnConflict),
-				Offset:     0,
-				UpUserId:   addition.UpUserId,
+				PlanId: id,
 			}
 
 			taskBody, _ := json.Marshal(taskReq)

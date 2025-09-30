@@ -2,8 +2,10 @@ package mountpoint
 
 import (
 	"strings"
+	"time"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
+	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/ptr"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	"go.uber.org/zap"
 )
@@ -13,6 +15,11 @@ type CreateRequest struct {
 	FullPath string `json:"fullPath" ` // 完整路径
 	OsType   string `json:"osType"`    // 操作系统类型
 	TokenId  int64  `json:"tokenId"`   // 令牌ID
+
+	EnableAutoRefresh bool `json:"enableAutoRefresh"`
+	AutoRefreshDays   int  `json:"autoRefreshDays"`
+	RefreshInterval   int  `json:"refreshInterval"`
+	EnableDeepRefresh bool `json:"enableDeepRefresh"`
 }
 
 func (s *service) Create(ctx context.Context, req *CreateRequest) (int64, error) {
@@ -24,12 +31,27 @@ func (s *service) Create(ctx context.Context, req *CreateRequest) (int64, error)
 		name = "root"
 	}
 
+	if req.RefreshInterval < 30 {
+		req.RefreshInterval = 30
+	}
+
+	var beginAt time.Time
+	if req.EnableAutoRefresh {
+		beginAt = time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Now().Location())
+	}
+
 	mountPoint := &models.MountPoint{
 		FileId:   req.FileId,
 		Name:     name,
 		FullPath: req.FullPath,
 		OsType:   req.OsType,
 		TokenId:  req.TokenId,
+
+		EnableAutoRefresh:  req.EnableAutoRefresh,
+		AutoRefreshDays:    req.AutoRefreshDays,
+		RefreshInterval:    req.RefreshInterval,
+		EnableDeepRefresh:  req.EnableDeepRefresh,
+		AutoRefreshBeginAt: ptr.Of(beginAt),
 	}
 
 	if err := s.getDB(ctx).Create(mountPoint).Error; err != nil {

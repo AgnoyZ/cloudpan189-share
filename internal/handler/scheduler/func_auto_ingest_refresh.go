@@ -9,7 +9,6 @@ import (
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
-	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/autoingest"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 	"go.uber.org/zap"
@@ -112,19 +111,8 @@ func (s *AutoIngestRefreshScheduler) doJob() bool {
 				continue
 			}
 
-			addition := new(models.AutoIngestPlanSubscribeAddition)
-			if err := plan.Addition.Unmarshal(addition); err != nil {
-				ctx.Error("自动入库计划附加信息解析失败", zap.Error(err))
-
-				continue
-			}
-
 			taskReq := &topic.AutoIngestRefreshSubscribeRequest{
-				PlanId:     plan.ID,
-				ParentPath: plan.ParentPath,
-				OnConflict: plan.OnConflict,
-				Offset:     plan.Offset,
-				UpUserId:   addition.UpUserId,
+				PlanId: plan.ID,
 			}
 
 			msgBody, _ := json.Marshal(taskReq)

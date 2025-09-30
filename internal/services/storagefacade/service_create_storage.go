@@ -20,6 +20,11 @@ type CreateStorageRequest struct {
 	CloudToken int64             // 云 token ID
 	FileId     string            // 云文件/资源 ID（用于 Addition.CloudId 映射）
 	Addition   datatypes.JSONMap // 额外元数据，由上层根据协议类型准备
+
+	EnableAutoRefresh bool `json:"enableAutoRefresh"`
+	AutoRefreshDays   int  `json:"autoRefreshDays"`
+	RefreshInterval   int  `json:"refreshInterval"`
+	EnableDeepRefresh bool `json:"enableDeepRefresh"`
 }
 
 var (
@@ -109,6 +114,11 @@ func (s *service) CreateStorage(ctx context.Context, req *CreateStorageRequest) 
 		FileId:   id,
 		OsType:   req.OsType,
 		TokenId:  req.CloudToken,
+
+		EnableAutoRefresh: req.EnableAutoRefresh,
+		AutoRefreshDays:   req.AutoRefreshDays,
+		RefreshInterval:   req.RefreshInterval,
+		EnableDeepRefresh: req.EnableDeepRefresh,
 	}); err != nil {
 		ctx.Error("创建挂载点失败，执行补偿删除虚拟文件", zap.Error(err), zap.Int64("virtualFileId", id), zap.String("path", req.LocalPath))
 

@@ -1,6 +1,8 @@
 package cloudbridge
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/xxcheng123/cloudpan189-interface/client"
@@ -67,6 +69,12 @@ func (s *service) GetSubscribeUserShareResource(ctx context.Context, userId stri
 		return nil, 0, err
 	}
 
+	if resp == nil || resp.Data == nil {
+		ctx.Error("获取订阅号下级分享返回为空", zap.String("user_id", userId))
+
+		return nil, 0, errors.New("获取订阅号下级分享返回为空")
+	}
+
 	list := make([]*ShareResourceInfo, 0)
 
 	for _, item := range resp.Data.FileList {
@@ -78,7 +86,7 @@ func (s *service) GetSubscribeUserShareResource(ctx context.Context, userId stri
 			IsFolder:   item.Folder == 1,
 			AccessCode: item.AccessURL,
 			ShareId:    item.ShareId,
-			ID:         string(item.Id),
+			ID:         fmt.Sprint(item.Id),
 			ShareTime:  shareTime,
 			IsTop:      item.IsTop,
 		})

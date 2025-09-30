@@ -19,6 +19,10 @@ export interface PlanListQuery extends PaginationQuery {
   name?: string // 按名称模糊搜索
 }
 
+export interface PlanLogResult extends Models.AutoIngestLog {
+  planName: string // 计划名称
+}
+
 // 创建订阅型计划 - 刷新策略
 export interface RefreshStrategyRequest {
   enableAutoRefresh?: boolean
@@ -42,6 +46,17 @@ export interface CreateSubscribePlanRequest {
 // 创建订阅型计划 - 响应体
 export interface CreateSubscribePlanResponse {
   id: number
+}
+
+// 更新计划 - 请求体（仅允许以下字段）
+export interface UpdatePlanRequest {
+  id: number
+  name?: string
+  autoIngestInterval?: number
+  parentPath?: string
+  onConflict?: AutoIngestOnConflict
+  tokenId?: number
+  refreshStrategy?: RefreshStrategyRequest
 }
 
 // ===== 日志管理 =====
@@ -78,14 +93,24 @@ export const disableAutoIngestPlan = (data: { id: number }): Promise<ApiResponse
   return api.post('/auto_ingest/plan/disable', data).then((res) => res.data)
 }
 
+// 手动触发订阅计划刷新
+export const refreshAutoIngestPlan = (data: { planId: number }): Promise<ApiResponse> => {
+  return api.post('/auto_ingest/plan/refresh', data).then((res) => res.data)
+}
+
 // 删除自动挂载计划
 export const deleteAutoIngestPlan = (data: { id: number }): Promise<ApiResponse> => {
   return api.post('/auto_ingest/plan/delete', data).then((res) => res.data)
 }
 
+// 修改自动挂载计划（仅允许部分字段）
+export const updateAutoIngestPlan = (data: UpdatePlanRequest): Promise<ApiResponse> => {
+  return api.post('/auto_ingest/plan/update', data).then((res) => res.data)
+}
+
 // 获取自动挂载日志列表
 export const getAutoIngestLogList = (
   params?: LogListQuery
-): Promise<ApiResponse<Models.PaginationResponse<Models.AutoIngestLog>>> => {
+): Promise<ApiResponse<Models.PaginationResponse<PlanLogResult>>> => {
   return api.get('/auto_ingest/log/list', { params }).then((res) => res.data)
 }

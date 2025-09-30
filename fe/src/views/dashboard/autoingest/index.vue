@@ -46,7 +46,7 @@
               <AddOutline />
             </n-icon>
           </template>
-          新建订阅计划
+          新建入库计划
         </n-button>
       </div>
     </div>
@@ -112,104 +112,20 @@
       remote
     />
 
-    <!-- 新建计划弹窗 -->
-    <n-modal
+    <!-- 新建计划弹窗（组件化） -->
+    <CreatePlanModal
       v-model:show="showCreateModal"
-      preset="dialog"
-      title="新建订阅计划"
-      :mask-closable="false"
-    >
-      <n-form
-        ref="createFormRef"
-        :model="createForm"
-        :rules="createRules"
-        label-placement="left"
-        label-width="140"
-      >
-        <n-form-item label="计划名称" path="name">
-          <n-input v-model:value="createForm.name" placeholder="例如：订阅计划A" />
-        </n-form-item>
+      :cloud-token-options="cloudTokenOptions"
+      @created="handlePlanCreated"
+    />
 
-        <n-form-item label="挂载父目录" path="parentPath">
-          <n-input v-model:value="createForm.parentPath" placeholder="/Movies" />
-        </n-form-item>
-
-        <n-form-item label="上传用户ID" path="upUserId">
-          <n-input v-model:value="createForm.upUserId" placeholder="订阅用户ID" />
-        </n-form-item>
-
-        <n-form-item label="绑定令牌" path="cloudToken">
-          <n-select
-            v-model:value="createForm.cloudToken"
-            :options="cloudTokenOptions"
-            placeholder="可选"
-            clearable
-            filterable
-          />
-        </n-form-item>
-
-        <n-form-item label="冲突处理策略" path="onConflict">
-          <n-radio-group v-model:value="createForm.onConflict">
-            <n-space>
-              <n-radio
-                v-for="opt in AUTO_INGEST_ON_CONFLICT_OPTIONS"
-                :key="opt.value"
-                :value="opt.value"
-              >
-                {{ opt.label }}
-              </n-radio>
-            </n-space>
-          </n-radio-group>
-        </n-form-item>
-
-        <n-form-item label="自动入库间隔(分钟)" path="autoIngestInterval">
-          <n-input-number
-            v-model:value="createForm.autoIngestInterval"
-            :min="AUTO_INGEST_INTERVAL_MIN"
-            :max="REFRESH_INTERVAL_MAX"
-          />
-        </n-form-item>
-
-        <n-form-item label="一键添加历史" path="oneClickAddHistory">
-          <n-switch v-model:value="createForm.oneClickAddHistory" />
-        </n-form-item>
-
-        <n-divider title-placement="left">刷新策略（可选）</n-divider>
-
-        <n-form-item label="启用自动刷新" path="refreshStrategy.enableAutoRefresh">
-          <n-switch v-model:value="createForm.refreshStrategy.enableAutoRefresh" />
-        </n-form-item>
-
-        <template v-if="createForm.refreshStrategy.enableAutoRefresh">
-          <n-form-item label="刷新间隔(分钟)" path="refreshStrategy.refreshInterval">
-            <n-input-number
-              v-model:value="createForm.refreshStrategy.refreshInterval"
-              :min="REFRESH_INTERVAL_MIN"
-              :max="REFRESH_INTERVAL_MAX"
-            />
-          </n-form-item>
-          <n-form-item label="持续天数" path="refreshStrategy.autoRefreshDays">
-            <n-input-number
-              v-model:value="createForm.refreshStrategy.autoRefreshDays"
-              :min="AUTO_REFRESH_DAYS_MIN"
-              :max="AUTO_REFRESH_DAYS_MAX"
-            />
-          </n-form-item>
-          <n-form-item label="深度刷新" path="refreshStrategy.enableDeepRefresh">
-            <n-switch v-model:value="createForm.refreshStrategy.enableDeepRefresh" />
-          </n-form-item>
-        </template>
-      </n-form>
-
-      <template #action>
-        <n-space>
-          <n-button @click="showCreateModal = false">取消</n-button>
-          <n-button type="primary" :loading="createSubmitting" @click="handleCreatePlan">
-            确认创建
-          </n-button>
-        </n-space>
-      </template>
-    </n-modal>
+    <!-- 修改计划弹窗（组件化） -->
+    <EditPlanModal
+      v-model:show="showEditModal"
+      :plan="editingPlan"
+      :cloud-token-options="cloudTokenOptions"
+      @saved="fetchPlanList"
+    />
   </div>
 </template>
 
@@ -221,24 +137,14 @@ import {
   NIcon,
   NInput,
   NText,
-  NModal,
-  NForm,
-  NFormItem,
-  NInputNumber,
   NSelect,
-  NSwitch,
-  NRadioGroup,
-  NRadio,
   NSpace,
-  NDivider,
   NPopconfirm,
   NTabs,
   NTab,
   NTag,
   useMessage,
   type DataTableColumns,
-  type FormInst,
-  type FormRules,
   type PaginationProps,
 } from 'naive-ui'
 import {
@@ -248,27 +154,22 @@ import {
   TrashOutline,
   CheckmarkCircleOutline,
   CloseCircleOutline,
+  CreateOutline,
 } from '@vicons/ionicons5'
 import {
   getAutoIngestPlanList,
-  createSubscribePlan,
   enableAutoIngestPlan,
   disableAutoIngestPlan,
+  refreshAutoIngestPlan,
   deleteAutoIngestPlan,
   getAutoIngestLogList,
-  type CreateSubscribePlanRequest,
+  type PlanLogResult,
 } from '@/api/autoingest'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import dayjs from 'dayjs'
-import {
-  AUTO_INGEST_ON_CONFLICT_OPTIONS,
-  AUTO_INGEST_SOURCE_TYPE_OPTIONS,
-  AUTO_INGEST_INTERVAL_MIN,
-  REFRESH_INTERVAL_MIN,
-  REFRESH_INTERVAL_MAX,
-  AUTO_REFRESH_DAYS_MIN,
-  AUTO_REFRESH_DAYS_MAX,
-} from '@/constants/autoIngest'
+import { AUTO_INGEST_SOURCE_TYPE_OPTIONS } from '@/constants/autoIngest'
+import CreatePlanModal from '@/components/autoingest/CreatePlanModal.vue'
+import EditPlanModal from '@/components/autoingest/EditPlanModal.vue'
 import { type ApiResponse } from '@/utils/api'
 
 const message = useMessage()
@@ -436,7 +337,7 @@ const planColumns: DataTableColumns<Models.AutoIngestPlan> = [
   {
     title: '操作',
     key: 'actions',
-    minWidth: 180,
+    minWidth: 220,
     align: 'center',
     render: (row) =>
       h(
@@ -445,14 +346,38 @@ const planColumns: DataTableColumns<Models.AutoIngestPlan> = [
         {
           default: () => [
             row.enabled
-              ? h(
-                  NButton,
-                  { size: 'tiny', type: 'warning', secondary: true, onClick: () => onDisable(row) },
-                  {
-                    icon: () => h(NIcon, { size: 12 }, { default: () => h(CloseCircleOutline) }),
-                    default: () => '停用',
-                  }
-                )
+              ? [
+                  h(
+                    NButton,
+                    { size: 'tiny', type: 'info', secondary: true, onClick: () => onRefresh(row) },
+                    {
+                      icon: () => h(NIcon, { size: 12 }, { default: () => h(RefreshOutline) }),
+                      default: () => '扫描',
+                    }
+                  ),
+                  // 新增“修改”按钮（位于扫描右边）
+                  h(
+                    NButton,
+                    { size: 'tiny', type: 'primary', secondary: true, onClick: () => onEdit(row) },
+                    {
+                      icon: () => h(NIcon, { size: 12 }, { default: () => h(CreateOutline) }),
+                      default: () => '修改',
+                    }
+                  ),
+                  h(
+                    NButton,
+                    {
+                      size: 'tiny',
+                      type: 'warning',
+                      secondary: true,
+                      onClick: () => onDisable(row),
+                    },
+                    {
+                      icon: () => h(NIcon, { size: 12 }, { default: () => h(CloseCircleOutline) }),
+                      default: () => '停用',
+                    }
+                  ),
+                ]
               : h(
                   NButton,
                   { size: 'tiny', type: 'success', secondary: true, onClick: () => onEnable(row) },
@@ -544,114 +469,45 @@ const onDisable = (row: Models.AutoIngestPlan) => {
     })
 }
 
+const onRefresh = (row: Models.AutoIngestPlan) => {
+  refreshAutoIngestPlan({ planId: row.id })
+    .then(() => {
+      message.success('已下发扫描任务')
+    })
+    .catch((err: unknown) => {
+      console.error('扫描下发失败', err)
+    })
+}
+
 const onDelete = (row: Models.AutoIngestPlan) => {
   deleteAutoIngestPlan({ id: row.id })
-    .then((res: ApiResponse) => {
-      if (res.code === 200) {
-        message.success('删除成功')
-        fetchPlanList()
-      }
+    .then(() => {
+      message.success('删除成功')
+      fetchPlanList()
     })
     .catch((err: unknown) => {
       console.error('删除失败', err)
     })
 }
 
-// Create Plan
-const showCreateModal = ref(false)
-const createSubmitting = ref(false)
-const createFormRef = ref<FormInst | null>(null)
-const createForm = reactive<
-  CreateSubscribePlanRequest & {
-    refreshStrategy: NonNullable<CreateSubscribePlanRequest['refreshStrategy']>
-  }
->({
-  name: '',
-  parentPath: '',
-  upUserId: '',
-  cloudToken: undefined,
-  onConflict: 'rename',
-  autoIngestInterval: 30,
-  oneClickAddHistory: false,
-  refreshStrategy: {
-    enableAutoRefresh: false,
-    autoRefreshDays: 7,
-    refreshInterval: 30,
-    enableDeepRefresh: false,
-  },
-})
-
-const createRules: FormRules = {
-  name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
-  parentPath: [{ required: true, message: '请输入父目录路径', trigger: 'blur' }],
-  upUserId: [{ required: true, message: '请输入上传用户ID', trigger: 'blur' }],
-  autoIngestInterval: [
-    {
-      type: 'number',
-      min: AUTO_INGEST_INTERVAL_MIN,
-      message: `间隔不能小于${AUTO_INGEST_INTERVAL_MIN}分钟`,
-      trigger: 'blur',
-    },
-  ],
-  'refreshStrategy.refreshInterval': [
-    {
-      type: 'number',
-      min: REFRESH_INTERVAL_MIN,
-      message: `刷新间隔不能小于${REFRESH_INTERVAL_MIN}分钟`,
-      trigger: 'blur',
-    },
-  ],
-  'refreshStrategy.autoRefreshDays': [
-    {
-      type: 'number',
-      min: AUTO_REFRESH_DAYS_MIN,
-      message: `持续天数不能小于${AUTO_REFRESH_DAYS_MIN}`,
-      trigger: 'blur',
-    },
-  ],
+/** 由 CreatePlanModal 创建成功后刷新列表 */
+const handlePlanCreated = () => {
+  fetchPlanList()
 }
 
-const handleCreatePlan = () => {
-  createFormRef.value?.validate((errors) => {
-    if (errors) {
-      message.error('请检查表单输入')
-      return
-    }
+const showCreateModal = ref(false)
 
-    createSubmitting.value = true
-    createSubscribePlan(createForm)
-      .then((res: ApiResponse<{ id: number }>) => {
-        if (res.code === 200) {
-          message.success('创建成功')
-          showCreateModal.value = false
-          // 重置部分字段
-          createForm.name = ''
-          createForm.parentPath = ''
-          createForm.upUserId = ''
-          createForm.cloudToken = undefined
-          createForm.oneClickAddHistory = false
-          createForm.onConflict = 'rename'
-          createForm.autoIngestInterval = 30
-          createForm.refreshStrategy.enableAutoRefresh = false
-          createForm.refreshStrategy.autoRefreshDays = 7
-          createForm.refreshStrategy.refreshInterval = 30
-          createForm.refreshStrategy.enableDeepRefresh = false
-
-          fetchPlanList()
-        }
-      })
-      .catch((err: unknown) => {
-        console.error('创建订阅计划失败:', err)
-      })
-      .finally(() => {
-        createSubmitting.value = false
-      })
-  })
+// -------- 修改计划（弹窗：抽离为组件） --------
+const showEditModal = ref(false)
+const editingPlan = ref<Models.AutoIngestPlan | null>(null)
+const onEdit = (row: Models.AutoIngestPlan) => {
+  editingPlan.value = row
+  showEditModal.value = true
 }
 
 // -------- Logs --------
 const logLoading = ref(false)
-const logTable = ref<Models.AutoIngestLog[]>([])
+const logTable = ref<PlanLogResult[]>([])
 const logQuery = reactive<{
   planId?: number
   level?: 'info' | 'warn' | 'error'
@@ -701,7 +557,7 @@ const handleLogReset = () => {
 
 const logColumns: DataTableColumns<Models.AutoIngestLog> = [
   { title: 'ID', key: 'id', width: 90, align: 'center' },
-  { title: '计划ID', key: 'planId', width: 100, align: 'center' },
+  { title: '计划名称', key: 'planName', width: 100, align: 'center', ellipsis: { tooltip: true } },
   {
     title: '级别',
     key: 'level',
@@ -736,8 +592,8 @@ const fetchLogList = () => {
     planId: logQuery.planId || undefined,
     level: logQuery.level || undefined,
   })
-    .then((res: ApiResponse<Models.PaginationResponse<Models.AutoIngestLog>>) => {
-      if (res.code === 200 && res.data) {
+    .then((res: ApiResponse<Models.PaginationResponse<PlanLogResult>>) => {
+      if (res.data) {
         logTable.value = res.data.data
         logPagination.itemCount = res.data.total
       }

@@ -26,7 +26,7 @@ type AutoIngestPlan struct {
 	AddCount           int64                 `gorm:"column:add_count;type:bigint(20);default:0;" json:"addCount"`                       // 新增挂载数
 	FailedCount        int64                 `gorm:"column:failed_count;type:bigint(20);default:0;" json:"failedCount"`                 // 失败挂载数
 	Addition           datatypes.JSONMap     `gorm:"column:addition;type:json;default:'';" json:"addition"`
-	RefreshStrategy    RefreshStrategy       `gorm:"embedded;embeddedPrefix:refresh_strategy"`
+	RefreshStrategy    RefreshStrategy       `gorm:"embedded;embeddedPrefix:refresh_strategy_" json:"refreshStrategy"`
 	TokenId            int64                 `gorm:"column:token_id;type:bigint(20);not null;default:0;" json:"tokenId"`
 	CreatedAt          time.Time             `gorm:"column:created_at;autoCreateTime;type:datetime;default:CURRENT_TIMESTAMP" json:"createdAt"`
 	UpdatedAt          time.Time             `gorm:"column:updated_at;autoUpdateTime;type:datetime;default:CURRENT_TIMESTAMP;on update:CURRENT_TIMESTAMP" json:"updatedAt"`

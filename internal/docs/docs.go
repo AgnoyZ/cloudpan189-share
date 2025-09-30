@@ -433,6 +433,124 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/auto_ingest/plan/refresh": {
+            "post": {
+                "description": "传入计划ID，查询计划信息并下发 AutoIngestRefreshSubscribeRequest 任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "下发订阅计划刷新任务",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "刷新计划请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_autoingest.refreshPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "任务已下发",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "下发订阅刷新任务失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auto_ingest/plan/update": {
+            "post": {
+                "description": "仅允许修改字段：parentPath、refreshStrategy、tokenId、autoIngestInterval、name、onConflict",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "修改自动挂载计划",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "修改计划参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_autoingest.updatePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "修改成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "更新自动挂载计划失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/cloud_token/check_qrcode": {
             "post": {
                 "description": "检查二维码扫码状态，如果扫码成功则创建或更新云盘令牌",
@@ -3934,29 +4052,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "level": {
-                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.LogLevel"
-                },
-                "planId": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan": {
             "type": "object",
             "properties": {
@@ -4444,6 +4539,32 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_handler_http_autoingest.logDTO": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "level": {
+                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.LogLevel"
+                },
+                "planId": {
+                    "type": "integer"
+                },
+                "planName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_handler_http_autoingest.logListResponse": {
             "type": "object",
             "properties": {
@@ -4456,7 +4577,7 @@ const docTemplate = `{
                     "description": "日志列表数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog"
+                        "$ref": "#/definitions/internal_handler_http_autoingest.logDTO"
                     }
                 },
                 "pageSize": {
@@ -4498,6 +4619,18 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_handler_http_autoingest.refreshPlanRequest": {
+            "type": "object",
+            "required": [
+                "planId"
+            ],
+            "properties": {
+                "planId": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "internal_handler_http_autoingest.refreshStrategyRequest": {
             "type": "object",
             "properties": {
@@ -4519,6 +4652,73 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 30,
                     "example": 30
+                }
+            }
+        },
+        "internal_handler_http_autoingest.refreshStrategyUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "autoRefreshDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 7
+                },
+                "enableAutoRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "enableDeepRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "refreshInterval": {
+                    "description": "单位分钟，最小30",
+                    "type": "integer",
+                    "minimum": 30,
+                    "example": 30
+                }
+            }
+        },
+        "internal_handler_http_autoingest.updatePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "autoIngestInterval": {
+                    "description": "单位分钟",
+                    "type": "integer",
+                    "minimum": 5,
+                    "example": 30
+                },
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "订阅计划A"
+                },
+                "onConflict": {
+                    "description": "冲突时的解决策略",
+                    "type": "string",
+                    "enum": [
+                        "rename",
+                        "abandon"
+                    ],
+                    "example": "rename"
+                },
+                "parentPath": {
+                    "type": "string",
+                    "example": "/Movies"
+                },
+                "refreshStrategy": {
+                    "$ref": "#/definitions/internal_handler_http_autoingest.refreshStrategyUpdateRequest"
+                },
+                "tokenId": {
+                    "type": "integer"
                 }
             }
         },

@@ -36,10 +36,28 @@ func (h *handler) RefreshSubscribe() taskcontext.HandlerFunc {
 
 			addCount    int64 = 0
 			failedCount int64 = 0
-			nextOffset        = req.Offset
 		)
 
 		logger := ctx.GetContext().Logger
+
+		// 去查询入库计划
+		plan, err := h.autoIngestPlanService.Query(ctx.GetContext(), req.PlanId)
+		if err != nil {
+			logger.Error("查询入库计划信息失败", zap.Error(err), zap.Int64("plan_id", req.PlanId))
+
+			return err
+		}
+
+		var nextOffset = plan.Offset
+
+		if plan.SourceType != autoingest.SourceTypeSubscribe {
+			logger.Error("计划类型错误", zap.String("source_type", plan.SourceType.String()))
+
+			return errors.New("计划类型错误")
+		}
+
+		addition := new(models.AutoIngestPlanSubscribeAddition)
+		_ = plan.Addition.Unmarshal(addition)
 
 		defer func() {
 			// 执行完了 更新 数据
@@ -49,12 +67,12 @@ func (h *handler) RefreshSubscribe() taskcontext.HandlerFunc {
 		}()
 
 		for shouldNext {
-			list, _, err := h.cloudbridgeService.GetSubscribeUserShareResource(ctx.GetContext(), req.UpUserId, func(opt *cloudbridgeSvi.SubscribeUserShareResourceOption) {
+			list, _, err := h.cloudbridgeService.GetSubscribeUserShareResource(ctx.GetContext(), addition.UpUserId, func(opt *cloudbridgeSvi.SubscribeUserShareResourceOption) {
 				opt.PageNum = pageNum
 				opt.PageSize = pageSize
 			})
 			if err != nil {
-				logger.Error("获取订阅号内容时失败了~", zap.String("up_user_id", req.UpUserId), zap.Int("page_num", pageNum), zap.Int("page_size", pageSize))
+				logger.Error("获取订阅号内容时失败了~", zap.String("up_user_id", addition.UpUserId), zap.Int("page_num", pageNum), zap.Int("page_size", pageSize))
 
 				return err
 			}
@@ -75,7 +93,7 @@ func (h *handler) RefreshSubscribe() taskcontext.HandlerFunc {
 					nextOffset = itemOffset
 				}
 
-				if itemOffset < req.Offset {
+				if itemOffset <= plan.Offset {
 					if !hasTop {
 						shouldNext = false
 					}
@@ -86,30 +104,43 @@ func (h *handler) RefreshSubscribe() taskcontext.HandlerFunc {
 				logger.Debug("发现新的待入库文件", zap.String("name", item.Name))
 
 				// 检查这个文件存不存在先
-				fullPath := path.Join(req.ParentPath, item.Name)
+				fullPath := path.Join(plan.ParentPath, item.Name)
 				if _, err := h.virtualFileService.QueryByPath(ctx.GetContext(), fullPath); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 					logger.Error("查询虚拟文件路径失败 跳过本次自动入库", zap.String("path", fullPath), zap.Error(err))
 
 					continue
-				} else if err == nil && req.OnConflict == autoingest.OnConflictRename {
-					fullPath = path.Join(req.ParentPath, fmt.Sprintf("%s_%d", item.Name, time.Now().Unix()))
+				} else if err == nil && plan.OnConflict == autoingest.OnConflictRename {
+					fullPath = path.Join(plan.ParentPath, fmt.Sprintf("%s_%d", item.Name, time.Now().Unix()))
 				}
 
 				id, err := h.storageFacadeService.CreateStorage(ctx.GetContext(),
 					&storagefacadeSvi.CreateStorageRequest{
 						LocalPath:  fullPath,
 						OsType:     models.OsTypeSubscribeShareFolder,
-						CloudToken: req.CloudToken,
+						CloudToken: plan.TokenId,
 						FileId:     item.ID,
 						Addition: datatypes.JSONMap{
-							consts.FileAdditionKeyUpUserId: req.UpUserId,
+							consts.FileAdditionKeyUpUserId: addition.UpUserId,
 							consts.FileAdditionKeyShareId:  item.ShareId,
 							consts.FileAdditionKeyIsFolder: item.IsFolder,
 						},
+						EnableAutoRefresh: plan.RefreshStrategy.EnableAutoRefresh,
+						EnableDeepRefresh: plan.RefreshStrategy.EnableDeepRefresh,
+						AutoRefreshDays:   plan.RefreshStrategy.AutoRefreshDays,
+						RefreshInterval:   plan.RefreshStrategy.RefreshInterval,
 					},
 				)
 				if err != nil {
 					logger.Error("入库失败", zap.Error(err), zap.String("path", fullPath))
+
+					failedCount++
+
+					if _, err = h.authIngestLogService.Create(ctx.GetContext(),
+						req.PlanId, autoingest.LogLevelError,
+						fmt.Sprintf("新增入库失败：%s, 错误信息：%s", fullPath, err.Error()),
+					); err != nil {
+						logger.Error("创建入库日志失败", zap.Error(err))
+					}
 
 					continue
 				}
@@ -134,6 +165,8 @@ func (h *handler) RefreshSubscribe() taskcontext.HandlerFunc {
 				); err != nil {
 					logger.Error("创建入库日志失败", zap.Error(err))
 				}
+
+				addCount++
 			}
 		}
 

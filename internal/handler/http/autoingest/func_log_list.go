@@ -1,19 +1,26 @@
 package autoingest
 
 import (
+	"github.com/samber/lo"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	autoingestlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestlog"
+	autoingestplanSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestplan"
 )
 
 type (
 	logListRequest = autoingestlogSvi.ListRequest
 
+	logDTO struct {
+		*models.AutoIngestLog
+		PlanName string `json:"planName"`
+	}
+
 	logListResponse struct {
-		Total       int64                   `json:"total" example:"100"`     // 总记录数
-		CurrentPage int                     `json:"currentPage" example:"1"` // 当前页码
-		PageSize    int                     `json:"pageSize" example:"10"`   // 每页大小
-		Data        []*models.AutoIngestLog `json:"data"`                    // 日志列表数据
+		Total       int64     `json:"total" example:"100"`     // 总记录数
+		CurrentPage int       `json:"currentPage" example:"1"` // 当前页码
+		PageSize    int       `json:"pageSize" example:"10"`   // 每页大小
+		Data        []*logDTO `json:"data"`                    // 日志列表数据
 	}
 )
 
@@ -57,9 +64,34 @@ func (h *handler) LogList() httpcontext.HandlerFunc {
 			return
 		}
 
+		planList, err := h.planService.List(ctx.GetContext(), &autoingestplanSvi.ListRequest{
+			NoPaginate: true,
+		})
+		if err != nil {
+			ctx.Fail(codeLogListFailed.WithError(err))
+
+			return
+		}
+
+		planNameMap := lo.SliceToMap(planList, func(item *models.AutoIngestPlan) (int64, string) { return item.ID, item.Name })
+
+		var dtoList = make([]*logDTO, 0, len(list))
+		for _, item := range list {
+			planName := "计划不存在"
+
+			if _planName, ok := planNameMap[item.PlanId]; ok {
+				planName = _planName
+			}
+
+			dtoList = append(dtoList, &logDTO{
+				AutoIngestLog: item,
+				PlanName:      planName,
+			})
+		}
+
 		ctx.Success(&logListResponse{
 			Total:       total,
-			Data:        list,
+			Data:        dtoList,
 			PageSize:    req.PageSize,
 			CurrentPage: req.CurrentPage,
 		})
