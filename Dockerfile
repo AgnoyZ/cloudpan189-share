@@ -9,15 +9,19 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 # 设置 npm 为淘宝镜像
 RUN npm config set registry https://registry.npmmirror.com
 
-COPY fe/package.json fe/package-lock.json ./
-RUN npm install
+RUN corepack enable && corepack prepare pnpm@latest --activate
+# 设置 pnpm 为淘宝镜像
+RUN pnpm config set registry https://registry.npmmirror.com
+
+COPY fe/package.json fe/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY fe/ ./
 
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: Build the Go backend
-FROM --platform=$BUILDPLATFORM golang:1.24.4-alpine AS backend-builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS backend-builder
 
 # 添加构建参数
 ARG TARGETPLATFORM

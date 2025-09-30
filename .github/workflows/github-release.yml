@@ -15,7 +15,7 @@ env:
   PROJECT_NAME: cloudpan189-share
   MODULE_NAME: github.com/xxcheng123/cloudpan189-share
   BINARY_NAME: share
-  GO_VERSION: '1.24.4'
+  GO_VERSION: '1.25'
   NODE_VERSION: '22'
 
 jobs:
@@ -32,10 +32,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
           cache-dependency-path: |
-            fe/package-lock.json
-            fe/package.json
+            fe/pnpm-lock.yaml
 
       - name: 🔍 验证前端环境
         run: |
@@ -67,11 +66,14 @@ jobs:
           echo "🎨 使用 Node.js ${{ env.NODE_VERSION }} 构建前端..."
           cd fe
           
+          corepack enable && corepack prepare pnpm@latest --activate
+          pnpm config set registry https://registry.npmmirror.com
+          
           echo "📦 安装依赖..."
-          npm ci --prefer-offline --no-audit
+          pnpm install --frozen-lockfile
           
           echo "🔨 构建前端..."
-          npm run build
+          pnpm build
           
           echo "✅ 前端构建完成"
           
