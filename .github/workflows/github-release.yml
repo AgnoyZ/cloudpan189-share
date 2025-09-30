@@ -42,6 +42,11 @@ jobs:
           version: 9
           run_install: false
 
+      - name: 🧩 全局安装 pnpm（通过 npm）
+        run: |
+          npm install -g pnpm@9
+          pnpm -v
+
       - name: 🔍 验证前端环境
         run: |
           echo "📊 前端环境信息："
