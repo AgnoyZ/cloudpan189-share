@@ -1,6 +1,12 @@
 package http
 
 import (
+	"io/fs"
+	"net/http"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	embed "github.com/xxcheng123/cloudpan189-share"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/taskstate"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/autoingest"
@@ -204,6 +210,40 @@ func Start(svc bootstrap.ServiceContext) {
 			autoIngestRouter.POST("/plan/delete", wrap(autoIngestHandler.DeletePlan()))
 			autoIngestRouter.POST("/plan/update", wrap(autoIngestHandler.UpdatePlan()))
 			autoIngestRouter.GET("/log/list", wrap(autoIngestHandler.LogList()))
+		}
+	}
+
+	{
+		staticFS, ok := embed.StaticFS()
+		if ok {
+			assetsFS, _ := fs.Sub(staticFS, "assets")
+
+			engine.StaticFS("/assets", http.FS(assetsFS))
+
+			engine.NoRoute(func(c *gin.Context) {
+				if strings.HasPrefix(c.Request.URL.Path, "/api") {
+					c.Status(404)
+
+					return
+				}
+
+				// 返回 index.html
+				file, err := staticFS.Open("index.html")
+				if err != nil {
+					c.Status(404)
+
+					return
+				}
+
+				defer func() {
+					_ = file.Close()
+				}()
+
+				stat, _ := file.Stat()
+
+				c.Header("Content-Type", "text/html")
+				c.DataFromReader(200, stat.Size(), "text/html", file, nil)
+			})
 		}
 	}
 }
