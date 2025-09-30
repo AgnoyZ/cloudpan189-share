@@ -78,6 +78,15 @@ func (m *JSONMap) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+func (m *JSONMap) Unmarshal(v any) error {
+	bs, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bs, v)
+}
+
 // GormDataType gorm common data type
 func (m JSONMap) GormDataType() string {
 	return "jsonmap"

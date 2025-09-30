@@ -10,6 +10,7 @@ const (
 	BusCodeTaskStateStartCode
 	BusCodeStorageAdvanceStartCode
 	BusCodeDavStartCode
+	BusCodeAutoIngestStartCode
 
 	BusCodeMiddlewareAuth = 99100 + 1
 )

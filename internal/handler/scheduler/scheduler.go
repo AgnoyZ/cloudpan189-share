@@ -8,6 +8,8 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 
+	autoingestlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestlog"
+	autoingestplanSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestplan"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	mountpointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 
@@ -37,9 +39,12 @@ func Start(svc bootstrap.ServiceContext) (func(), error) {
 	)
 
 	var (
-		fileTaskLogService = filetasklogSvi.NewService(svc)
-		mountPointService  = mountpointSvi.NewService(svc)
-		taskEngine         = svc.GetTaskEngine()
+		fileTaskLogService    = filetasklogSvi.NewService(svc)
+		mountPointService     = mountpointSvi.NewService(svc)
+		autoIngestPlanService = autoingestplanSvi.NewService(svc)
+		autoIngestLogService  = autoingestlogSvi.NewService(svc)
+
+		taskEngine = svc.GetTaskEngine()
 	)
 
 	fileTaskLogCheckScheduler := NewFileTaskLogCheckScheduler(fileTaskLogService)
@@ -52,9 +57,15 @@ func Start(svc bootstrap.ServiceContext) (func(), error) {
 		errs = append(errs, err)
 	}
 
+	autoIngestRefreshScheduler := NewAutoIngestRefreshScheduler(taskEngine, autoIngestPlanService, autoIngestLogService)
+	if err := autoIngestRefreshScheduler.Start(ctx); err != nil {
+		errs = append(errs, err)
+	}
+
 	schedulers := []Scheduler{
 		fileTaskLogCheckScheduler,
 		refreshFileScheduler,
+		autoIngestRefreshScheduler,
 	}
 
 	return closeBar(schedulers), errors2.Join(errs...)

@@ -2,21 +2,15 @@ package storage
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
-
-	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/datatypes"
 
-	"github.com/pkg/errors"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
-	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
-	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
-	"gorm.io/gorm"
+	storagefacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
 )
 
 type (
@@ -69,47 +63,9 @@ func (h *handler) Add() httpcontext.HandlerFunc {
 			return
 		}
 
-		if mountPoint, err := h.mountPointService.QueryByPath(ctx.GetContext(), req.LocalPath); err != nil {
-			ctx.Fail(busCodeStorageQueryPathFailed.WithError(err))
-
-			return
-		} else if mountPoint != nil {
-			ctx.Fail(busCodeStoragePathExists)
-
-			return
-		}
-
-		paths, err := utils.SplitPath(req.LocalPath)
-		if err != nil {
-			ctx.Fail(busCodeStoragePathSplitFailed.WithError(err))
-
-			return
-		}
-
-		if len(paths) == 0 {
-			ctx.Fail(busCodeStorageRootPathNotAllowed)
-
-			return
-		}
-
-		if !utils.CheckIsPath(req.LocalPath) {
-			ctx.Fail(busCodeStorageInvalidPath)
-
-			return
-		}
-
-		if _, err = h.virtualFileService.QueryByPath(ctx.GetContext(), req.LocalPath); !errors.Is(err, gorm.ErrRecordNotFound) {
-			if err != nil {
-				ctx.Fail(busCodeStorageQueryPathFailed.WithError(err))
-			} else {
-				ctx.Fail(busCodeStoragePathExists)
-			}
-
-			return
-		}
-
 		var (
 			addition datatypes.JSONMap
+			err      error
 		)
 
 		fileId := req.FileId
@@ -138,43 +94,15 @@ func (h *handler) Add() httpcontext.HandlerFunc {
 			return
 		}
 
-		// 查找或创建父级路径
-		parentId, err := h.virtualFileService.FindOrCreateAncestors(ctx.GetContext(), req.LocalPath)
-		if err != nil {
-			ctx.Fail(busCodeStorageQueryPathFailed.WithError(err))
-
-			return
-		}
-
-		now := time.Now()
-		m := &models.VirtualFile{
-			Name:       paths[len(paths)-1],
-			IsTop:      true,
-			Size:       0,
-			Hash:       "",
-			CreateDate: now,
-			ModifyDate: now,
-			Rev:        now.Format(consts.RevFormat),
+		// 使用组合服务创建存储（内部完成校验、父级创建、虚拟文件与挂载点创建与补偿）
+		id, err := h.storageFacadeService.CreateStorage(ctx.GetContext(), &storagefacadeSvi.CreateStorageRequest{
+			LocalPath:  req.LocalPath,
 			OsType:     req.OsType,
-			IsDir:      true,
+			CloudToken: req.CloudToken,
+			FileId:     fileId,
 			Addition:   addition,
-			CloudId:    fileId,
-		}
-
-		// 创建存储挂载
-		id, err := h.virtualFileService.CreateTop(ctx.GetContext(), parentId, m)
+		})
 		if err != nil {
-			ctx.Fail(busCodeStorageQueryPathFailed.WithError(err))
-
-			return
-		}
-
-		if _, err = h.mountPointService.Create(ctx.GetContext(), &mountPointSvi.CreateRequest{
-			FullPath: req.LocalPath,
-			FileId:   id,
-			OsType:   req.OsType,
-			TokenId:  req.CloudToken,
-		}); err != nil {
 			ctx.Fail(busCodeStorageAddMountPointFailed.WithError(err))
 
 			return
@@ -186,7 +114,11 @@ func (h *handler) Add() httpcontext.HandlerFunc {
 		}
 
 		body, _ := json.Marshal(taskReq)
-		if err = h.taskEngine.PushMessage(ctx.GetContext().WithValue(consts.CtxKeyFullPath, req.LocalPath), taskReq.Topic(), body); err != nil {
+		if err = h.taskEngine.PushMessage(
+			ctx.GetContext().
+				WithValue(consts.CtxKeyFullPath, req.LocalPath).
+				WithValue(consts.CtxKeyInvokeHandlerName, "创建初始化执行器"),
+			taskReq.Topic(), body); err != nil {
 			ctx.Fail(busCodeStorageAddTaskFailed.WithError(err))
 
 			return

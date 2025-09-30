@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/taskstate"
 
+	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/autoingest"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/cloudtoken"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/file"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/setting"
@@ -14,12 +15,15 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/user"
 
+	autoingestlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestlog"
+	autoingestplanSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestplan"
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	settingSvi "github.com/xxcheng123/cloudpan189-share/internal/services/setting"
+	storagefacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
 	userSvi "github.com/xxcheng123/cloudpan189-share/internal/services/user"
 	userGroupSvi "github.com/xxcheng123/cloudpan189-share/internal/services/usergroup"
 	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
@@ -42,27 +46,31 @@ func Start(svc bootstrap.ServiceContext) {
 	)
 
 	var (
-		userService        = userSvi.NewService(svc)
-		userGroupService   = userGroupSvi.NewService(svc)
-		group2FileService  = group2fileSvi.NewService(svc)
-		settingService     = settingSvi.NewService(svc)
-		virtualFileService = virtualfileSvi.NewService(svc)
-		cloudBridgeService = cloudbridgeSvi.NewService(svc)
-		cloudTokenService  = cloudtokenSvi.NewService(svc)
-		mountPointService  = mountPointSvi.NewService(svc)
-		fileTaskLogService = filetasklogSvi.NewService(svc)
-		verifyService      = verifySvi.NewService(svc)
+		userService           = userSvi.NewService(svc)
+		userGroupService      = userGroupSvi.NewService(svc)
+		group2FileService     = group2fileSvi.NewService(svc)
+		settingService        = settingSvi.NewService(svc)
+		virtualFileService    = virtualfileSvi.NewService(svc)
+		cloudBridgeService    = cloudbridgeSvi.NewService(svc)
+		cloudTokenService     = cloudtokenSvi.NewService(svc)
+		mountPointService     = mountPointSvi.NewService(svc)
+		fileTaskLogService    = filetasklogSvi.NewService(svc)
+		storageFacadeService  = storagefacadeSvi.NewService(svc)
+		verifyService         = verifySvi.NewService(svc)
+		autoIngestPlanService = autoingestplanSvi.NewService(svc)
+		autoIngestLogService  = autoingestlogSvi.NewService(svc)
 	)
 
 	var (
 		userHandler           = user.NewHandler(userService, userGroupService)
 		settingHandler        = setting.NewHandler(userService, settingService)
 		userGroupHandler      = usergroup.NewHandler(userGroupService, group2FileService, userService)
-		storageHandler        = storage.NewHandler(taskEngine, virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService)
+		storageHandler        = storage.NewHandler(taskEngine, virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService, storageFacadeService)
 		storageAdvanceHandler = advance.NewHandler(cloudBridgeService, cloudTokenService)
 		cloudTokenHandler     = cloudtoken.NewHandler(cloudTokenService, mountPointService)
 		fileHandler           = file.NewHandler(virtualFileService, verifyService, cloudTokenService, cloudBridgeService, mountPointService)
 		taskStateHandler      = taskstate.NewHandler(taskEngine, fileTaskLogService)
+		autoIngestHandler     = autoingest.NewHandler(taskEngine, autoIngestPlanService, autoIngestLogService, cloudBridgeService)
 	)
 
 	var (
@@ -182,6 +190,17 @@ func Start(svc bootstrap.ServiceContext) {
 			settingAdminRouter.POST("/modify_base_url", wrap(settingHandler.ModifyBaseURL()))
 			settingAdminRouter.POST("/toggle_enable_auth", wrap(settingHandler.ToggleEnableAuth()))
 			settingAdminRouter.POST("/modify_addition", wrap(settingHandler.ModifyAddition()))
+		}
+	}
+
+	{
+		autoIngestRouter := openapiRouter.Group("/auto_ingest", wrap(userMiddleware.Auth(true)))
+		{
+			autoIngestRouter.POST("/plan/create_subscribe", wrap(autoIngestHandler.CreateSubscribePlan()))
+			autoIngestRouter.POST("/plan/enable", wrap(autoIngestHandler.EnablePlan()))
+			autoIngestRouter.POST("/plan/disable", wrap(autoIngestHandler.DisablePlan()))
+			autoIngestRouter.POST("/plan/delete", wrap(autoIngestHandler.DeletePlan()))
+			autoIngestRouter.GET("/log/list", wrap(autoIngestHandler.LogList()))
 		}
 	}
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/xxcheng123/cloudpan189-interface/client"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
+	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
 	"go.uber.org/zap"
 )
 
@@ -44,6 +45,7 @@ type ShareResourceInfo struct {
 	ShareId    int64     `json:"shareId"`
 	ID         string    `json:"id"`
 	ShareTime  time.Time `json:"shareTime"`
+	IsTop      int       `json:"isTop"`
 }
 
 func (s *service) GetSubscribeUserShareResource(ctx context.Context, userId string, opts ...SubscribeUserShareResourceOptionFunc) ([]*ShareResourceInfo, int64, error) {
@@ -72,12 +74,13 @@ func (s *service) GetSubscribeUserShareResource(ctx context.Context, userId stri
 
 		list = append(list, &ShareResourceInfo{
 			UserId:     userId,
-			Name:       item.Name,
+			Name:       utils.SanitizeFileName(item.Name),
 			IsFolder:   item.Folder == 1,
 			AccessCode: item.AccessURL,
 			ShareId:    item.ShareId,
 			ID:         string(item.Id),
 			ShareTime:  shareTime,
+			IsTop:      item.IsTop,
 		})
 	}
 

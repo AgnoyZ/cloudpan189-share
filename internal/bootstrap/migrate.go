@@ -17,6 +17,8 @@ func migrateDB(db *gorm.DB) (err error) {
 		new(models.FileTaskLog),
 		new(models.CloudToken),
 		new(models.MountPoint),
+		new(models.AutoIngestLog),
+		new(models.AutoIngestPlan),
 	)
 }
 

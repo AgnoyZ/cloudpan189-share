@@ -1,6 +1,9 @@
 package topic
 
-import "github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
+import (
+	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
+	"github.com/xxcheng123/cloudpan189-share/internal/types/autoingest"
+)
 
 type Request interface {
 	Topic() taskengine.Topic
@@ -21,4 +24,17 @@ type FileClearFileRequest struct {
 
 func (r FileClearFileRequest) Topic() taskengine.Topic {
 	return taskengine.Topic(KeyFileClearFile)
+}
+
+type AutoIngestRefreshSubscribeRequest struct {
+	PlanId     int64                 `json:"planId"`
+	ParentPath string                `json:"parentPath"`
+	OnConflict autoingest.OnConflict `json:"onConflict"`
+	Offset     int64                 `json:"offset"` // 如果是 0 表示全部加一遍
+	UpUserId   string                `json:"upUserId"`
+	CloudToken int64                 `json:"cloudToken"`
+}
+
+func (r AutoIngestRefreshSubscribeRequest) Topic() taskengine.Topic {
+	return taskengine.Topic(KeyAutoIngestRefreshSubscribe)
 }

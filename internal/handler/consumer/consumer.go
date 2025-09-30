@@ -3,12 +3,18 @@ package consumer
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
+	"github.com/xxcheng123/cloudpan189-share/internal/handler/consumer/autoingest"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/consumer/file"
+
+	autoingestlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestlog"
+	autoingestplanSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestplan"
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
+	storageFacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
+
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 )
 
@@ -24,15 +30,19 @@ func Start(svc bootstrap.ServiceContext) error {
 	)
 
 	var (
-		virtualFileService = virtualfileSvi.NewService(svc)
-		cloudBridgeService = cloudbridgeSvi.NewService(svc)
-		cloudTokenService  = cloudtokenSvi.NewService(svc)
-		mountPointService  = mountPointSvi.NewService(svc)
-		fileTaskLogService = filetasklogSvi.NewService(svc)
+		virtualFileService    = virtualfileSvi.NewService(svc)
+		cloudBridgeService    = cloudbridgeSvi.NewService(svc)
+		cloudTokenService     = cloudtokenSvi.NewService(svc)
+		mountPointService     = mountPointSvi.NewService(svc)
+		fileTaskLogService    = filetasklogSvi.NewService(svc)
+		authIngestLogService  = autoingestlogSvi.NewService(svc)
+		autoIngestPlanService = autoingestplanSvi.NewService(svc)
+		storageFacadeService  = storageFacadeSvi.NewService(svc)
 	)
 
 	var (
-		fileHandler = file.NewHandler(virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService)
+		fileHandler       = file.NewHandler(virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService)
+		autoIngestHandler = autoingest.NewHandler(taskEngine, cloudBridgeService, autoIngestPlanService, authIngestLogService, storageFacadeService, virtualFileService)
 	)
 
 	{
@@ -44,6 +54,14 @@ func Start(svc bootstrap.ServiceContext) error {
 
 		if err := taskEngine.RegisterProcessor(new(topic.FileClearFileRequest).Topic(), wrap(fileHandler.ClearFile())); err != nil {
 			logger.Error("注册文件清理处理器失败")
+
+			return err
+		}
+	}
+
+	{
+		if err := taskEngine.RegisterProcessor(new(topic.AutoIngestRefreshSubscribeRequest).Topic(), wrap(autoIngestHandler.RefreshSubscribe())); err != nil {
+			logger.Error("注册订阅号自动入库刷新处理器失败")
 
 			return err
 		}

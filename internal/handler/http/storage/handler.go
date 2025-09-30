@@ -9,6 +9,7 @@ import (
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
+	storageFacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 )
 
@@ -25,10 +26,6 @@ type Handler interface {
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeStorageStartCode)
 
 var (
-	busCodeStoragePathSplitFailed          = bi.Next("路径分割失败")
-	busCodeStorageRootPathNotAllowed       = bi.Next("不允许挂载根路径")
-	busCodeStorageInvalidPath              = bi.Next("路径不合法，需要 / 开头的路径")
-	busCodeStoragePathExists               = bi.Next("路径已存在")
 	busCodeStorageQueryPathFailed          = bi.Next("查询路径失败")
 	busCodeStorageSubscribeUserEmpty       = bi.Next("订阅用户不能为空")
 	busCodeStorageQuerySubscribeUserError  = bi.Next("查询订阅用户信息失败")
@@ -67,12 +64,13 @@ const (
 )
 
 type handler struct {
-	taskEngine         taskengine.TaskEngine
-	virtualFileService virtualfileSvi.Service
-	cloudBridgeService cloudbridgeSvi.Service
-	cloudTokenService  cloudtokenSvi.Service
-	mountPointService  mountPointSvi.Service
-	fileTaskLogService filetasklogSvi.Service
+	taskEngine           taskengine.TaskEngine
+	virtualFileService   virtualfileSvi.Service
+	cloudBridgeService   cloudbridgeSvi.Service
+	cloudTokenService    cloudtokenSvi.Service
+	mountPointService    mountPointSvi.Service
+	fileTaskLogService   filetasklogSvi.Service
+	storageFacadeService storageFacadeSvi.Service
 }
 
 func NewHandler(
@@ -82,13 +80,15 @@ func NewHandler(
 	cloudTokenService cloudtokenSvi.Service,
 	mountPointService mountPointSvi.Service,
 	fileTaskLogService filetasklogSvi.Service,
+	storageFacadeService storageFacadeSvi.Service,
 ) Handler {
 	return &handler{
-		virtualFileService: virtualFileService,
-		cloudBridgeService: cloudBridgeService,
-		cloudTokenService:  cloudTokenService,
-		mountPointService:  mountPointService,
-		taskEngine:         taskEngine,
-		fileTaskLogService: fileTaskLogService,
+		virtualFileService:   virtualFileService,
+		cloudBridgeService:   cloudBridgeService,
+		cloudTokenService:    cloudTokenService,
+		mountPointService:    mountPointService,
+		taskEngine:           taskEngine,
+		fileTaskLogService:   fileTaskLogService,
+		storageFacadeService: storageFacadeService,
 	}
 }

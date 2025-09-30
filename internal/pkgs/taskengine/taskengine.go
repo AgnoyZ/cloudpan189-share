@@ -289,7 +289,7 @@ func (t *taskEngine) processMessage(taskInfo *TaskInfo, workerId string) {
 
 func (t *taskEngine) newTaskContext(taskInfo *TaskInfo, workerId string) *TaskContext {
 	// 应用超时控制
-	ctx, cancel := context.WithTimeout(taskInfo.Context, t.options.ProcessTimeout)
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(taskInfo.Context), t.options.ProcessTimeout)
 
 	taskInfo.WorkerId = workerId
 	taskInfo.StartAt = ptr.Of(time.Now())

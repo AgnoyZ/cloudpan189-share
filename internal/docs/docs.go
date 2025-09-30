@@ -15,6 +15,342 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/auto_ingest/log/list": {
+            "get": {
+                "description": "分页获取自动挂载日志，支持按计划ID与级别筛选",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "获取自动挂载日志列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "当前页码，默认为1",
+                        "name": "currentPage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页大小，默认为10",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "计划ID",
+                        "name": "planId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "日志级别，如 info/error",
+                        "name": "level",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取日志列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_autoingest.logListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取自动挂载日志列表失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auto_ingest/plan/create_subscribe": {
+            "post": {
+                "description": "创建订阅计划（占位实现，后续由你补充具体逻辑）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "创建订阅型自动挂载计划",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "订阅计划参数（占位）",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_autoingest.createSubscribePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_autoingest.createSubscribePlanResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数验证失败，code=99998",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auto_ingest/plan/delete": {
+            "post": {
+                "description": "根据计划ID删除自动挂载计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "删除自动挂载计划",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "计划ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_autoingest.deletePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "删除自动挂载计划失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auto_ingest/plan/disable": {
+            "post": {
+                "description": "根据计划ID停用自动挂载计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "停用自动挂载计划",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "计划ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_autoingest.disablePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "停用成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "停用自动挂载计划失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auto_ingest/plan/enable": {
+            "post": {
+                "description": "根据计划ID启用自动挂载计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "启用自动挂载计划",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "计划ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http_autoingest.enablePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "启用成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "启用自动挂载计划失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/cloud_token/check_qrcode": {
             "post": {
                 "description": "检查二维码扫码状态，如果扫码成功则创建或更新云盘令牌",
@@ -3516,6 +3852,29 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "level": {
+                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.LogLevel"
+                },
+                "planId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken": {
             "type": "object",
             "properties": {
@@ -3768,6 +4127,9 @@ const docTemplate = `{
                 "isFolder": {
                     "type": "boolean"
                 },
+                "isTop": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3789,6 +4151,168 @@ const docTemplate = `{
                     "description": "云盘令牌ID",
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.LogLevel": {
+            "type": "string",
+            "enum": [
+                "info",
+                "warn",
+                "error"
+            ],
+            "x-enum-varnames": [
+                "LogLevelInfo",
+                "LogLevelWarn",
+                "LogLevelError"
+            ]
+        },
+        "internal_handler_http_autoingest.createSubscribePlanRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "parentPath",
+                "upUserId"
+            ],
+            "properties": {
+                "autoIngestInterval": {
+                    "description": "单位分钟",
+                    "type": "integer",
+                    "minimum": 5,
+                    "example": 30
+                },
+                "cloudToken": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "订阅计划A"
+                },
+                "onConflict": {
+                    "description": "冲突时的解决策略",
+                    "type": "string",
+                    "enum": [
+                        "rename",
+                        "abandon"
+                    ],
+                    "example": "rename"
+                },
+                "oneClickAddHistory": {
+                    "description": "是否一键添加之前的",
+                    "type": "boolean",
+                    "example": true
+                },
+                "parentPath": {
+                    "type": "string",
+                    "example": "/Movies"
+                },
+                "refreshStrategy": {
+                    "$ref": "#/definitions/internal_handler_http_autoingest.refreshStrategyRequest"
+                },
+                "upUserId": {
+                    "description": "上传用户ID",
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
+        },
+        "internal_handler_http_autoingest.createSubscribePlanResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "internal_handler_http_autoingest.deletePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "internal_handler_http_autoingest.disablePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "internal_handler_http_autoingest.enablePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "internal_handler_http_autoingest.logListResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
+                },
+                "data": {
+                    "description": "日志列表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog"
+                    }
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "internal_handler_http_autoingest.refreshStrategyRequest": {
+            "type": "object",
+            "properties": {
+                "autoRefreshDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 7
+                },
+                "enableAutoRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "enableDeepRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "refreshInterval": {
+                    "description": "单位分钟，最小30",
+                    "type": "integer",
+                    "minimum": 30,
+                    "example": 30
                 }
             }
         },
@@ -5250,6 +5774,7 @@ const docTemplate = `{
         },
         "time.Duration": {
             "type": "integer",
+            "format": "int64",
             "enum": [
                 -9223372036854775808,
                 9223372036854775807,
