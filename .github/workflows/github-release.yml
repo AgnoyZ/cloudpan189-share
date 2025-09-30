@@ -36,11 +36,18 @@ jobs:
           cache-dependency-path: |
             fe/pnpm-lock.yaml
 
+      - name: 🧩 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
       - name: 🔍 验证前端环境
         run: |
           echo "📊 前端环境信息："
           echo "Node 版本: $(node --version)"
           echo "NPM 版本: $(npm --version)"
+          echo "PNPM 版本: $(pnpm --version || echo 'pnpm 未安装')"
           echo "工作目录: $(pwd)"
           
           if [ -d "fe" ]; then
