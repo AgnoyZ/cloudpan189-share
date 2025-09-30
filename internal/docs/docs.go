@@ -351,6 +351,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/auto_ingest/plan/list": {
+            "get": {
+                "description": "分页获取自动挂载计划列表，支持按名称模糊搜索",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "自动挂载管理"
+                ],
+                "summary": "获取自动挂载计划列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "当前页码，默认为1",
+                        "name": "currentPage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页大小，默认为10",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "按名称模糊搜索",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取计划列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler_http_autoingest.planListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取自动挂载计划列表失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/cloud_token/check_qrcode": {
             "post": {
                 "description": "检查二维码扫码状态，如果扫码成功则创建或更新云盘令牌",
@@ -3875,6 +3957,66 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan": {
+            "type": "object",
+            "properties": {
+                "addCount": {
+                    "description": "新增挂载数",
+                    "type": "integer"
+                },
+                "addition": {
+                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
+                },
+                "autoIngestInterval": {
+                    "description": "单位分钟",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "failedCount": {
+                    "description": "失败挂载数",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "偏移量",
+                    "type": "integer"
+                },
+                "onConflict": {
+                    "description": "冲突处理策略",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.OnConflict"
+                        }
+                    ]
+                },
+                "parentPath": {
+                    "description": "父目录路径",
+                    "type": "string"
+                },
+                "refreshStrategy": {
+                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy"
+                },
+                "sourceType": {
+                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.SourceType"
+                },
+                "tokenId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken": {
             "type": "object",
             "properties": {
@@ -4014,6 +4156,23 @@ const docTemplate = `{
                 "OsTypeFamilyFolder",
                 "OsTypeFamilyFile"
             ]
+        },
+        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy": {
+            "type": "object",
+            "properties": {
+                "autoRefreshDays": {
+                    "type": "integer"
+                },
+                "enableAutoRefresh": {
+                    "type": "boolean"
+                },
+                "enableDeepRefresh": {
+                    "type": "boolean"
+                },
+                "refreshInterval": {
+                    "type": "integer"
+                }
+            }
         },
         "github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition": {
             "type": "object",
@@ -4167,6 +4326,26 @@ const docTemplate = `{
                 "LogLevelError"
             ]
         },
+        "github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.OnConflict": {
+            "type": "string",
+            "enum": [
+                "rename",
+                "abandon"
+            ],
+            "x-enum-varnames": [
+                "OnConflictRename",
+                "OnConflictAbandon"
+            ]
+        },
+        "github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.SourceType": {
+            "type": "string",
+            "enum": [
+                "subscribe"
+            ],
+            "x-enum-varnames": [
+                "SourceTypeSubscribe"
+            ]
+        },
         "internal_handler_http_autoingest.createSubscribePlanRequest": {
             "type": "object",
             "required": [
@@ -4278,6 +4457,33 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog"
+                    }
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "internal_handler_http_autoingest.planListResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
+                },
+                "data": {
+                    "description": "计划列表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan"
                     }
                 },
                 "pageSize": {

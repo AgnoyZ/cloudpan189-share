@@ -155,4 +155,43 @@ declare namespace Models {
     endAt: string // 结束时间
     results: ProcessorResult[] // 处理器结果
   }
+
+  // ===== 自动挂载（Auto Ingest）模型 =====
+
+  // 刷新策略（对应后端 github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy）
+  interface RefreshStrategy {
+    enableAutoRefresh: boolean
+    enableDeepRefresh: boolean
+    autoRefreshDays: number
+    refreshInterval: number
+  }
+
+  // 自动挂载计划（对应后端 github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan）
+  interface AutoIngestPlan {
+    id: number
+    name: string
+    tokenId: number
+    parentPath: string // 父目录路径
+    sourceType: 'subscribe' // 来源类型，目前仅 subscribe
+    autoIngestInterval: number // 单位分钟
+    onConflict: 'rename' | 'abandon' // 冲突处理策略
+    refreshStrategy: RefreshStrategy
+    addition: Record<string, unknown>
+    offset: number // 偏移量
+    enabled: boolean
+    addCount: number // 新增挂载数
+    failedCount: number // 失败挂载数
+    createdAt: string
+    updatedAt: string
+  }
+
+  // 自动挂载日志（对应后端 github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog）
+  interface AutoIngestLog {
+    id: number
+    planId: number
+    content: string
+    level: 'info' | 'warn' | 'error'
+    createdAt: string
+    updatedAt: string
+  }
 }

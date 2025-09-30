@@ -197,6 +197,7 @@ func Start(svc bootstrap.ServiceContext) {
 		autoIngestRouter := openapiRouter.Group("/auto_ingest", wrap(userMiddleware.Auth(true)))
 		{
 			autoIngestRouter.POST("/plan/create_subscribe", wrap(autoIngestHandler.CreateSubscribePlan()))
+			autoIngestRouter.GET("/plan/list", wrap(autoIngestHandler.PlanList()))
 			autoIngestRouter.POST("/plan/enable", wrap(autoIngestHandler.EnablePlan()))
 			autoIngestRouter.POST("/plan/disable", wrap(autoIngestHandler.DisablePlan()))
 			autoIngestRouter.POST("/plan/delete", wrap(autoIngestHandler.DeletePlan()))

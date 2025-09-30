@@ -15,6 +15,8 @@ type Handler interface {
 	EnablePlan() httpcontext.HandlerFunc
 	DisablePlan() httpcontext.HandlerFunc
 	DeletePlan() httpcontext.HandlerFunc
+	// PlanList 计划列表
+	PlanList() httpcontext.HandlerFunc
 	// LogList 日志查询
 	LogList() httpcontext.HandlerFunc
 }
@@ -25,6 +27,7 @@ var (
 	codePlanDeleteFailed  = bi.Next("删除自动挂载计划失败")
 	codePlanEnableFailed  = bi.Next("启用自动挂载计划失败")
 	codePlanDisableFailed = bi.Next("停用自动挂载计划失败")
+	codePlanListFailed    = bi.Next("获取自动挂载计划列表失败")
 	codeLogListFailed     = bi.Next("获取自动挂载日志列表失败")
 	codeUpUserIdInvalid   = bi.Next("订阅号查询失败")
 	codeCreatePlanFailed  = bi.Next("创建自动挂载计划失败")

@@ -156,6 +156,7 @@ import {
   FolderOpenOutline as FileBrowserIcon,
   DocumentTextOutline as TaskLogIcon,
   PlayCircleOutline as EngineLogIcon,
+  HammerOutline as AutoIngestIcon,
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
@@ -252,6 +253,11 @@ const menuOptions = computed((): MenuOption[] => {
       label: '存储管理',
       key: '/@dashboard/storages',
       icon: () => h(NIcon, null, { default: () => h(StorageIcon) }),
+    },
+    {
+      label: '自动入库',
+      key: '/@dashboard/autoingest',
+      icon: () => h(NIcon, null, { default: () => h(AutoIngestIcon) }),
     },
     {
       label: '任务日志',

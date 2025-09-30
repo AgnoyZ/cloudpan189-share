@@ -107,6 +107,46 @@ definitions:
       updatedAt:
         type: string
     type: object
+  github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan:
+    properties:
+      addCount:
+        description: 新增挂载数
+        type: integer
+      addition:
+        $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap'
+      autoIngestInterval:
+        description: 单位分钟
+        type: integer
+      createdAt:
+        type: string
+      enabled:
+        type: boolean
+      failedCount:
+        description: 失败挂载数
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      offset:
+        description: 偏移量
+        type: integer
+      onConflict:
+        allOf:
+        - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.OnConflict'
+        description: 冲突处理策略
+      parentPath:
+        description: 父目录路径
+        type: string
+      refreshStrategy:
+        $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy'
+      sourceType:
+        $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.SourceType'
+      tokenId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
   github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken:
     properties:
       accessToken:
@@ -210,6 +250,17 @@ definitions:
     - OsTypePersonFile
     - OsTypeFamilyFolder
     - OsTypeFamilyFile
+  github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy:
+    properties:
+      autoRefreshDays:
+        type: integer
+      enableAutoRefresh:
+        type: boolean
+      enableDeepRefresh:
+        type: boolean
+      refreshInterval:
+        type: integer
+    type: object
   github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition:
     properties:
       localProxy:
@@ -311,6 +362,20 @@ definitions:
     - LogLevelInfo
     - LogLevelWarn
     - LogLevelError
+  github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.OnConflict:
+    enum:
+    - rename
+    - abandon
+    type: string
+    x-enum-varnames:
+    - OnConflictRename
+    - OnConflictAbandon
+  github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.SourceType:
+    enum:
+    - subscribe
+    type: string
+    x-enum-varnames:
+    - SourceTypeSubscribe
   internal_handler_http_autoingest.createSubscribePlanRequest:
     properties:
       autoIngestInterval:
@@ -392,6 +457,26 @@ definitions:
         description: 日志列表数据
         items:
           $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestLog'
+        type: array
+      pageSize:
+        description: 每页大小
+        example: 10
+        type: integer
+      total:
+        description: 总记录数
+        example: 100
+        type: integer
+    type: object
+  internal_handler_http_autoingest.planListResponse:
+    properties:
+      currentPage:
+        description: 当前页码
+        example: 1
+        type: integer
+      data:
+        description: 计划列表数据
+        items:
+          $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan'
         type: array
       pageSize:
         description: 每页大小
@@ -1705,6 +1790,58 @@ paths:
           schema:
             $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
       summary: 启用自动挂载计划
+      tags:
+      - 自动挂载管理
+  /api/auto_ingest/plan/list:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取自动挂载计划列表，支持按名称模糊搜索
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 1
+        description: 当前页码，默认为1
+        in: query
+        name: currentPage
+        type: integer
+      - default: 10
+        description: 每页大小，默认为10
+        in: query
+        name: pageSize
+        type: integer
+      - description: 按名称模糊搜索
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取计划列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler_http_autoingest.planListResponse'
+              type: object
+        "400":
+          description: 获取自动挂载计划列表失败，code=xxxx
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response'
+      summary: 获取自动挂载计划列表
       tags:
       - 自动挂载管理
   /api/cloud_token/{id}:

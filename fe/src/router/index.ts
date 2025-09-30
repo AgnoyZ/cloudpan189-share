@@ -80,6 +80,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'autoingest',
+          name: 'AutoIngest',
+          component: () => import('@/views/dashboard/autoingest/index.vue'),
+          meta: {
+            title: '自动入库',
+            requiresAuth: true,
+            requiresAdmin: true,
+          },
+        },
+        {
           path: 'settings',
           name: 'Settings',
           component: () => import('@/views/dashboard/settings/index.vue'),
