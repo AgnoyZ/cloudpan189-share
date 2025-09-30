@@ -57,7 +57,7 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 			fmt.Sprintf("扫描目录: %s", ctx.GetContext().String(consts.CtxKeyFullPath, topFile.Name)),
 			filetasklog.WithFile(topFile.ID),
 			filetasklog.WithDesc(fmt.Sprintf(
-				"调用者: %s,深度扫描: %t,  文件ID: %d, 目录名: %s, 上级ID: %d, 挂载点ID: %d",
+				"调用者: %s, 深度扫描: %t, 文件ID: %d, 目录名: %s, 上级ID: %d, 挂载点ID: %d",
 				ctx.GetContext().String(consts.CtxKeyInvokeHandlerName, "unknown"),
 				req.Deep,
 				req.FileId,

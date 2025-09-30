@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/pkg/errors"
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 	"gorm.io/gorm"
@@ -39,7 +40,8 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 			return
 		}
 
-		if _, err := h.mountPointService.Query(ctx.GetContext(), req.ID); err != nil {
+		mountPointInfo, err := h.mountPointService.Query(ctx.GetContext(), req.ID)
+		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				ctx.Fail(busCodeStorageMountPointNotFound.WithError(err))
 			} else {
@@ -49,7 +51,7 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 			return
 		}
 
-		if err := h.mountPointService.Delete(ctx.GetContext(), req.ID); err != nil {
+		if err = h.mountPointService.Delete(ctx.GetContext(), req.ID); err != nil {
 			ctx.Fail(busCodeStorageMountPointDeleteFail.WithError(err))
 
 			return
@@ -61,7 +63,13 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 
 		body, _ := json.Marshal(taskReq)
 
-		if err := h.taskEngine.PushMessage(ctx.GetContext(), taskReq.Topic(), body); err != nil {
+		if err := h.taskEngine.PushMessage(
+			ctx.GetContext().
+				WithValue(consts.CtxKeyFullPath, mountPointInfo.FullPath).
+				WithValue(consts.CtxKeyInvokeHandlerName, "清理执行器"),
+			taskReq.Topic(),
+			body,
+		); err != nil {
 			ctx.Fail(busCodeStorageSendTaskFail.WithError(err))
 
 			return
