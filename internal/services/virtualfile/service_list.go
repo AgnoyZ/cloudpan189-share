@@ -3,6 +3,7 @@ package virtualfile
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -17,6 +18,9 @@ type ListRequest struct {
 	CurrentPage int    `form:"currentPage" binding:"omitempty,min=1"`
 	PageSize    int    `form:"pageSize" binding:"omitempty,min=1"`
 	Name        string `form:"name" binding:"omitempty"`
+
+	// ExcludeIdList 排除ID
+	ExcludeIdList []int64 `form:"-"`
 
 	AscList  []string `form:"-"`
 	DescList []string `form:"-"`
@@ -58,7 +62,9 @@ func (s *service) List(ctx context.Context, req *ListRequest) ([]*models.Virtual
 }
 
 func (s *service) Count(ctx context.Context, req *ListRequest) (count int64, err error) {
-	err = s.getListQuery(ctx, req).Count(&count).Error
+	if err = s.getListQuery(ctx, req).Count(&count).Error; err != nil {
+		ctx.Error("查询文件数量失败", zap.Error(err))
+	}
 
 	return count, err
 }
@@ -88,6 +94,10 @@ func (s *service) getListQuery(ctx context.Context, req *ListRequest) *gorm.DB {
 
 	if req.TopId != nil {
 		query = query.Where("top_id = ?", *req.TopId)
+	}
+
+	if len(req.ExcludeIdList) > 0 {
+		query = query.Where("id not in (?)", req.ExcludeIdList)
 	}
 
 	return query

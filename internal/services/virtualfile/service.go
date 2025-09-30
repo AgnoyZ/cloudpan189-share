@@ -33,6 +33,7 @@ type Service interface {
 	ModifyAddition(ctx context.Context, id int64, key string, value any) error
 	BatchUpdatePlus(ctx context.Context, values []utils.Field, exps []clause.Expression) error
 	GroupCountByTopId(ctx context.Context, req *GroupCountByTopIdRequest) ([]*GroupCountByTopId, error)
+	ClearUnusedAncestorFolder(ctx context.Context, subId int64) error
 }
 
 type service struct {

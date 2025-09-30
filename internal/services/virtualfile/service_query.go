@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
+	"go.uber.org/zap"
 
 	"github.com/pkg/errors"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
@@ -17,6 +18,8 @@ func (s *service) Query(ctx context.Context, fid int64) (*models.VirtualFile, er
 	file := new(models.VirtualFile)
 
 	if err := s.getDB(ctx).Where("id = ?", fid).First(file).Error; err != nil {
+		ctx.Error("文件查询信息失败", zap.Int64("id", fid), zap.Error(err))
+
 		return nil, err
 	}
 
