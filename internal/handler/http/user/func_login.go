@@ -1,9 +1,13 @@
 package user
 
 import (
+	"errors"
+
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	"gorm.io/gorm"
 )
 
 type loginRequest struct {
@@ -41,16 +45,26 @@ func (h *handler) Login() httpcontext.HandlerFunc {
 			return
 		}
 
+		ctx.Set(consts.CtxKeyUsername, req.Username)
+
 		user, err := h.userService.QueryByUsername(ctx.GetContext(), req.Username)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				ctx.Fail(codeUserNotFound.WithError(err))
+
+				return
+			}
+
 			ctx.Fail(codeLoginFailed.WithError(err))
 
 			return
 		}
 
+		ctx.Set(consts.CtxKeyUserId, user.ID)
+
 		// 验证密码
 		if user.Password != utils.MD5(req.Password) {
-			ctx.Fail(codeLoginFailed)
+			ctx.Fail(codeUserPasswordFailed)
 
 			return
 		}

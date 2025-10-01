@@ -11,6 +11,7 @@ const (
 	BusCodeStorageAdvanceStartCode
 	BusCodeDavStartCode
 	BusCodeAutoIngestStartCode
+	BusCodeLoginLogStartCode
 
 	BusCodeMiddlewareAuth = 99100 + 1
 )

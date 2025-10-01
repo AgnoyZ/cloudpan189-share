@@ -30,7 +30,7 @@ func (c *Context) Response(httpCode, businessCode int, msg string, data interfac
 }
 
 func (c *Context) Success(vs ...interface{}) {
-	c.Response(http.StatusOK, http.StatusOK, "success", utils.UseSimplify[interface{}](nil, vs...))
+	c.Response(http.StatusOK, http.StatusOK, "success", utils.UseSimplify(nil, vs...))
 }
 
 func (c *Context) Fail(busErr BusinessError) {
@@ -46,9 +46,16 @@ func (c *Context) Fail(busErr BusinessError) {
 		c.WithError(busErr.GetError())
 	}
 
+	msg := busErr.GetMessage()
+	if msg == "" {
+		msg = busErr.Error()
+	}
+
+	c.errMsg = msg
+
 	c.AbortWithStatusJSON(busErr.GetHTTPCode(), Response{
 		Code: busErr.GetCode(),
-		Msg:  busErr.GetMessage(),
+		Msg:  msg,
 	})
 }
 
@@ -68,4 +75,8 @@ func (c *Context) WithError(err error) *Context {
 	c.errors = append(c.errors, errors.WithStack(err))
 
 	return c
+}
+
+func (c *Context) GetErrorMsg() string {
+	return c.errMsg
 }

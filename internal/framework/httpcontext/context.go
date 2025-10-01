@@ -15,6 +15,7 @@ type Context struct {
 	stdContext context.Context
 
 	errors        []error
+	errMsg        string
 	prohibitWrite bool
 }
 

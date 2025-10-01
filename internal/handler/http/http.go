@@ -8,10 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 	embed "github.com/xxcheng123/cloudpan189-share"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/taskstate"
+	"github.com/xxcheng123/cloudpan189-share/internal/types/loginlog"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/autoingest"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/cloudtoken"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/file"
+	loginlogHandler "github.com/xxcheng123/cloudpan189-share/internal/handler/http/loginlog"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/setting"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage/advance"
@@ -27,6 +29,7 @@ import (
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
+	loginlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/loginlog"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	settingSvi "github.com/xxcheng123/cloudpan189-share/internal/services/setting"
 	storagefacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
@@ -65,10 +68,11 @@ func Start(svc bootstrap.ServiceContext) {
 		verifyService         = verifySvi.NewService(svc)
 		autoIngestPlanService = autoingestplanSvi.NewService(svc)
 		autoIngestLogService  = autoingestlogSvi.NewService(svc)
+		loginLogService       = loginlogSvi.NewService(svc)
 	)
 
 	var (
-		userHandler           = user.NewHandler(userService, userGroupService)
+		userHandler           = user.NewHandler(userService, userGroupService, loginLogService)
 		settingHandler        = setting.NewHandler(userService, settingService)
 		userGroupHandler      = usergroup.NewHandler(userGroupService, group2FileService, userService)
 		storageHandler        = storage.NewHandler(taskEngine, virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService, storageFacadeService)
@@ -77,6 +81,7 @@ func Start(svc bootstrap.ServiceContext) {
 		fileHandler           = file.NewHandler(virtualFileService, verifyService, cloudTokenService, cloudBridgeService, mountPointService, group2FileService)
 		taskStateHandler      = taskstate.NewHandler(taskEngine, fileTaskLogService)
 		autoIngestHandler     = autoingest.NewHandler(taskEngine, autoIngestPlanService, autoIngestLogService, cloudBridgeService)
+		loginLogHandler       = loginlogHandler.NewHandler(loginLogService)
 	)
 
 	var (
@@ -88,8 +93,8 @@ func Start(svc bootstrap.ServiceContext) {
 	{
 		userRouter := openapiRouter.Group("/user")
 		{
-			userRouter.POST("/login", wrap(userHandler.Login()))
-			userRouter.POST("/refresh_token", wrap(userHandler.RefreshToken()))
+			userRouter.POST("/login", wrap(userHandler.RecordLog(loginlog.EventLogin)), wrap(userHandler.Login()))
+			userRouter.POST("/refresh_token", wrap(userHandler.RecordLog(loginlog.EventLogin)), wrap(userHandler.RefreshToken()))
 		}
 
 		userRouterWithAdminAuth := openapiRouter.Group("/user", wrap(userMiddleware.Auth(true)))
@@ -210,6 +215,13 @@ func Start(svc bootstrap.ServiceContext) {
 			autoIngestRouter.POST("/plan/delete", wrap(autoIngestHandler.DeletePlan()))
 			autoIngestRouter.POST("/plan/update", wrap(autoIngestHandler.UpdatePlan()))
 			autoIngestRouter.GET("/log/list", wrap(autoIngestHandler.LogList()))
+		}
+	}
+
+	{
+		loginLogRouter := openapiRouter.Group("/login_log", wrap(userMiddleware.Auth(true)))
+		{
+			loginLogRouter.GET("/list", wrap(loginLogHandler.List()))
 		}
 	}
 

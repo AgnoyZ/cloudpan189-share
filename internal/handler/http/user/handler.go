@@ -3,8 +3,10 @@ package user
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
+	loginlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/loginlog"
 	userSvi "github.com/xxcheng123/cloudpan189-share/internal/services/user"
 	usergroupSvi "github.com/xxcheng123/cloudpan189-share/internal/services/usergroup"
+	"github.com/xxcheng123/cloudpan189-share/internal/types/loginlog"
 )
 
 type Handler interface {
@@ -19,6 +21,8 @@ type Handler interface {
 	BindGroup() httpcontext.HandlerFunc
 	Info() httpcontext.HandlerFunc
 	ModifyOwnPass() httpcontext.HandlerFunc
+
+	RecordLog(eventType loginlog.Event) httpcontext.HandlerFunc
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeUserStartCode)
@@ -37,16 +41,20 @@ var (
 	codeBindGroupFailed     = bi.Next("绑定用户组失败")
 	codeUserInfoFailed      = bi.Next("用户信息获取失败")
 	codeNoUpdateFields      = bi.Next("请填写需要更新的字段")
+	codeUserPasswordFailed  = bi.Next("用户密码错误")
+	codeUserNotFound        = bi.Next("用户不存在")
 )
 
 type handler struct {
 	userService      userSvi.Service
 	userGroupService usergroupSvi.Service
+	loginLogService  loginlogSvi.Service
 }
 
-func NewHandler(userService userSvi.Service, userGroupService usergroupSvi.Service) Handler {
+func NewHandler(userService userSvi.Service, userGroupService usergroupSvi.Service, loginLogService loginlogSvi.Service) Handler {
 	return &handler{
 		userService:      userService,
 		userGroupService: userGroupService,
+		loginLogService:  loginLogService,
 	}
 }

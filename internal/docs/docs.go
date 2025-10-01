@@ -69,13 +69,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_autoingest.logListResponse"
+                                            "$ref": "#/definitions/autoingest.logListResponse"
                                         }
                                     }
                                 }
@@ -85,19 +85,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取自动挂载日志列表失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -130,7 +130,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_autoingest.createSubscribePlanRequest"
+                            "$ref": "#/definitions/autoingest.createSubscribePlanRequest"
                         }
                     }
                 ],
@@ -140,13 +140,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_autoingest.createSubscribePlanResponse"
+                                            "$ref": "#/definitions/autoingest.createSubscribePlanResponse"
                                         }
                                     }
                                 }
@@ -156,19 +156,19 @@ const docTemplate = `{
                     "400": {
                         "description": "参数验证失败，code=99998",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -201,7 +201,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_autoingest.deletePlanRequest"
+                            "$ref": "#/definitions/autoingest.deletePlanRequest"
                         }
                     }
                 ],
@@ -209,25 +209,25 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "删除自动挂载计划失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -260,7 +260,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_autoingest.disablePlanRequest"
+                            "$ref": "#/definitions/autoingest.disablePlanRequest"
                         }
                     }
                 ],
@@ -268,25 +268,25 @@ const docTemplate = `{
                     "200": {
                         "description": "停用成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "停用自动挂载计划失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -319,7 +319,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_autoingest.enablePlanRequest"
+                            "$ref": "#/definitions/autoingest.enablePlanRequest"
                         }
                     }
                 ],
@@ -327,25 +327,25 @@ const docTemplate = `{
                     "200": {
                         "description": "启用成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "启用自动挂载计划失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -399,13 +399,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_autoingest.planListResponse"
+                                            "$ref": "#/definitions/autoingest.planListResponse"
                                         }
                                     }
                                 }
@@ -415,19 +415,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取自动挂载计划列表失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -460,7 +460,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_autoingest.refreshPlanRequest"
+                            "$ref": "#/definitions/autoingest.refreshPlanRequest"
                         }
                     }
                 ],
@@ -468,25 +468,25 @@ const docTemplate = `{
                     "200": {
                         "description": "任务已下发",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "下发订阅刷新任务失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -519,7 +519,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_autoingest.updatePlanRequest"
+                            "$ref": "#/definitions/autoingest.updatePlanRequest"
                         }
                     }
                 ],
@@ -527,25 +527,25 @@ const docTemplate = `{
                     "200": {
                         "description": "修改成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "更新自动挂载计划失败，code=xxxx",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -578,7 +578,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_cloudtoken.checkQrcodeRequest"
+                            "$ref": "#/definitions/cloudtoken.checkQrcodeRequest"
                         }
                     }
                 ],
@@ -586,25 +586,25 @@ const docTemplate = `{
                     "200": {
                         "description": "二维码检查成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "检查二维码失败，code=5002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -637,7 +637,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_cloudtoken.deleteRequest"
+                            "$ref": "#/definitions/cloudtoken.deleteRequest"
                         }
                     }
                 ],
@@ -645,25 +645,25 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "删除云盘令牌失败，code=5004",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -697,13 +697,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_cloudtoken.InitQrcodeResponse"
+                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_handler_http_cloudtoken.InitQrcodeResponse"
                                         }
                                     }
                                 }
@@ -713,19 +713,19 @@ const docTemplate = `{
                     "400": {
                         "description": "初始化二维码失败，code=5001",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -786,13 +786,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_cloudtoken.listResponse"
+                                            "$ref": "#/definitions/cloudtoken.listResponse"
                                         }
                                     }
                                 }
@@ -802,19 +802,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取云盘令牌列表失败，code=5005",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -847,7 +847,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_cloudtoken.modifyNameRequest"
+                            "$ref": "#/definitions/cloudtoken.modifyNameRequest"
                         }
                     }
                 ],
@@ -855,25 +855,25 @@ const docTemplate = `{
                     "200": {
                         "description": "名称修改成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "修改名称失败，code=5003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -906,7 +906,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_cloudtoken.usernameLoginRequest"
+                            "$ref": "#/definitions/cloudtoken.usernameLoginRequest"
                         }
                     }
                 ],
@@ -916,7 +916,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
@@ -932,19 +932,19 @@ const docTemplate = `{
                     "400": {
                         "description": "用户名登录失败，code=5006",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -985,13 +985,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken"
+                                            "$ref": "#/definitions/models.CloudToken"
                                         }
                                     }
                                 }
@@ -1001,25 +1001,25 @@ const docTemplate = `{
                     "400": {
                         "description": "查询云盘令牌失败，code=5007",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "404": {
                         "description": "云盘令牌不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1052,7 +1052,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_file.createDownloadURLRequest"
+                            "$ref": "#/definitions/file.createDownloadURLRequest"
                         }
                     }
                 ],
@@ -1062,13 +1062,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_file.createDownloadURLResponse"
+                                            "$ref": "#/definitions/file.createDownloadURLResponse"
                                         }
                                     }
                                 }
@@ -1078,19 +1078,19 @@ const docTemplate = `{
                     "400": {
                         "description": "文件签名失败，code=6015",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1175,25 +1175,25 @@ const docTemplate = `{
                     "400": {
                         "description": "创建多线程流请求失败，code=6014",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "404": {
                         "description": "文件令牌未绑定，code=6007",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1235,13 +1235,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_file.openResponse"
+                                            "$ref": "#/definitions/file.openResponse"
                                         }
                                     }
                                 }
@@ -1251,19 +1251,19 @@ const docTemplate = `{
                     "400": {
                         "description": "查询文件失败，code=6004",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1341,13 +1341,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_file.searchResponse"
+                                            "$ref": "#/definitions/file.searchResponse"
                                         }
                                     }
                                 }
@@ -1357,19 +1357,152 @@ const docTemplate = `{
                     "400": {
                         "description": "计算文件完整路径失败，code=6003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login_log/list": {
+            "get": {
+                "description": "分页获取登录日志列表，支持多条件过滤（用户、地址、事件、状态、来源、时间范围）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "登录日志"
+                ],
+                "summary": "获取登录日志列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "当前页码，默认为1",
+                        "name": "currentPage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页大小，默认为10",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "userId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "客户端地址或IP",
+                        "name": "addr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "事件来源(web/api/app/cli)",
+                        "name": "method",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "事件类型(login/refresh_token)",
+                        "name": "event",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态(success/failed/blocked)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"2025-01-01T00:00:00Z\"",
+                        "description": "开始时间(ISO8601)",
+                        "name": "beginAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"2025-01-31T23:59:59Z\"",
+                        "description": "结束时间(ISO8601)",
+                        "name": "endAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "是否不分页，默认false",
+                        "name": "noPaginate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取登录日志列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/loginlog.listResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "获取登录日志列表失败，code=5011",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1394,13 +1527,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition"
+                                            "$ref": "#/definitions/models.SettingAddition"
                                         }
                                     }
                                 }
@@ -1410,19 +1543,19 @@ const docTemplate = `{
                     "400": {
                         "description": "查询系统配置失败，code=2003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1447,13 +1580,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_setting.infoResponse"
+                                            "$ref": "#/definitions/setting.infoResponse"
                                         }
                                     }
                                 }
@@ -1463,7 +1596,7 @@ const docTemplate = `{
                     "400": {
                         "description": "查询系统配置失败，code=2003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1489,7 +1622,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_setting.initSystemRequest"
+                            "$ref": "#/definitions/setting.initSystemRequest"
                         }
                     }
                 ],
@@ -1497,13 +1630,13 @@ const docTemplate = `{
                     "200": {
                         "description": "系统初始化成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "初始化超级管理员时发生错误，code=6002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1529,7 +1662,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_setting.modifyAdditionRequest"
+                            "$ref": "#/definitions/setting.modifyAdditionRequest"
                         }
                     }
                 ],
@@ -1537,25 +1670,25 @@ const docTemplate = `{
                     "200": {
                         "description": "系统附加设置更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "更新系统附加设置失败，code=6006",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1581,7 +1714,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_setting.modifyBaseURLRequest"
+                            "$ref": "#/definitions/setting.modifyBaseURLRequest"
                         }
                     }
                 ],
@@ -1589,25 +1722,25 @@ const docTemplate = `{
                     "200": {
                         "description": "系统基础URL更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "更新系统基础URL失败，code=6004",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1633,7 +1766,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_setting.modifyTitleRequest"
+                            "$ref": "#/definitions/setting.modifyTitleRequest"
                         }
                     }
                 ],
@@ -1641,25 +1774,25 @@ const docTemplate = `{
                     "200": {
                         "description": "系统标题更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "更新系统标题失败，code=6003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1685,7 +1818,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_setting.toggleEnableAuthRequest"
+                            "$ref": "#/definitions/setting.toggleEnableAuthRequest"
                         }
                     }
                 ],
@@ -1693,25 +1826,25 @@ const docTemplate = `{
                     "200": {
                         "description": "系统鉴权开关更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "更新系统鉴权开关失败，code=6005",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1744,7 +1877,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_storage.addRequest"
+                            "$ref": "#/definitions/storage.addRequest"
                         }
                     }
                 ],
@@ -1754,13 +1887,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage.addResponse"
+                                            "$ref": "#/definitions/storage.addResponse"
                                         }
                                     }
                                 }
@@ -1770,19 +1903,19 @@ const docTemplate = `{
                     "400": {
                         "description": "家庭云盘参数不完整，code=4011",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1854,13 +1987,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage_advance.getFamilyFilesResponse"
+                                            "$ref": "#/definitions/advance.getFamilyFilesResponse"
                                         }
                                     }
                                 }
@@ -1870,19 +2003,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取家庭云文件列表失败，code=8002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -1923,13 +2056,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.GetFamilyListResponse"
+                                            "$ref": "#/definitions/cloudbridge.GetFamilyListResponse"
                                         }
                                     }
                                 }
@@ -1939,19 +2072,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取家庭云列表失败，code=8002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2014,13 +2147,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage_advance.getSubscribeUserResponse"
+                                            "$ref": "#/definitions/advance.getSubscribeUserResponse"
                                         }
                                     }
                                 }
@@ -2030,19 +2163,19 @@ const docTemplate = `{
                     "400": {
                         "description": "查询订阅用户列表失败，code=8002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2107,13 +2240,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage_advance.getPersonFilesResponse"
+                                            "$ref": "#/definitions/advance.getPersonFilesResponse"
                                         }
                                     }
                                 }
@@ -2123,19 +2256,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取文件列表失败，code=8002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2184,13 +2317,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareInfo"
+                                            "$ref": "#/definitions/cloudbridge.ShareInfo"
                                         }
                                     }
                                 }
@@ -2200,19 +2333,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取分享详情失败，code=8005",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2245,7 +2378,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_storage.deleteRequest"
+                            "$ref": "#/definitions/storage.deleteRequest"
                         }
                     }
                 ],
@@ -2253,25 +2386,25 @@ const docTemplate = `{
                     "200": {
                         "description": "存储挂载删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "发送清理任务失败，code=4024",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2326,13 +2459,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_storage.listResponse"
+                                            "$ref": "#/definitions/storage.listResponse"
                                         }
                                     }
                                 }
@@ -2342,19 +2475,19 @@ const docTemplate = `{
                     "400": {
                         "description": "查询挂载点失败，code=3019",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2387,7 +2520,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_storage.modifyTokenRequest"
+                            "$ref": "#/definitions/storage.modifyTokenRequest"
                         }
                     }
                 ],
@@ -2395,25 +2528,25 @@ const docTemplate = `{
                     "200": {
                         "description": "令牌修改成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "修改令牌失败，code=4030",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2446,7 +2579,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_storage.refreshRequest"
+                            "$ref": "#/definitions/storage.refreshRequest"
                         }
                     }
                 ],
@@ -2454,25 +2587,25 @@ const docTemplate = `{
                     "200": {
                         "description": "存储挂载刷新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "添加扫描任务失败，code=4015",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2520,7 +2653,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2528,7 +2661,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/internal_handler_http_storage.selectItem"
+                                                "$ref": "#/definitions/storage.selectItem"
                                             }
                                         }
                                     }
@@ -2539,19 +2672,19 @@ const docTemplate = `{
                     "400": {
                         "description": "查询挂载点失败，code=3019",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2584,7 +2717,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_storage.toggleAutoRefreshRequest"
+                            "$ref": "#/definitions/storage.toggleAutoRefreshRequest"
                         }
                     }
                 ],
@@ -2592,25 +2725,25 @@ const docTemplate = `{
                     "200": {
                         "description": "自动刷新配置更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "更新自动刷新开始时间失败，code=4029",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2707,13 +2840,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_taskstate.fileLogListResponse"
+                                            "$ref": "#/definitions/taskstate.fileLogListResponse"
                                         }
                                     }
                                 }
@@ -2723,19 +2856,19 @@ const docTemplate = `{
                     "400": {
                         "description": "任务数量统计失败，code=7002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2769,13 +2902,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_taskstate.taskEngineListResponse"
+                                            "$ref": "#/definitions/taskstate.taskEngineListResponse"
                                         }
                                     }
                                 }
@@ -2785,19 +2918,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取任务引擎状态失败，code=7003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2830,7 +2963,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.addRequest"
+                            "$ref": "#/definitions/user.addRequest"
                         }
                     }
                 ],
@@ -2840,13 +2973,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_user.addResponse"
+                                            "$ref": "#/definitions/user.addResponse"
                                         }
                                     }
                                 }
@@ -2856,19 +2989,19 @@ const docTemplate = `{
                     "400": {
                         "description": "用户添加失败，code=1001",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2901,7 +3034,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.bindGroupRequest"
+                            "$ref": "#/definitions/user.bindGroupRequest"
                         }
                     }
                 ],
@@ -2911,13 +3044,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_user.bindGroupResponse"
+                                            "$ref": "#/definitions/user.bindGroupResponse"
                                         }
                                     }
                                 }
@@ -2927,25 +3060,25 @@ const docTemplate = `{
                     "400": {
                         "description": "绑定用户组失败，code=1011",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "404": {
                         "description": "用户不存在或用户组不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -2978,7 +3111,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.delRequest"
+                            "$ref": "#/definitions/user.delRequest"
                         }
                     }
                 ],
@@ -2986,25 +3119,25 @@ const docTemplate = `{
                     "200": {
                         "description": "用户删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "用户删除失败，code=1007",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3038,13 +3171,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_user.userInfo"
+                                            "$ref": "#/definitions/user.userInfo"
                                         }
                                     }
                                 }
@@ -3054,13 +3187,13 @@ const docTemplate = `{
                     "400": {
                         "description": "用户信息获取失败，code=1012",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3121,13 +3254,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_user.listResponse"
+                                            "$ref": "#/definitions/user.listResponse"
                                         }
                                     }
                                 }
@@ -3137,19 +3270,19 @@ const docTemplate = `{
                     "400": {
                         "description": "用户列表获取失败，code=1009",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3175,7 +3308,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.loginRequest"
+                            "$ref": "#/definitions/user.loginRequest"
                         }
                     }
                 ],
@@ -3185,13 +3318,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_user.loginResponse"
+                                            "$ref": "#/definitions/user.loginResponse"
                                         }
                                     }
                                 }
@@ -3201,7 +3334,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Token生成失败，code=1004",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3234,7 +3367,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.modifyOwnPassRequest"
+                            "$ref": "#/definitions/user.modifyOwnPassRequest"
                         }
                     }
                 ],
@@ -3242,25 +3375,25 @@ const docTemplate = `{
                     "200": {
                         "description": "密码修改成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "密码修改失败，code=1010（包括旧密码错误）",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3293,7 +3426,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.modifyPassRequest"
+                            "$ref": "#/definitions/user.modifyPassRequest"
                         }
                     }
                 ],
@@ -3301,31 +3434,31 @@ const docTemplate = `{
                     "200": {
                         "description": "密码修改成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "密码修改失败，code=1010",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3351,7 +3484,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.refreshRequest"
+                            "$ref": "#/definitions/user.refreshRequest"
                         }
                     }
                 ],
@@ -3361,13 +3494,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_user.refreshResponse"
+                                            "$ref": "#/definitions/user.refreshResponse"
                                         }
                                     }
                                 }
@@ -3377,7 +3510,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Token生成失败，code=1004",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3410,7 +3543,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.toggleStatusRequest"
+                            "$ref": "#/definitions/user.toggleStatusRequest"
                         }
                     }
                 ],
@@ -3418,25 +3551,25 @@ const docTemplate = `{
                     "200": {
                         "description": "用户状态设置成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "用户更新失败，code=1008",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3469,7 +3602,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_user.updateRequest"
+                            "$ref": "#/definitions/user.updateRequest"
                         }
                     }
                 ],
@@ -3477,25 +3610,25 @@ const docTemplate = `{
                     "200": {
                         "description": "用户信息更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "用户更新失败，code=1008",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3528,7 +3661,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_usergroup.addRequest"
+                            "$ref": "#/definitions/usergroup.addRequest"
                         }
                     }
                 ],
@@ -3538,13 +3671,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_usergroup.addResponse"
+                                            "$ref": "#/definitions/usergroup.addResponse"
                                         }
                                     }
                                 }
@@ -3554,19 +3687,19 @@ const docTemplate = `{
                     "400": {
                         "description": "用户组添加失败，code=3001",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3599,7 +3732,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_usergroup.batchBindFilesRequest"
+                            "$ref": "#/definitions/usergroup.batchBindFilesRequest"
                         }
                     }
                 ],
@@ -3607,31 +3740,31 @@ const docTemplate = `{
                     "200": {
                         "description": "绑定成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "批量绑定文件失败，code=3004",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "404": {
                         "description": "用户组不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3673,13 +3806,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_usergroup.getBindFilesResponse"
+                                            "$ref": "#/definitions/usergroup.getBindFilesResponse"
                                         }
                                     }
                                 }
@@ -3689,19 +3822,19 @@ const docTemplate = `{
                     "400": {
                         "description": "获取绑定文件失败，code=3005",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3734,7 +3867,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_usergroup.deleteRequest"
+                            "$ref": "#/definitions/usergroup.deleteRequest"
                         }
                     }
                 ],
@@ -3742,25 +3875,25 @@ const docTemplate = `{
                     "200": {
                         "description": "用户组删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "用户组删除失败，code=3002",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3821,13 +3954,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                                    "$ref": "#/definitions/httpcontext.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_http_usergroup.listResponse"
+                                            "$ref": "#/definitions/usergroup.listResponse"
                                         }
                                     }
                                 }
@@ -3837,19 +3970,19 @@ const docTemplate = `{
                     "400": {
                         "description": "用户组列表获取失败，code=3006",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3882,7 +4015,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http_usergroup.modifyNameRequest"
+                            "$ref": "#/definitions/usergroup.modifyNameRequest"
                         }
                     }
                 ],
@@ -3890,25 +4023,25 @@ const docTemplate = `{
                     "200": {
                         "description": "用户组名称修改成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "400": {
                         "description": "用户组名称修改失败，code=3003",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "401": {
                         "description": "未授权访问",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response"
+                            "$ref": "#/definitions/httpcontext.Response"
                         }
                     }
                 }
@@ -3916,6 +4049,384 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "advance.getFamilyFilesResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cloudbridge.FileNode"
+                    }
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "advance.getPersonFilesResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cloudbridge.FileNode"
+                    }
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "advance.getSubscribeUserResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cloudbridge.ShareResourceInfo"
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "example": "订阅用户"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "autoingest.LogLevel": {
+            "type": "string",
+            "enum": [
+                "info",
+                "warn",
+                "error"
+            ],
+            "x-enum-varnames": [
+                "LogLevelInfo",
+                "LogLevelWarn",
+                "LogLevelError"
+            ]
+        },
+        "autoingest.OnConflict": {
+            "type": "string",
+            "enum": [
+                "rename",
+                "abandon"
+            ],
+            "x-enum-varnames": [
+                "OnConflictRename",
+                "OnConflictAbandon"
+            ]
+        },
+        "autoingest.SourceType": {
+            "type": "string",
+            "enum": [
+                "subscribe"
+            ],
+            "x-enum-varnames": [
+                "SourceTypeSubscribe"
+            ]
+        },
+        "autoingest.createSubscribePlanRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "parentPath",
+                "upUserId"
+            ],
+            "properties": {
+                "autoIngestInterval": {
+                    "description": "单位分钟",
+                    "type": "integer",
+                    "minimum": 5,
+                    "example": 30
+                },
+                "cloudToken": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "订阅计划A"
+                },
+                "onConflict": {
+                    "description": "冲突时的解决策略",
+                    "type": "string",
+                    "enum": [
+                        "rename",
+                        "abandon"
+                    ],
+                    "example": "rename"
+                },
+                "oneClickAddHistory": {
+                    "description": "是否一键添加之前的",
+                    "type": "boolean",
+                    "example": true
+                },
+                "parentPath": {
+                    "type": "string",
+                    "example": "/Movies"
+                },
+                "refreshStrategy": {
+                    "$ref": "#/definitions/autoingest.refreshStrategyRequest"
+                },
+                "upUserId": {
+                    "description": "上传用户ID",
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
+        },
+        "autoingest.createSubscribePlanResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "autoingest.deletePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "autoingest.disablePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "autoingest.enablePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "autoingest.logDTO": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "level": {
+                    "$ref": "#/definitions/autoingest.LogLevel"
+                },
+                "planId": {
+                    "type": "integer"
+                },
+                "planName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "autoingest.logListResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
+                },
+                "data": {
+                    "description": "日志列表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/autoingest.logDTO"
+                    }
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "autoingest.planListResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
+                },
+                "data": {
+                    "description": "计划列表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AutoIngestPlan"
+                    }
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "autoingest.refreshPlanRequest": {
+            "type": "object",
+            "required": [
+                "planId"
+            ],
+            "properties": {
+                "planId": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "autoingest.refreshStrategyRequest": {
+            "type": "object",
+            "properties": {
+                "autoRefreshDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 7
+                },
+                "enableAutoRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "enableDeepRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "refreshInterval": {
+                    "description": "单位分钟，最小30",
+                    "type": "integer",
+                    "minimum": 30,
+                    "example": 30
+                }
+            }
+        },
+        "autoingest.refreshStrategyUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "autoRefreshDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 7
+                },
+                "enableAutoRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "enableDeepRefresh": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "refreshInterval": {
+                    "description": "单位分钟，最小30",
+                    "type": "integer",
+                    "minimum": 30,
+                    "example": 30
+                }
+            }
+        },
+        "autoingest.updatePlanRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "autoIngestInterval": {
+                    "description": "单位分钟",
+                    "type": "integer",
+                    "minimum": 5,
+                    "example": 30
+                },
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "订阅计划A"
+                },
+                "onConflict": {
+                    "description": "冲突时的解决策略",
+                    "type": "string",
+                    "enum": [
+                        "rename",
+                        "abandon"
+                    ],
+                    "example": "rename"
+                },
+                "parentPath": {
+                    "type": "string",
+                    "example": "/Movies"
+                },
+                "refreshStrategy": {
+                    "$ref": "#/definitions/autoingest.refreshStrategyUpdateRequest"
+                },
+                "tokenId": {
+                    "type": "integer"
+                }
+            }
+        },
         "client.FamilyInfo": {
             "type": "object",
             "properties": {
@@ -3945,7 +4456,533 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_framework_httpcontext.Response": {
+        "cloudbridge.FileNode": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "isFolder": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "string"
+                }
+            }
+        },
+        "cloudbridge.GetFamilyListResponse": {
+            "type": "object",
+            "properties": {
+                "familyInfoResp": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/client.FamilyInfo"
+                    }
+                }
+            }
+        },
+        "cloudbridge.ShareInfo": {
+            "type": "object",
+            "properties": {
+                "accessCode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isFolder": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shareId": {
+                    "type": "integer"
+                },
+                "shareTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "cloudbridge.ShareResourceInfo": {
+            "type": "object",
+            "properties": {
+                "accessCode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isFolder": {
+                    "type": "boolean"
+                },
+                "isTop": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shareId": {
+                    "type": "integer"
+                },
+                "shareTime": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "cloudtoken.checkQrcodeRequest": {
+            "type": "object",
+            "required": [
+                "uuid"
+            ],
+            "properties": {
+                "id": {
+                    "description": "云盘令牌ID，可选",
+                    "type": "integer",
+                    "example": 1
+                },
+                "uuid": {
+                    "description": "二维码UUID",
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "cloudtoken.deleteRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "description": "云盘令牌ID",
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "cloudtoken.listResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
+                },
+                "data": {
+                    "description": "云盘令牌列表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CloudToken"
+                    }
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "cloudtoken.modifyNameRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "description": "云盘令牌ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "description": "新名称",
+                    "type": "string",
+                    "example": "新名称"
+                }
+            }
+        },
+        "cloudtoken.usernameLoginRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "云盘令牌ID，可选",
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "description": "令牌名称，可选",
+                    "type": "string",
+                    "example": "云盘令牌"
+                },
+                "password": {
+                    "description": "密码，添加时必填",
+                    "type": "string",
+                    "example": "密码"
+                },
+                "username": {
+                    "description": "用户名，添加时必填",
+                    "type": "string",
+                    "example": "用户名"
+                }
+            }
+        },
+        "file.breadcrumbItem": {
+            "type": "object",
+            "properties": {
+                "href": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "file.childDTO": {
+            "type": "object",
+            "properties": {
+                "addition": {
+                    "description": "额外信息 例如分享id 文件夹id 等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
+                        }
+                    ]
+                },
+                "apiPath": {
+                    "type": "string"
+                },
+                "cloudId": {
+                    "description": "云端的文件ID",
+                    "type": "string"
+                },
+                "createDate": {
+                    "description": "云盘记录的创建时间",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "数据库记录的创建时间",
+                    "type": "string"
+                },
+                "hash": {
+                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
+                    "type": "string"
+                },
+                "href": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDir": {
+                    "description": "是否为目录",
+                    "type": "boolean"
+                },
+                "isTop": {
+                    "description": "是否最顶层文件夹",
+                    "type": "boolean"
+                },
+                "modifyDate": {
+                    "description": "云盘记录的修改时间",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "文件名",
+                    "type": "string"
+                },
+                "osType": {
+                    "description": "读取文件的方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OsType"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "上级文件ID",
+                    "type": "integer"
+                },
+                "rev": {
+                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "文件大小",
+                    "type": "integer"
+                },
+                "topId": {
+                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "数据库记录的修改时间",
+                    "type": "string"
+                }
+            }
+        },
+        "file.createDownloadURLRequest": {
+            "type": "object",
+            "required": [
+                "fileId"
+            ],
+            "properties": {
+                "fileId": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 123456
+                }
+            }
+        },
+        "file.createDownloadURLResponse": {
+            "type": "object",
+            "properties": {
+                "downloadUrl": {
+                    "type": "string",
+                    "example": "/api/file/download/123456?sign=abc\u0026uuid=def\u0026timestamp=1234567890\u0026signer=v1"
+                }
+            }
+        },
+        "file.openResponse": {
+            "type": "object",
+            "properties": {
+                "addition": {
+                    "description": "额外信息 例如分享id 文件夹id 等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
+                        }
+                    ]
+                },
+                "apiPath": {
+                    "type": "string"
+                },
+                "breadcrumbs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/file.breadcrumbItem"
+                    }
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/file.childDTO"
+                    }
+                },
+                "childrenTotal": {
+                    "type": "integer"
+                },
+                "cloudId": {
+                    "description": "云端的文件ID",
+                    "type": "string"
+                },
+                "createDate": {
+                    "description": "云盘记录的创建时间",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "数据库记录的创建时间",
+                    "type": "string"
+                },
+                "hash": {
+                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
+                    "type": "string"
+                },
+                "href": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDir": {
+                    "description": "是否为目录",
+                    "type": "boolean"
+                },
+                "isTop": {
+                    "description": "是否最顶层文件夹",
+                    "type": "boolean"
+                },
+                "modifyDate": {
+                    "description": "云盘记录的修改时间",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "文件名",
+                    "type": "string"
+                },
+                "osType": {
+                    "description": "读取文件的方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OsType"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "上级文件ID",
+                    "type": "integer"
+                },
+                "rev": {
+                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "文件大小",
+                    "type": "integer"
+                },
+                "topId": {
+                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "数据库记录的修改时间",
+                    "type": "string"
+                }
+            }
+        },
+        "file.searchDTO": {
+            "type": "object",
+            "properties": {
+                "addition": {
+                    "description": "额外信息 例如分享id 文件夹id 等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
+                        }
+                    ]
+                },
+                "cloudId": {
+                    "description": "云端的文件ID",
+                    "type": "string"
+                },
+                "createDate": {
+                    "description": "云盘记录的创建时间",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "数据库记录的创建时间",
+                    "type": "string"
+                },
+                "fullPath": {
+                    "description": "文件完整路径",
+                    "type": "string",
+                    "example": "/folder1/test.txt"
+                },
+                "hash": {
+                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDir": {
+                    "description": "是否为目录",
+                    "type": "boolean"
+                },
+                "isTop": {
+                    "description": "是否最顶层文件夹",
+                    "type": "boolean"
+                },
+                "modifyDate": {
+                    "description": "云盘记录的修改时间",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "文件名",
+                    "type": "string"
+                },
+                "osType": {
+                    "description": "读取文件的方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OsType"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "上级文件ID",
+                    "type": "integer"
+                },
+                "rev": {
+                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "文件大小",
+                    "type": "integer"
+                },
+                "topId": {
+                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "数据库记录的修改时间",
+                    "type": "string"
+                }
+            }
+        },
+        "file.searchResponse": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
+                },
+                "data": {
+                    "description": "搜索结果列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/file.searchDTO"
+                    }
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "github_com_xxcheng123_cloudpan189-share_internal_handler_http_cloudtoken.InitQrcodeResponse": {
+            "type": "object",
+            "properties": {
+                "uuid": {
+                    "description": "二维码UUID",
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudtoken.UsernameLoginResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "云盘令牌ID",
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "httpcontext.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3959,100 +4996,73 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap": {
-            "type": "object",
-            "additionalProperties": true
+        "loginlog.Event": {
+            "type": "string",
+            "enum": [
+                "login",
+                "refresh_token"
+            ],
+            "x-enum-varnames": [
+                "EventLogin",
+                "EventRefreshToken"
+            ]
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.ProcessorResult": {
+        "loginlog.Method": {
+            "type": "string",
+            "enum": [
+                "web",
+                "api",
+                "app",
+                "cli"
+            ],
+            "x-enum-varnames": [
+                "MethodWeb",
+                "MethodAPI",
+                "MethodApp",
+                "MethodCLI"
+            ]
+        },
+        "loginlog.Status": {
+            "type": "string",
+            "enum": [
+                "success",
+                "failed",
+                "blocked"
+            ],
+            "x-enum-varnames": [
+                "StatusSuccess",
+                "StatusFailed",
+                "StatusBlocked"
+            ]
+        },
+        "loginlog.listResponse": {
             "type": "object",
             "properties": {
-                "duration": {
-                    "$ref": "#/definitions/time.Duration"
+                "currentPage": {
+                    "description": "当前页码",
+                    "type": "integer",
+                    "example": 1
                 },
-                "endTime": {
-                    "type": "string"
-                },
-                "error": {
-                    "type": "string"
-                },
-                "processorId": {
-                    "type": "string"
-                },
-                "startTime": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskInfo": {
-            "type": "object",
-            "properties": {
-                "endAt": {
-                    "description": "结束时间",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "任务唯一ID",
-                    "type": "string"
-                },
-                "payload": {
+                "data": {
+                    "description": "登录日志列表数据",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/models.LoginLog"
                     }
                 },
-                "receiveAt": {
-                    "description": "接收时间",
-                    "type": "string"
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer",
+                    "example": 10
                 },
-                "results": {
-                    "description": "处理器结果",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.ProcessorResult"
-                    }
-                },
-                "startAt": {
-                    "description": "开始时间",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "状态",
-                    "type": "string"
-                },
-                "topic": {
-                    "description": "消息主题",
-                    "type": "string"
-                },
-                "workerId": {
-                    "description": "处理的Worker ID",
-                    "type": "string"
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer",
+                    "example": 100
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskStats": {
-            "type": "object",
-            "properties": {
-                "completedTasks": {
-                    "type": "integer"
-                },
-                "failedTasks": {
-                    "type": "integer"
-                },
-                "pendingTasks": {
-                    "type": "integer"
-                },
-                "runningTasks": {
-                    "type": "integer"
-                },
-                "totalTasks": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan": {
+        "models.AutoIngestPlan": {
             "type": "object",
             "properties": {
                 "addCount": {
@@ -4090,7 +5100,7 @@ const docTemplate = `{
                     "description": "冲突处理策略",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.OnConflict"
+                            "$ref": "#/definitions/autoingest.OnConflict"
                         }
                     ]
                 },
@@ -4099,10 +5109,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "refreshStrategy": {
-                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy"
+                    "$ref": "#/definitions/models.RefreshStrategy"
                 },
                 "sourceType": {
-                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.SourceType"
+                    "$ref": "#/definitions/autoingest.SourceType"
                 },
                 "tokenId": {
                     "type": "integer"
@@ -4112,7 +5122,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken": {
+        "models.CloudToken": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -4150,7 +5160,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.FileTaskLog": {
+        "models.FileTaskLog": {
             "type": "object",
             "properties": {
                 "addition": {
@@ -4223,7 +5233,51 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType": {
+        "models.LoginLog": {
+            "type": "object",
+            "properties": {
+                "addr": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "event": {
+                    "$ref": "#/definitions/loginlog.Event"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "method": {
+                    "$ref": "#/definitions/loginlog.Method"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/loginlog.Status"
+                },
+                "traceId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userAgent": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OsType": {
             "type": "string",
             "enum": [
                 "folder",
@@ -4252,7 +5306,7 @@ const docTemplate = `{
                 "OsTypeFamilyFile"
             ]
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.RefreshStrategy": {
+        "models.RefreshStrategy": {
             "type": "object",
             "properties": {
                 "autoRefreshDays": {
@@ -4269,7 +5323,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.SettingAddition": {
+        "models.SettingAddition": {
             "type": "object",
             "properties": {
                 "localProxy": {
@@ -4289,7 +5343,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_repository_models.User": {
+        "models.User": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -4318,843 +5372,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "isFolder": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.GetFamilyListResponse": {
-            "type": "object",
-            "properties": {
-                "familyInfoResp": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/client.FamilyInfo"
-                    }
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareInfo": {
-            "type": "object",
-            "properties": {
-                "accessCode": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isFolder": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "shareId": {
-                    "type": "integer"
-                },
-                "shareTime": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareResourceInfo": {
-            "type": "object",
-            "properties": {
-                "accessCode": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isFolder": {
-                    "type": "boolean"
-                },
-                "isTop": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "shareId": {
-                    "type": "integer"
-                },
-                "shareTime": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_services_cloudtoken.UsernameLoginResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "云盘令牌ID",
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.LogLevel": {
-            "type": "string",
-            "enum": [
-                "info",
-                "warn",
-                "error"
-            ],
-            "x-enum-varnames": [
-                "LogLevelInfo",
-                "LogLevelWarn",
-                "LogLevelError"
-            ]
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.OnConflict": {
-            "type": "string",
-            "enum": [
-                "rename",
-                "abandon"
-            ],
-            "x-enum-varnames": [
-                "OnConflictRename",
-                "OnConflictAbandon"
-            ]
-        },
-        "github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.SourceType": {
-            "type": "string",
-            "enum": [
-                "subscribe"
-            ],
-            "x-enum-varnames": [
-                "SourceTypeSubscribe"
-            ]
-        },
-        "internal_handler_http_autoingest.createSubscribePlanRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "parentPath",
-                "upUserId"
-            ],
-            "properties": {
-                "autoIngestInterval": {
-                    "description": "单位分钟",
-                    "type": "integer",
-                    "minimum": 5,
-                    "example": 30
-                },
-                "cloudToken": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "example": "订阅计划A"
-                },
-                "onConflict": {
-                    "description": "冲突时的解决策略",
-                    "type": "string",
-                    "enum": [
-                        "rename",
-                        "abandon"
-                    ],
-                    "example": "rename"
-                },
-                "oneClickAddHistory": {
-                    "description": "是否一键添加之前的",
-                    "type": "boolean",
-                    "example": true
-                },
-                "parentPath": {
-                    "type": "string",
-                    "example": "/Movies"
-                },
-                "refreshStrategy": {
-                    "$ref": "#/definitions/internal_handler_http_autoingest.refreshStrategyRequest"
-                },
-                "upUserId": {
-                    "description": "上传用户ID",
-                    "type": "string",
-                    "example": "123456"
-                }
-            }
-        },
-        "internal_handler_http_autoingest.createSubscribePlanResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "internal_handler_http_autoingest.deletePlanRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 1
-                }
-            }
-        },
-        "internal_handler_http_autoingest.disablePlanRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 1
-                }
-            }
-        },
-        "internal_handler_http_autoingest.enablePlanRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 1
-                }
-            }
-        },
-        "internal_handler_http_autoingest.logDTO": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "level": {
-                    "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_types_autoingest.LogLevel"
-                },
-                "planId": {
-                    "type": "integer"
-                },
-                "planName": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handler_http_autoingest.logListResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "description": "当前页码",
-                    "type": "integer",
-                    "example": 1
-                },
-                "data": {
-                    "description": "日志列表数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_handler_http_autoingest.logDTO"
-                    }
-                },
-                "pageSize": {
-                    "description": "每页大小",
-                    "type": "integer",
-                    "example": 10
-                },
-                "total": {
-                    "description": "总记录数",
-                    "type": "integer",
-                    "example": 100
-                }
-            }
-        },
-        "internal_handler_http_autoingest.planListResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "description": "当前页码",
-                    "type": "integer",
-                    "example": 1
-                },
-                "data": {
-                    "description": "计划列表数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.AutoIngestPlan"
-                    }
-                },
-                "pageSize": {
-                    "description": "每页大小",
-                    "type": "integer",
-                    "example": 10
-                },
-                "total": {
-                    "description": "总记录数",
-                    "type": "integer",
-                    "example": 100
-                }
-            }
-        },
-        "internal_handler_http_autoingest.refreshPlanRequest": {
-            "type": "object",
-            "required": [
-                "planId"
-            ],
-            "properties": {
-                "planId": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "internal_handler_http_autoingest.refreshStrategyRequest": {
-            "type": "object",
-            "properties": {
-                "autoRefreshDays": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 7
-                },
-                "enableAutoRefresh": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "enableDeepRefresh": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "refreshInterval": {
-                    "description": "单位分钟，最小30",
-                    "type": "integer",
-                    "minimum": 30,
-                    "example": 30
-                }
-            }
-        },
-        "internal_handler_http_autoingest.refreshStrategyUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "autoRefreshDays": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 7
-                },
-                "enableAutoRefresh": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "enableDeepRefresh": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "refreshInterval": {
-                    "description": "单位分钟，最小30",
-                    "type": "integer",
-                    "minimum": 30,
-                    "example": 30
-                }
-            }
-        },
-        "internal_handler_http_autoingest.updatePlanRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "autoIngestInterval": {
-                    "description": "单位分钟",
-                    "type": "integer",
-                    "minimum": 5,
-                    "example": 30
-                },
-                "id": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 1
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "example": "订阅计划A"
-                },
-                "onConflict": {
-                    "description": "冲突时的解决策略",
-                    "type": "string",
-                    "enum": [
-                        "rename",
-                        "abandon"
-                    ],
-                    "example": "rename"
-                },
-                "parentPath": {
-                    "type": "string",
-                    "example": "/Movies"
-                },
-                "refreshStrategy": {
-                    "$ref": "#/definitions/internal_handler_http_autoingest.refreshStrategyUpdateRequest"
-                },
-                "tokenId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_handler_http_cloudtoken.InitQrcodeResponse": {
-            "type": "object",
-            "properties": {
-                "uuid": {
-                    "description": "二维码UUID",
-                    "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
-                }
-            }
-        },
-        "internal_handler_http_cloudtoken.checkQrcodeRequest": {
-            "type": "object",
-            "required": [
-                "uuid"
-            ],
-            "properties": {
-                "id": {
-                    "description": "云盘令牌ID，可选",
-                    "type": "integer",
-                    "example": 1
-                },
-                "uuid": {
-                    "description": "二维码UUID",
-                    "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
-                }
-            }
-        },
-        "internal_handler_http_cloudtoken.deleteRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "description": "云盘令牌ID",
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "internal_handler_http_cloudtoken.listResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "description": "当前页码",
-                    "type": "integer",
-                    "example": 1
-                },
-                "data": {
-                    "description": "云盘令牌列表数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.CloudToken"
-                    }
-                },
-                "pageSize": {
-                    "description": "每页大小",
-                    "type": "integer",
-                    "example": 10
-                },
-                "total": {
-                    "description": "总记录数",
-                    "type": "integer",
-                    "example": 100
-                }
-            }
-        },
-        "internal_handler_http_cloudtoken.modifyNameRequest": {
-            "type": "object",
-            "required": [
-                "id",
-                "name"
-            ],
-            "properties": {
-                "id": {
-                    "description": "云盘令牌ID",
-                    "type": "integer",
-                    "example": 1
-                },
-                "name": {
-                    "description": "新名称",
-                    "type": "string",
-                    "example": "新名称"
-                }
-            }
-        },
-        "internal_handler_http_cloudtoken.usernameLoginRequest": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "云盘令牌ID，可选",
-                    "type": "integer",
-                    "example": 1
-                },
-                "name": {
-                    "description": "令牌名称，可选",
-                    "type": "string",
-                    "example": "云盘令牌"
-                },
-                "password": {
-                    "description": "密码，添加时必填",
-                    "type": "string",
-                    "example": "密码"
-                },
-                "username": {
-                    "description": "用户名，添加时必填",
-                    "type": "string",
-                    "example": "用户名"
-                }
-            }
-        },
-        "internal_handler_http_file.breadcrumbItem": {
-            "type": "object",
-            "properties": {
-                "href": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handler_http_file.childDTO": {
-            "type": "object",
-            "properties": {
-                "addition": {
-                    "description": "额外信息 例如分享id 文件夹id 等",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
-                        }
-                    ]
-                },
-                "apiPath": {
-                    "type": "string"
-                },
-                "cloudId": {
-                    "description": "云端的文件ID",
-                    "type": "string"
-                },
-                "createDate": {
-                    "description": "云盘记录的创建时间",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "数据库记录的创建时间",
-                    "type": "string"
-                },
-                "hash": {
-                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
-                    "type": "string"
-                },
-                "href": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isDir": {
-                    "description": "是否为目录",
-                    "type": "boolean"
-                },
-                "isTop": {
-                    "description": "是否最顶层文件夹",
-                    "type": "boolean"
-                },
-                "modifyDate": {
-                    "description": "云盘记录的修改时间",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "文件名",
-                    "type": "string"
-                },
-                "osType": {
-                    "description": "读取文件的方式",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType"
-                        }
-                    ]
-                },
-                "parentId": {
-                    "description": "上级文件ID",
-                    "type": "integer"
-                },
-                "rev": {
-                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
-                    "type": "string"
-                },
-                "size": {
-                    "description": "文件大小",
-                    "type": "integer"
-                },
-                "topId": {
-                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "description": "数据库记录的修改时间",
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handler_http_file.createDownloadURLRequest": {
-            "type": "object",
-            "required": [
-                "fileId"
-            ],
-            "properties": {
-                "fileId": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 123456
-                }
-            }
-        },
-        "internal_handler_http_file.createDownloadURLResponse": {
-            "type": "object",
-            "properties": {
-                "downloadUrl": {
-                    "type": "string",
-                    "example": "/api/file/download/123456?sign=abc\u0026uuid=def\u0026timestamp=1234567890\u0026signer=v1"
-                }
-            }
-        },
-        "internal_handler_http_file.openResponse": {
-            "type": "object",
-            "properties": {
-                "addition": {
-                    "description": "额外信息 例如分享id 文件夹id 等",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
-                        }
-                    ]
-                },
-                "apiPath": {
-                    "type": "string"
-                },
-                "breadcrumbs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_handler_http_file.breadcrumbItem"
-                    }
-                },
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_handler_http_file.childDTO"
-                    }
-                },
-                "childrenTotal": {
-                    "type": "integer"
-                },
-                "cloudId": {
-                    "description": "云端的文件ID",
-                    "type": "string"
-                },
-                "createDate": {
-                    "description": "云盘记录的创建时间",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "数据库记录的创建时间",
-                    "type": "string"
-                },
-                "hash": {
-                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
-                    "type": "string"
-                },
-                "href": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isDir": {
-                    "description": "是否为目录",
-                    "type": "boolean"
-                },
-                "isTop": {
-                    "description": "是否最顶层文件夹",
-                    "type": "boolean"
-                },
-                "modifyDate": {
-                    "description": "云盘记录的修改时间",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "文件名",
-                    "type": "string"
-                },
-                "osType": {
-                    "description": "读取文件的方式",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType"
-                        }
-                    ]
-                },
-                "parentId": {
-                    "description": "上级文件ID",
-                    "type": "integer"
-                },
-                "rev": {
-                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
-                    "type": "string"
-                },
-                "size": {
-                    "description": "文件大小",
-                    "type": "integer"
-                },
-                "topId": {
-                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "description": "数据库记录的修改时间",
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handler_http_file.searchDTO": {
-            "type": "object",
-            "properties": {
-                "addition": {
-                    "description": "额外信息 例如分享id 文件夹id 等",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_datatypes.JSONMap"
-                        }
-                    ]
-                },
-                "cloudId": {
-                    "description": "云端的文件ID",
-                    "type": "string"
-                },
-                "createDate": {
-                    "description": "云盘记录的创建时间",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "数据库记录的创建时间",
-                    "type": "string"
-                },
-                "fullPath": {
-                    "description": "文件完整路径",
-                    "type": "string",
-                    "example": "/folder1/test.txt"
-                },
-                "hash": {
-                    "description": "文件的hash值 这个没有啥用 考虑是否删除",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isDir": {
-                    "description": "是否为目录",
-                    "type": "boolean"
-                },
-                "isTop": {
-                    "description": "是否最顶层文件夹",
-                    "type": "boolean"
-                },
-                "modifyDate": {
-                    "description": "云盘记录的修改时间",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "文件名",
-                    "type": "string"
-                },
-                "osType": {
-                    "description": "读取文件的方式",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.OsType"
-                        }
-                    ]
-                },
-                "parentId": {
-                    "description": "上级文件ID",
-                    "type": "integer"
-                },
-                "rev": {
-                    "description": "版本 用于下次扫描时知道当前文件是删除还是修改还是新增",
-                    "type": "string"
-                },
-                "size": {
-                    "description": "文件大小",
-                    "type": "integer"
-                },
-                "topId": {
-                    "description": "隶属于的挂载点ID（便于快速删除和查询） 如果本身是挂载点，那么 top_id = id",
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "description": "数据库记录的修改时间",
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handler_http_file.searchResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "description": "当前页码",
-                    "type": "integer",
-                    "example": 1
-                },
-                "data": {
-                    "description": "搜索结果列表",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_handler_http_file.searchDTO"
-                    }
-                },
-                "pageSize": {
-                    "description": "每页大小",
-                    "type": "integer",
-                    "example": 10
-                },
-                "total": {
-                    "description": "总记录数",
-                    "type": "integer",
-                    "example": 100
-                }
-            }
-        },
-        "internal_handler_http_setting.infoResponse": {
+        "setting.infoResponse": {
             "type": "object",
             "properties": {
                 "baseURL": {
@@ -5179,7 +5397,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_setting.initSystemRequest": {
+        "setting.initSystemRequest": {
             "type": "object",
             "required": [
                 "baseURL",
@@ -5220,7 +5438,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_setting.modifyAdditionRequest": {
+        "setting.modifyAdditionRequest": {
             "type": "object",
             "properties": {
                 "localProxy": {
@@ -5255,7 +5473,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_setting.modifyBaseURLRequest": {
+        "setting.modifyBaseURLRequest": {
             "type": "object",
             "required": [
                 "baseURL"
@@ -5269,7 +5487,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_setting.modifyTitleRequest": {
+        "setting.modifyTitleRequest": {
             "type": "object",
             "required": [
                 "title"
@@ -5284,7 +5502,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_setting.toggleEnableAuthRequest": {
+        "setting.toggleEnableAuthRequest": {
             "type": "object",
             "required": [
                 "enableAuth"
@@ -5297,7 +5515,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.addRequest": {
+        "storage.addRequest": {
             "type": "object",
             "required": [
                 "localPath",
@@ -5345,7 +5563,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.addResponse": {
+        "storage.addResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -5360,7 +5578,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.deleteRequest": {
+        "storage.deleteRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -5373,7 +5591,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.listResponse": {
+        "storage.listResponse": {
             "type": "object",
             "properties": {
                 "currentPage": {
@@ -5385,7 +5603,7 @@ const docTemplate = `{
                     "description": "列表数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/internal_handler_http_storage.storageDTO"
+                        "$ref": "#/definitions/storage.storageDTO"
                     }
                 },
                 "pageSize": {
@@ -5400,7 +5618,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.modifyTokenRequest": {
+        "storage.modifyTokenRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -5418,7 +5636,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.refreshRequest": {
+        "storage.refreshRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -5436,7 +5654,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.selectItem": {
+        "storage.selectItem": {
             "type": "object",
             "properties": {
                 "id": {
@@ -5456,7 +5674,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.storageDTO": {
+        "storage.storageDTO": {
             "type": "object",
             "properties": {
                 "autoRefreshBeginAt": {
@@ -5505,7 +5723,7 @@ const docTemplate = `{
                 "taskLogs": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.FileTaskLog"
+                        "$ref": "#/definitions/models.FileTaskLog"
                     }
                 },
                 "tokenId": {
@@ -5520,7 +5738,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage.toggleAutoRefreshRequest": {
+        "storage.toggleAutoRefreshRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -5562,71 +5780,96 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_storage_advance.getFamilyFilesResponse": {
+        "taskengine.ProcessorResult": {
             "type": "object",
             "properties": {
-                "currentPage": {
-                    "type": "integer"
+                "duration": {
+                    "$ref": "#/definitions/time.Duration"
                 },
-                "data": {
+                "endTime": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "processorId": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "taskengine.TaskInfo": {
+            "type": "object",
+            "properties": {
+                "endAt": {
+                    "description": "结束时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "任务唯一ID",
+                    "type": "string"
+                },
+                "payload": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode"
+                        "type": "integer"
                     }
                 },
-                "pageSize": {
+                "receiveAt": {
+                    "description": "接收时间",
+                    "type": "string"
+                },
+                "results": {
+                    "description": "处理器结果",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/taskengine.ProcessorResult"
+                    }
+                },
+                "startAt": {
+                    "description": "开始时间",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "string"
+                },
+                "topic": {
+                    "description": "消息主题",
+                    "type": "string"
+                },
+                "workerId": {
+                    "description": "处理的Worker ID",
+                    "type": "string"
+                }
+            }
+        },
+        "taskengine.TaskStats": {
+            "type": "object",
+            "properties": {
+                "completedTasks": {
                     "type": "integer"
                 },
-                "total": {
+                "failedTasks": {
+                    "type": "integer"
+                },
+                "pendingTasks": {
+                    "type": "integer"
+                },
+                "runningTasks": {
+                    "type": "integer"
+                },
+                "totalTasks": {
                     "type": "integer"
                 }
             }
         },
-        "internal_handler_http_storage_advance.getPersonFilesResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.FileNode"
-                    }
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_handler_http_storage_advance.getSubscribeUserResponse": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_services_cloudbridge.ShareResourceInfo"
-                    }
-                },
-                "name": {
-                    "type": "string",
-                    "example": "订阅用户"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_handler_http_taskstate.fileLogListResponse": {
+        "taskstate.fileLogListResponse": {
             "type": "object",
             "properties": {
                 "currentPage": {
@@ -5638,7 +5881,7 @@ const docTemplate = `{
                     "description": "任务日志列表数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.FileTaskLog"
+                        "$ref": "#/definitions/models.FileTaskLog"
                     }
                 },
                 "pageSize": {
@@ -5653,7 +5896,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_taskstate.taskEngineListResponse": {
+        "taskstate.taskEngineListResponse": {
             "type": "object",
             "properties": {
                 "isRunning": {
@@ -5664,27 +5907,50 @@ const docTemplate = `{
                     "description": "待处理的任务列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskInfo"
+                        "$ref": "#/definitions/taskengine.TaskInfo"
                     }
                 },
                 "runningTasks": {
                     "description": "正在运行的任务列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskInfo"
+                        "$ref": "#/definitions/taskengine.TaskInfo"
                     }
                 },
                 "stats": {
                     "description": "任务引擎统计信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_pkgs_taskengine.TaskStats"
+                            "$ref": "#/definitions/taskengine.TaskStats"
                         }
                     ]
                 }
             }
         },
-        "internal_handler_http_user.addRequest": {
+        "time.Duration": {
+            "type": "integer",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
+        },
+        "user.addRequest": {
             "type": "object",
             "required": [
                 "password",
@@ -5707,7 +5973,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.addResponse": {
+        "user.addResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -5717,7 +5983,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.bindGroupRequest": {
+        "user.bindGroupRequest": {
             "type": "object",
             "required": [
                 "userId"
@@ -5737,7 +6003,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.bindGroupResponse": {
+        "user.bindGroupResponse": {
             "type": "object",
             "properties": {
                 "groupId": {
@@ -5757,7 +6023,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.delRequest": {
+        "user.delRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -5771,7 +6037,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.listResponse": {
+        "user.listResponse": {
             "type": "object",
             "properties": {
                 "currentPage": {
@@ -5783,7 +6049,7 @@ const docTemplate = `{
                     "description": "用户列表数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/internal_handler_http_user.userInfo"
+                        "$ref": "#/definitions/user.userInfo"
                     }
                 },
                 "pageSize": {
@@ -5798,7 +6064,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.loginRequest": {
+        "user.loginRequest": {
             "type": "object",
             "required": [
                 "password",
@@ -5821,7 +6087,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.loginResponse": {
+        "user.loginResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -5848,13 +6114,13 @@ const docTemplate = `{
                     "description": "用户信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     ]
                 }
             }
         },
-        "internal_handler_http_user.modifyOwnPassRequest": {
+        "user.modifyOwnPassRequest": {
             "type": "object",
             "required": [
                 "oldPassword",
@@ -5877,7 +6143,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.modifyPassRequest": {
+        "user.modifyPassRequest": {
             "type": "object",
             "required": [
                 "id",
@@ -5899,7 +6165,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.refreshRequest": {
+        "user.refreshRequest": {
             "type": "object",
             "required": [
                 "refreshToken"
@@ -5912,7 +6178,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.refreshResponse": {
+        "user.refreshResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -5939,13 +6205,13 @@ const docTemplate = `{
                     "description": "用户信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_xxcheng123_cloudpan189-share_internal_repository_models.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     ]
                 }
             }
         },
-        "internal_handler_http_user.toggleStatusRequest": {
+        "user.toggleStatusRequest": {
             "type": "object",
             "required": [
                 "id",
@@ -5969,7 +6235,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.updateRequest": {
+        "user.updateRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -5990,7 +6256,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_user.userInfo": {
+        "user.userInfo": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6024,7 +6290,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.addRequest": {
+        "usergroup.addRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -6039,7 +6305,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.addResponse": {
+        "usergroup.addResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -6049,7 +6315,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.batchBindFilesRequest": {
+        "usergroup.batchBindFilesRequest": {
             "type": "object",
             "required": [
                 "fileIds",
@@ -6076,7 +6342,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.deleteRequest": {
+        "usergroup.deleteRequest": {
             "type": "object",
             "required": [
                 "id"
@@ -6090,7 +6356,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.getBindFilesResponse": {
+        "usergroup.getBindFilesResponse": {
             "type": "object",
             "properties": {
                 "fileIds": {
@@ -6107,7 +6373,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.listResponse": {
+        "usergroup.listResponse": {
             "type": "object",
             "properties": {
                 "currentPage": {
@@ -6119,7 +6385,7 @@ const docTemplate = `{
                     "description": "用户组列表数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/internal_handler_http_usergroup.userGroupInfo"
+                        "$ref": "#/definitions/usergroup.userGroupInfo"
                     }
                 },
                 "pageSize": {
@@ -6134,7 +6400,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.modifyNameRequest": {
+        "usergroup.modifyNameRequest": {
             "type": "object",
             "required": [
                 "id",
@@ -6156,7 +6422,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_http_usergroup.userGroupInfo": {
+        "usergroup.userGroupInfo": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6177,30 +6443,6 @@ const docTemplate = `{
                     "example": 5
                 }
             }
-        },
-        "time.Duration": {
-            "type": "integer",
-            "format": "int64",
-            "enum": [
-                -9223372036854775808,
-                9223372036854775807,
-                1,
-                1000,
-                1000000,
-                1000000000,
-                60000000000,
-                3600000000000
-            ],
-            "x-enum-varnames": [
-                "minDuration",
-                "maxDuration",
-                "Nanosecond",
-                "Microsecond",
-                "Millisecond",
-                "Second",
-                "Minute",
-                "Hour"
-            ]
         }
     }
 }`

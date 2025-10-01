@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 )
 
@@ -42,12 +43,16 @@ func (h *handler) RefreshToken() httpcontext.HandlerFunc {
 			return
 		}
 
+		ctx.Set(consts.CtxKeyUserId, uid)
+
 		user, err := h.userService.Query(ctx.GetContext(), uid)
 		if err != nil {
 			ctx.Fail(codeRefreshTokenInvalid.WithError(err))
 
 			return
 		}
+
+		ctx.Set(consts.CtxKeyUsername, user.Username)
 
 		if !user.Valid() {
 			ctx.Fail(codeUserDisabled)

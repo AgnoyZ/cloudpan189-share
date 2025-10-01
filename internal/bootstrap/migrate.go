@@ -19,6 +19,7 @@ func migrateDB(db *gorm.DB) (err error) {
 		new(models.MountPoint),
 		new(models.AutoIngestLog),
 		new(models.AutoIngestPlan),
+		new(models.LoginLog),
 	)
 }
 
