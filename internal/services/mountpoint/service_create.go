@@ -35,9 +35,9 @@ func (s *service) Create(ctx context.Context, req *CreateRequest) (int64, error)
 		req.RefreshInterval = 30
 	}
 
-	var beginAt time.Time
+	var beginAt *time.Time
 	if req.EnableAutoRefresh {
-		beginAt = time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Now().Location())
+		beginAt = ptr.Of(time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Now().Location()))
 	}
 
 	mountPoint := &models.MountPoint{
@@ -51,7 +51,7 @@ func (s *service) Create(ctx context.Context, req *CreateRequest) (int64, error)
 		AutoRefreshDays:    req.AutoRefreshDays,
 		RefreshInterval:    req.RefreshInterval,
 		EnableDeepRefresh:  req.EnableDeepRefresh,
-		AutoRefreshBeginAt: ptr.Of(beginAt),
+		AutoRefreshBeginAt: beginAt,
 	}
 
 	if err := s.getDB(ctx).Create(mountPoint).Error; err != nil {
