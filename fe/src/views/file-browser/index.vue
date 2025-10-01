@@ -215,7 +215,7 @@ watch(
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background: #fff;
+  background: var(--n-color-target);
   min-height: 100vh;
 }
 
@@ -224,10 +224,10 @@ watch(
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: #f8f9fa;
+  background: var(--n-card-color);
   border-radius: 8px;
   margin-bottom: 20px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--n-border-color);
 
   /* 使顶部栏在页面滚动时保持固定在顶部 */
   position: sticky;
@@ -253,8 +253,8 @@ watch(
 }
 
 .file-container {
-  background: #fff;
-  border: 1px solid #e9ecef;
+  background: var(--n-card-color);
+  border: 1px solid var(--n-border-color);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -264,10 +264,10 @@ watch(
   grid-template-columns: 1fr 120px 180px 120px;
   gap: 16px;
   padding: 12px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--n-color-hover);
+  border-bottom: 1px solid var(--n-border-color);
   font-weight: 500;
-  color: #495057;
+  color: var(--n-text-color);
   font-size: 14px;
 }
 
@@ -294,13 +294,13 @@ watch(
 }
 
 .file-item {
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid var(--n-divider-color);
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .file-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--n-color-hover);
 }
 
 .file-item:last-child {
@@ -324,13 +324,13 @@ watch(
 
 .file-icon {
   font-size: 20px;
-  color: #007bff;
+  color: var(--n-primary-color);
   flex-shrink: 0;
 }
 
 .file-name {
   font-size: 14px;
-  color: #212529;
+  color: var(--n-text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -338,13 +338,13 @@ watch(
 
 .file-size {
   font-size: 14px;
-  color: #6c757d;
+  color: var(--n-text-color-2);
   text-align: center;
 }
 
 .file-date {
   font-size: 14px;
-  color: #6c757d;
+  color: var(--n-text-color-2);
   text-align: center;
 }
 

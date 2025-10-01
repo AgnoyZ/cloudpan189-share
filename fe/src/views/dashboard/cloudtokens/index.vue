@@ -461,7 +461,7 @@ onMounted(() => {
 }
 
 .tokens-table {
-  background: white;
+  background: var(--n-card-color);
   border-radius: 6px;
 }
 
@@ -481,7 +481,7 @@ onMounted(() => {
 
 .login-method-selection p {
   margin: 0 0 20px;
-  color: #666;
+  color: var(--n-text-color-2);
   font-size: 16px;
 }
 </style>

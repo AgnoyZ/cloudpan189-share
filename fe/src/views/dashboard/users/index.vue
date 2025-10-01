@@ -298,7 +298,7 @@ const columns: DataTableColumns<Models.UserInfo> = [
   {
     title: '操作',
     key: 'actions',
-    width: 240,
+    width: 280,
     align: 'center',
     render(row) {
       return h(
@@ -421,7 +421,7 @@ onMounted(() => {
 }
 
 .users-table {
-  background: white;
+  background: var(--n-card-color);
   border-radius: 6px;
 }
 

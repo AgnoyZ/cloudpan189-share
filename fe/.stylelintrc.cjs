@@ -28,5 +28,9 @@ module.exports = {
         ignorePseudoElements: ['v-deep', 'v-global', 'v-slotted'],
       },
     ],
+
+    // 允许在同一文件中基础样式后写更高特异性的覆盖（如 .container 与 .container.dark）
+    // 以便暗色模式/状态样式能放在底部覆盖，而不被 no-descending-specificity 阻拦
+    'no-descending-specificity': null,
   },
 }

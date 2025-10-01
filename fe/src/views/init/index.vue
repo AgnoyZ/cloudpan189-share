@@ -1,5 +1,5 @@
 <template>
-  <div class="init-container">
+  <div class="init-container" :class="{ dark: themeStore.isDark }">
     <!-- 背景装饰元素 -->
     <div class="bg-decoration">
       <div class="floating-circle circle-1"></div>
@@ -13,7 +13,12 @@
 
     <div class="init-card">
       <div class="init-header">
-        <n-icon :component="SettingsOutline" size="48" color="#18a058" />
+        <div class="header-actions">
+          <n-switch :value="themeStore.isDark" @update:value="themeStore.toggleTheme">
+            <template #checked>夜间模式</template>
+            <template #unchecked>日间模式</template>
+          </n-switch>
+        </div>
         <h1>系统初始化</h1>
         <p>欢迎使用云盘分享系统，请完成系统初始化配置</p>
       </div>
@@ -95,18 +100,18 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage, type FormInst } from 'naive-ui'
 import {
-  SettingsOutline,
   RefreshOutline,
   PersonOutline,
   LockClosedOutline,
   CheckmarkOutline,
 } from '@vicons/ionicons5'
 import { initSystem, type InitSystemRequest } from '@/api/setting'
-import { useSystemStore } from '@/stores'
+import { useSystemStore, useThemeStore } from '@/stores'
 
 const router = useRouter()
 const message = useMessage()
 const systemStore = useSystemStore()
+const themeStore = useThemeStore()
 
 const formRef = ref<FormInst>()
 const loading = ref(false)
@@ -228,10 +233,34 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #18a058 0%, #36ad6a 50%, #52c41a 100%);
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%);
   padding: 20px;
   position: relative;
   overflow: hidden;
+}
+
+.init-container.dark {
+  /* 暗色：统一采用主题背景，避免高饱和渐变造成干扰 */
+  background: var(--n-color-target);
+}
+
+.init-container.dark .bg-decoration {
+  display: none;
+}
+
+/* 暗色下卡片阴影更柔和，文本不加发光 */
+.init-container.dark .init-card {
+  box-shadow: 0 12px 32px rgb(0 0 0 / 30%);
+}
+
+.init-container.dark .init-header h1 {
+  text-shadow: none;
+}
+
+.header-actions {
+  position: absolute;
+  right: 16px;
+  top: 16px;
 }
 
 /* 背景装饰元素 */
@@ -344,14 +373,21 @@ onMounted(() => {
 .init-card {
   width: 100%;
   max-width: 500px;
-  background: rgb(255 255 255 / 95%);
+  background: var(--n-card-color);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 40px;
   box-shadow: 0 25px 50px rgb(0 0 0 / 15%);
-  border: 1px solid rgb(255 255 255 / 20%);
+  border: 1px solid var(--n-border-color);
   position: relative;
   z-index: 2;
+}
+
+/* 日间模式：参考登录页玻璃感卡片，降低纯白压迫感 */
+.init-container:not(.dark) .init-card {
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  box-shadow: 0 25px 50px rgb(0 0 0 / 15%);
 }
 
 .init-header {
@@ -362,24 +398,19 @@ onMounted(() => {
 .init-header h1 {
   font-size: 28px;
   font-weight: 600;
-  color: #333;
+  color: var(--n-text-color);
   margin: 16px 0 8px;
   text-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .init-header p {
   font-size: 16px;
-  color: #666;
+  color: var(--n-text-color-2);
   margin: 0;
-}
-
-.n-form-item {
-  margin-bottom: 24px;
 }
 
 .n-form-item:last-child {
   margin-bottom: 0;
-  margin-top: 32px;
 }
 
 /* 响应式设计 */

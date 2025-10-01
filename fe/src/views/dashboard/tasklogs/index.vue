@@ -489,7 +489,7 @@ onMounted(() => {
 }
 
 .task-logs-table {
-  background: white;
+  background: var(--n-card-color);
   border-radius: 6px;
 }
 

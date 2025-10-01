@@ -1195,8 +1195,8 @@ onUnmounted(() => {
 
 .refresh-detail {
   font-size: 12px;
-  color: #666;
-  background: #fff;
+  color: var(--n-text-color-2);
+  background: var(--n-card-color);
   padding: 4px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -1244,7 +1244,7 @@ onUnmounted(() => {
   font-size: 12px;
   color: var(--n-text-color);
   padding: 4px 8px;
-  background: #f5f5f5;
+  background: var(--n-color-hover);
   border-radius: 4px;
   border: 1px solid var(--n-border-color);
   font-weight: 500;

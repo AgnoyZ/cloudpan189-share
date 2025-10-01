@@ -14,7 +14,7 @@
         </div>
 
         <div v-else-if="qrcodeUrl" class="qrcode-container">
-          <n-qr-code :value="qrcodeUrl" :size="200" />
+          <n-qr-code :value="qrcodeUrl" :size="200" style="width: 220px; height: 220px" />
           <div class="qrcode-info">
             <n-icon size="20" color="#18a058">
               <CheckmarkCircleOutline />

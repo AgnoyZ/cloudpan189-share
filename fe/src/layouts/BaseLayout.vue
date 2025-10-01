@@ -89,12 +89,31 @@
           </div>
 
           <div class="header-right">
+            <!-- 夜间模式切换（更明显的太阳/月亮按钮，带提示） -->
+            <n-tooltip trigger="hover">
+              <template #trigger>
+                <n-button
+                  circle
+                  size="small"
+                  class="theme-toggle-btn"
+                  type="primary"
+                  ghost
+                  @click="themeStore.toggleTheme()"
+                >
+                  <template #icon>
+                    <n-icon size="20">
+                      <MoonIcon v-if="themeStore.isDark" />
+                      <SunnyIcon v-else />
+                    </n-icon>
+                  </template>
+                </n-button>
+              </template>
+              <span>{{ themeStore.isDark ? '切换为日间模式' : '切换为夜间模式' }}</span>
+            </n-tooltip>
+
             <!-- 用户信息 -->
             <n-dropdown :options="userMenuOptions" @select="handleUserMenuSelect">
               <div class="user-info">
-                <n-avatar round :size="isMobile ? 'medium' : 'small'" class="user-avatar">
-                  {{ userInfo.username.charAt(0).toUpperCase() }}
-                </n-avatar>
                 <n-text v-if="!isMobile" class="username">{{ userInfo.username }}</n-text>
                 <n-icon v-if="!isMobile" size="16" class="dropdown-icon">
                   <ChevronDownIcon />
@@ -133,7 +152,6 @@ import {
   NBreadcrumb,
   NBreadcrumbItem,
   NDropdown,
-  NAvatar,
   NText,
   NIcon,
   NDrawer,
@@ -157,8 +175,10 @@ import {
   DocumentTextOutline as TaskLogIcon,
   PlayCircleOutline as EngineLogIcon,
   HammerOutline as AutoIngestIcon,
+  SunnyOutline as SunnyIcon,
+  MoonOutline as MoonIcon,
 } from '@vicons/ionicons5'
-import { useAuthStore, useSystemStore } from '@/stores'
+import { useAuthStore, useSystemStore, useThemeStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
 import { useUserStore } from '@/stores'
 import ChangePasswordModal from '@/components/profile/ChangePasswordModal.vue'
@@ -169,6 +189,7 @@ const message = useMessage()
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const systemStore = useSystemStore()
+const themeStore = useThemeStore()
 
 // 系统信息
 const systemInfo = systemStore.get()
@@ -477,6 +498,38 @@ onUnmounted(() => {
   gap: 16px;
 }
 
+.theme-toggle-btn {
+  transition: all 0.2s ease;
+}
+
+/* 始终让图标有颜色（不依赖 hover） */
+:deep(.theme-toggle-btn .n-icon),
+:deep(.theme-toggle-btn .n-icon > svg) {
+  color: var(--n-primary-color) !important;
+  fill: var(--n-primary-color) !important;
+}
+
+/* ghost 按钮悬停/按下时，边框与图标颜色加深 */
+.theme-toggle-btn:hover {
+  border-color: var(--n-primary-color-hover) !important;
+}
+
+.theme-toggle-btn:hover :deep(.n-icon),
+.theme-toggle-btn:hover :deep(.n-icon > svg) {
+  color: var(--n-primary-color-hover) !important;
+  fill: var(--n-primary-color-hover) !important;
+}
+
+.theme-toggle-btn:active {
+  border-color: var(--n-primary-color-pressed) !important;
+}
+
+.theme-toggle-btn:active :deep(.n-icon),
+.theme-toggle-btn:active :deep(.n-icon > svg) {
+  color: var(--n-primary-color-pressed) !important;
+  fill: var(--n-primary-color-pressed) !important;
+}
+
 .mobile-menu-btn {
   margin-right: 8px;
   color: var(--n-text-color-1) !important;
@@ -515,10 +568,6 @@ onUnmounted(() => {
 
 .user-info:hover {
   background-color: var(--n-hover-color);
-}
-
-.user-avatar {
-  background-color: var(--n-primary-color);
 }
 
 .username {

@@ -291,7 +291,7 @@ const downloadFile = () => {
 
 <style scoped>
 .file-detail {
-  background: #fff;
+  background: var(--n-card-color);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
@@ -442,14 +442,14 @@ const downloadFile = () => {
 .image-placeholder {
   width: 100%;
   height: 300px;
-  background: #f8f9fa;
-  border: 2px dashed #dee2e6;
+  background: var(--n-color-hover);
+  border: 2px dashed var(--n-border-color);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #6c757d;
+  color: var(--n-text-color-2);
 }
 
 .image-icon {
@@ -466,14 +466,14 @@ const downloadFile = () => {
 .file-placeholder {
   width: 100%;
   height: 200px;
-  background: #f8f9fa;
-  border: 2px dashed #dee2e6;
+  background: var(--n-color-hover);
+  border: 2px dashed var(--n-border-color);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #6c757d;
+  color: var(--n-text-color-2);
 }
 
 .file-icon {
@@ -490,7 +490,7 @@ const downloadFile = () => {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--n-text-color);
   word-break: break-all;
 }
 
@@ -501,14 +501,14 @@ const downloadFile = () => {
   gap: 12px;
   margin-bottom: 24px;
   padding: 16px;
-  background: #f8f9fa;
+  background: var(--n-color-hover);
   border-radius: 8px;
   flex-wrap: wrap;
 }
 
 .recommended-players .label {
   font-size: 14px;
-  color: #666;
+  color: var(--n-text-color-2);
   white-space: nowrap;
 }
 
@@ -517,8 +517,8 @@ const downloadFile = () => {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: white;
-  border: 1px solid #dee2e6;
+  background: var(--n-card-color);
+  border: 1px solid var(--n-border-color);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
@@ -526,9 +526,9 @@ const downloadFile = () => {
 }
 
 .player-btn:hover {
-  border-color: #3b82f6;
-  background: #f0f9ff;
-  color: #3b82f6;
+  border-color: var(--n-primary-color);
+  background: var(--n-color-hover);
+  color: var(--n-primary-color);
 }
 
 .player-icon {
@@ -558,12 +558,12 @@ const downloadFile = () => {
 }
 
 .info-item .label {
-  color: #666;
+  color: var(--n-text-color-2);
   min-width: 80px;
 }
 
 .info-item .value {
-  color: #333;
+  color: var(--n-text-color);
   font-weight: 500;
 }
 
@@ -578,31 +578,31 @@ const downloadFile = () => {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--n-border-color);
   border-radius: 6px;
-  background: white;
+  background: var(--n-card-color);
   cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
   text-decoration: none;
-  color: #333;
+  color: var(--n-text-color);
 }
 
 .action-btn:hover {
-  border-color: #3b82f6;
-  background: #f0f9ff;
-  color: #3b82f6;
+  border-color: var(--n-primary-color);
+  background: var(--n-color-hover);
+  color: var(--n-primary-color);
 }
 
 .action-btn.download {
-  background: #3b82f6;
+  background: var(--n-primary-color);
   color: white;
-  border-color: #3b82f6;
+  border-color: var(--n-primary-color);
 }
 
 .action-btn.download:hover {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--n-primary-color-hover);
+  border-color: var(--n-primary-color-hover);
   color: white;
 }
 
@@ -616,8 +616,8 @@ const downloadFile = () => {
 .qrcode-tooltip {
   position: absolute;
   bottom: 100%;
-  background: white;
-  border: 1px solid #dee2e6;
+  background: var(--n-card-color);
+  border: 1px solid var(--n-border-color);
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
@@ -636,7 +636,7 @@ const downloadFile = () => {
   top: 100%;
   right: 20px;
   border: 6px solid transparent;
-  border-top-color: white;
+  border-top-color: var(--n-card-color);
 }
 
 .qrcode-container:hover .qrcode-tooltip {
@@ -645,7 +645,7 @@ const downloadFile = () => {
 }
 
 .qr-tip {
-  color: #666;
+  color: var(--n-text-color-2);
   font-size: 12px;
   margin: 8px 0 0;
 }

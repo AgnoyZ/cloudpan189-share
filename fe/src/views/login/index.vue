@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="login-container" :class="{ dark: themeStore.isDark }">
     <!-- 背景装饰元素 -->
     <div class="bg-decoration">
       <div class="floating-circle circle-1"></div>
@@ -12,6 +12,12 @@
     </div>
 
     <div class="login-card">
+      <div class="header-actions">
+        <n-switch :value="themeStore.isDark" @update:value="themeStore.toggleTheme">
+          <template #checked>夜间模式</template>
+          <template #unchecked>日间模式</template>
+        </n-switch>
+      </div>
       <div class="login-header">
         <h1>{{ systemInfo.title || '云盘分享系统' }}</h1>
         <p>请登录您的账户</p>
@@ -67,12 +73,13 @@ import { useRouter } from 'vue-router'
 import { useMessage, type FormInst } from 'naive-ui'
 import { PersonOutline, LockClosedOutline } from '@vicons/ionicons5'
 import { type LoginRequest } from '@/api/auth'
-import { useSystemStore, useAuthStore } from '@/stores'
+import { useSystemStore, useAuthStore, useThemeStore } from '@/stores'
 
 const router = useRouter()
 const message = useMessage()
 const systemStore = useSystemStore()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const systemInfo = systemStore.get()
 
@@ -132,6 +139,33 @@ const handleLogin = () => {
   padding: 20px;
   position: relative;
   overflow: hidden;
+}
+
+.login-container.dark {
+  /* 暗色：统一采用主题背景，避免高饱和渐变造成干扰 */
+  background: var(--n-color-target);
+}
+
+.login-container.dark .bg-decoration {
+  display: none;
+}
+
+/* 暗色下卡片阴影更柔和，文本不加发光 */
+.login-container.dark .login-card {
+  box-shadow: 0 12px 32px rgb(0 0 0 / 30%);
+}
+
+.header-actions {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+}
+
+/* 日间模式：参考初始化页玻璃感卡片，降低纯白压迫感 */
+.login-container:not(.dark) .login-card {
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  box-shadow: 0 25px 50px rgb(0 0 0 / 15%);
 }
 
 /* 背景装饰元素 */
@@ -244,12 +278,12 @@ const handleLogin = () => {
 .login-card {
   width: 100%;
   max-width: 400px;
-  background: rgb(255 255 255 / 95%);
+  background: var(--n-card-color);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 40px;
   box-shadow: 0 25px 50px rgb(0 0 0 / 15%);
-  border: 1px solid rgb(255 255 255 / 20%);
+  border: 1px solid var(--n-border-color);
   position: relative;
   z-index: 2;
 }
@@ -262,14 +296,14 @@ const handleLogin = () => {
 .login-header h1 {
   font-size: 28px;
   font-weight: 600;
-  color: #333;
+  color: var(--n-text-color);
   margin: 0 0 8px;
   text-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .login-header p {
   font-size: 16px;
-  color: #666;
+  color: var(--n-text-color-2);
   margin: 0;
 }
 

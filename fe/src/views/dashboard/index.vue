@@ -101,10 +101,15 @@ const getUserStatusText = (status: number) => {
 <style scoped>
 .dashboard {
   padding: 0;
+  background: var(--n-color-target);
 }
 
 .info-card {
   height: 280px;
+  background: var(--n-card-color);
+  border: 1px solid var(--n-border-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 }
 
 .info-card :deep(.n-card__content) {

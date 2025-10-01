@@ -355,7 +355,7 @@ watch(
 }
 
 .image-wrapper {
-  background: #f8f9fa;
+  background: var(--n-card-color);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 16px;
@@ -401,8 +401,8 @@ watch(
 
 .toolbar {
   padding: 12px 16px;
-  background: #fff;
-  border-top: 1px solid #e9ecef;
+  background: var(--n-card-color);
+  border-top: 1px solid var(--n-border-color);
 }
 
 /* 全屏样式 */
