@@ -40,12 +40,9 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9
-          run_install: false
+          run_install: true
+          package_json_path: fe/package.json
 
-      - name: 🧩 全局安装 pnpm（通过 npm）
-        run: |
-          npm install -g pnpm@9
-          pnpm -v
 
       - name: 🔍 验证前端环境
         run: |
@@ -77,12 +74,6 @@ jobs:
         run: |
           echo "🎨 使用 Node.js ${{ env.NODE_VERSION }} 构建前端..."
           cd fe
-          
-          corepack enable && corepack prepare pnpm@latest --activate
-          pnpm config set registry https://registry.npmmirror.com
-          
-          echo "📦 安装依赖..."
-          pnpm install --frozen-lockfile
           
           echo "🔨 构建前端..."
           pnpm build
