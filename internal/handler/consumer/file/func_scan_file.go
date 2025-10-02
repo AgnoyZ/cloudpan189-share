@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
+	"github.com/xxcheng123/cloudpan189-share/internal/shared"
 
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 
@@ -81,6 +82,12 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 				logger.Error("更新文件任务日志失败", zap.Int64("file_id", req.FileId), zap.Error(err))
 			}
 		}()
+
+		if shared.MediaConfig != nil && shared.MediaConfig.Enable && shared.MediaConfig.AutoClean {
+			defer func() {
+				_ = h.mediaFileService.ClearEmptyDir(ctx.GetContext(), shared.MediaConfig.StoragePath)
+			}()
+		}
 
 		logger.Debug("开始扫描文件", zap.Int64("file_id", req.FileId), zap.Bool("deep", req.Deep))
 

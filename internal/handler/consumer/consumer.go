@@ -11,8 +11,10 @@ import (
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
+	mediafileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mediafile"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	storageFacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
+	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
@@ -38,10 +40,12 @@ func Start(svc bootstrap.ServiceContext) error {
 		authIngestLogService  = autoingestlogSvi.NewService(svc)
 		autoIngestPlanService = autoingestplanSvi.NewService(svc)
 		storageFacadeService  = storageFacadeSvi.NewService(svc)
+		mediaFileService      = mediafileSvi.NewService(svc)
+		verifyService         = verifySvi.NewService(svc)
 	)
 
 	var (
-		fileHandler       = file.NewHandler(virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService)
+		fileHandler       = file.NewHandler(virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService, mediaFileService, verifyService)
 		autoIngestHandler = autoingest.NewHandler(taskEngine, cloudBridgeService, autoIngestPlanService, authIngestLogService, storageFacadeService, virtualFileService)
 	)
 

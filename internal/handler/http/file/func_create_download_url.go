@@ -1,8 +1,6 @@
 package file
 
 import (
-	"fmt"
-
 	"github.com/samber/lo"
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
@@ -16,10 +14,6 @@ type createDownloadURLRequest struct {
 type createDownloadURLResponse struct {
 	DownloadURL string `json:"downloadUrl" example:"/api/file/download/123456?sign=abc&uuid=def&timestamp=1234567890&signer=v1"`
 }
-
-const (
-	downloadURLFormat = "/api/file/download/%d?%s"
-)
 
 // CreateDownloadURL 创建文件下载链接
 // @Summary 创建文件下载链接
@@ -73,10 +67,8 @@ func (h *handler) CreateDownloadURL() httpcontext.HandlerFunc {
 			return
 		}
 
-		downloadURL := fmt.Sprintf(downloadURLFormat, req.FileID, values.Encode())
-
 		ctx.Success(&createDownloadURLResponse{
-			DownloadURL: fmt.Sprintf("%s%s", shared.BaseURL, downloadURL),
+			DownloadURL: shared.JoinDownloadURL(req.FileID, values),
 		})
 	}
 }

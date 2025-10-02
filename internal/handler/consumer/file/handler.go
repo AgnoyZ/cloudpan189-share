@@ -1,8 +1,11 @@
 package file
 
 import (
+	"path"
 	"sync"
 
+	"github.com/bytedance/gopkg/util/logger"
+	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
@@ -11,7 +14,9 @@ import (
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
+	mediafileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mediafile"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
+	verifySvi "github.com/xxcheng123/cloudpan189-share/internal/services/verify"
 	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 
 	"go.uber.org/zap"
@@ -28,6 +33,8 @@ type handler struct {
 	cloudTokenService  cloudtokenSvi.Service
 	mountPointService  mountPointSvi.Service
 	fileTaskLogService filetasklogSvi.Service
+	mediaFileService   mediafileSvi.Service
+	verifyService      verifySvi.Service
 }
 
 func NewHandler(
@@ -36,6 +43,8 @@ func NewHandler(
 	cloudTokenService cloudtokenSvi.Service,
 	mountPointService mountPointSvi.Service,
 	fileTaskLogService filetasklogSvi.Service,
+	mediaFileService mediafileSvi.Service,
+	verifyService verifySvi.Service,
 ) Handler {
 	return &handler{
 		virtualFileService: virtualFileService,
@@ -43,6 +52,8 @@ func NewHandler(
 		cloudTokenService:  cloudTokenService,
 		mountPointService:  mountPointService,
 		fileTaskLogService: fileTaskLogService,
+		mediaFileService:   mediaFileService,
+		verifyService:      verifyService,
 	}
 }
 
@@ -56,6 +67,22 @@ func (h *handler) walkFile(ctx context.Context, rootId int64, walkFunc walkFunc)
 	} else {
 		if file, err = h.virtualFileService.Query(ctx, rootId); err != nil {
 			return err
+		}
+	}
+
+	// 计算当前文件的路径
+	{
+		if prevPath, ok := ctx.GetString(consts.CtxKeyFileFullPath); ok {
+			ctx = ctx.WithValue(consts.CtxKeyFileFullPath, path.Join(prevPath, file.Name))
+		} else {
+			beginPath, err := h.virtualFileService.CalFullPath(ctx, file.ID)
+			if err != nil {
+				logger.Error("获取文件路径失败", zap.Int64("file_id", file.ID), zap.Error(err))
+
+				return err
+			}
+
+			ctx = ctx.WithValue(consts.CtxKeyFileFullPath, beginPath)
 		}
 	}
 

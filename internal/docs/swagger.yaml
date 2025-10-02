@@ -712,6 +712,91 @@ definitions:
         example: 100
         type: integer
     type: object
+  media.FileConflictPolicy:
+    enum:
+    - skip
+    - replace
+    type: string
+    x-enum-varnames:
+    - FileConflictPolicySkip
+    - FileConflictPolicyReplace
+  media.configInfoResponse:
+    properties:
+      config:
+        $ref: '#/definitions/models.MediaConfig'
+      initialized:
+        type: boolean
+    type: object
+  media.configInitRequest:
+    properties:
+      autoClean:
+        example: true
+        type: boolean
+      baseURL:
+        example: http://localhost:12395
+        type: string
+      conflictPolicy:
+        allOf:
+        - $ref: '#/definitions/media.FileConflictPolicy'
+        enum:
+        - skip
+        - replace
+        example: skip
+      enable:
+        example: false
+        type: boolean
+      includedSuffixes:
+        example:
+        - '[''.mp4'''
+        - '''.mkv'''
+        - '''.avi'']'
+        items:
+          type: string
+        type: array
+      storagePath:
+        example: /opt/media
+        type: string
+    required:
+    - autoClean
+    - baseURL
+    - storagePath
+    type: object
+  media.configToggleRequest:
+    properties:
+      enable:
+        example: true
+        type: boolean
+    type: object
+  media.configUpdateRequest:
+    properties:
+      autoClean:
+        example: true
+        type: boolean
+      baseURL:
+        example: http://localhost:12395
+        type: string
+      conflictPolicy:
+        allOf:
+        - $ref: '#/definitions/media.FileConflictPolicy'
+        enum:
+        - skip
+        - replace
+        example: skip
+      enable:
+        example: false
+        type: boolean
+      includedSuffixes:
+        example:
+        - '[''.mp4'''
+        - '''.mkv'''
+        - '''.avi'']'
+        items:
+          type: string
+        type: array
+      storagePath:
+        example: /opt/media
+        type: string
+    type: object
   models.AutoIngestPlan:
     properties:
       addCount:
@@ -856,6 +941,34 @@ definitions:
       userId:
         type: integer
       username:
+        type: string
+    type: object
+  models.MediaConfig:
+    properties:
+      autoClean:
+        description: AutoClean 自动清理空文件夹 文件删除后自动检查是否为空文件夹
+        type: boolean
+      baseURL:
+        type: string
+      conflictPolicy:
+        allOf:
+        - $ref: '#/definitions/media.FileConflictPolicy'
+        description: ConflictPolicy 冲突策略 跳过/替换
+      createdAt:
+        type: string
+      enable:
+        type: boolean
+      id:
+        type: integer
+      includedSuffixes:
+        description: IncludedSuffixes 包括的后缀格式 不包括的将过滤 如果为空则表示不过滤
+        items:
+          type: string
+        type: array
+      storagePath:
+        description: StoragePath StoragePath 落盘根路径
+        type: string
+      updatedAt:
         type: string
     type: object
   models.OsType:
@@ -2682,6 +2795,125 @@ paths:
       summary: 获取登录日志列表
       tags:
       - 登录日志
+  /api/media/config/info:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpcontext.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/media.configInfoResponse'
+              type: object
+        "400":
+          description: 查询媒体配置失败
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+      summary: 获取媒体配置
+      tags:
+      - 媒体配置
+  /api/media/config/init:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 初始化请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/media.configInitRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 初始化成功
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "400":
+          description: 初始化媒体配置失败
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+      summary: 初始化媒体配置
+      tags:
+      - 媒体配置
+  /api/media/config/toggle:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 切换启用状态请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/media.configToggleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 切换成功
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "400":
+          description: 切换媒体配置启用状态失败
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+      summary: 启用/禁用媒体配置
+      tags:
+      - 媒体配置
+  /api/media/config/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 更新请求体（任意字段可选）
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/media.configUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "400":
+          description: 更新媒体配置失败
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+      summary: 更新媒体配置
+      tags:
+      - 媒体配置
   /api/setting/addition:
     get:
       consumes:

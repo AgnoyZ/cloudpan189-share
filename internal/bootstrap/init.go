@@ -83,6 +83,13 @@ func assignShared(db *gorm.DB) (err error) {
 	shared.EnableAuth = setting.EnableAuth
 	shared.SettingAddition = setting.Addition
 
+	var mediaConfig = new(models.MediaConfig)
+	if err = db.First(mediaConfig).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	shared.MediaConfig = mediaConfig
+
 	return nil
 }
 

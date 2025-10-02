@@ -1508,6 +1508,193 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/media/config/info": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "媒体配置"
+                ],
+                "summary": "获取媒体配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httpcontext.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/media.configInfoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "查询媒体配置失败",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/media/config/init": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "媒体配置"
+                ],
+                "summary": "初始化媒体配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "初始化请求体",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/media.configInitRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "初始化成功",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "初始化媒体配置失败",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/media/config/toggle": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "媒体配置"
+                ],
+                "summary": "启用/禁用媒体配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "切换启用状态请求体",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/media.configToggleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "切换成功",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "切换媒体配置启用状态失败",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/media/config/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "媒体配置"
+                ],
+                "summary": "更新媒体配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "更新请求体（任意字段可选）",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/media.configUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "更新媒体配置失败",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/setting/addition": {
             "get": {
                 "description": "获取系统的 SettingAddition，仅登录用户可访问",
@@ -5062,6 +5249,130 @@ const docTemplate = `{
                 }
             }
         },
+        "media.FileConflictPolicy": {
+            "type": "string",
+            "enum": [
+                "skip",
+                "replace"
+            ],
+            "x-enum-varnames": [
+                "FileConflictPolicySkip",
+                "FileConflictPolicyReplace"
+            ]
+        },
+        "media.configInfoResponse": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.MediaConfig"
+                },
+                "initialized": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "media.configInitRequest": {
+            "type": "object",
+            "required": [
+                "autoClean",
+                "baseURL",
+                "storagePath"
+            ],
+            "properties": {
+                "autoClean": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "baseURL": {
+                    "type": "string",
+                    "example": "http://localhost:12395"
+                },
+                "conflictPolicy": {
+                    "enum": [
+                        "skip",
+                        "replace"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/media.FileConflictPolicy"
+                        }
+                    ],
+                    "example": "skip"
+                },
+                "enable": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "includedSuffixes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "['.mp4'",
+                        "'.mkv'",
+                        "'.avi']"
+                    ]
+                },
+                "storagePath": {
+                    "type": "string",
+                    "example": "/opt/media"
+                }
+            }
+        },
+        "media.configToggleRequest": {
+            "type": "object",
+            "properties": {
+                "enable": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "media.configUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "autoClean": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "baseURL": {
+                    "type": "string",
+                    "example": "http://localhost:12395"
+                },
+                "conflictPolicy": {
+                    "enum": [
+                        "skip",
+                        "replace"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/media.FileConflictPolicy"
+                        }
+                    ],
+                    "example": "skip"
+                },
+                "enable": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "includedSuffixes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "['.mp4'",
+                        "'.mkv'",
+                        "'.avi']"
+                    ]
+                },
+                "storagePath": {
+                    "type": "string",
+                    "example": "/opt/media"
+                }
+            }
+        },
         "models.AutoIngestPlan": {
             "type": "object",
             "properties": {
@@ -5273,6 +5584,49 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MediaConfig": {
+            "type": "object",
+            "properties": {
+                "autoClean": {
+                    "description": "AutoClean 自动清理空文件夹 文件删除后自动检查是否为空文件夹",
+                    "type": "boolean"
+                },
+                "baseURL": {
+                    "type": "string"
+                },
+                "conflictPolicy": {
+                    "description": "ConflictPolicy 冲突策略 跳过/替换",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/media.FileConflictPolicy"
+                        }
+                    ]
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "includedSuffixes": {
+                    "description": "IncludedSuffixes 包括的后缀格式 不包括的将过滤 如果为空则表示不过滤",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "storagePath": {
+                    "description": "StoragePath StoragePath 落盘根路径",
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

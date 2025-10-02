@@ -14,6 +14,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/cloudtoken"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/file"
 	loginlogHandler "github.com/xxcheng123/cloudpan189-share/internal/handler/http/loginlog"
+	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/media"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/setting"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/http/storage/advance"
@@ -30,6 +31,8 @@ import (
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
 	loginlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/loginlog"
+	mediaconfigSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mediaconfig"
+	mediafileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mediafile"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	settingSvi "github.com/xxcheng123/cloudpan189-share/internal/services/setting"
 	storagefacadeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/storagefacade"
@@ -69,6 +72,8 @@ func Start(svc bootstrap.ServiceContext) {
 		autoIngestPlanService = autoingestplanSvi.NewService(svc)
 		autoIngestLogService  = autoingestlogSvi.NewService(svc)
 		loginLogService       = loginlogSvi.NewService(svc)
+		mediaConfigService    = mediaconfigSvi.NewService(svc)
+		mediaFileService      = mediafileSvi.NewService(svc)
 	)
 
 	var (
@@ -82,6 +87,7 @@ func Start(svc bootstrap.ServiceContext) {
 		taskStateHandler      = taskstate.NewHandler(taskEngine, fileTaskLogService)
 		autoIngestHandler     = autoingest.NewHandler(taskEngine, autoIngestPlanService, autoIngestLogService, cloudBridgeService)
 		loginLogHandler       = loginlogHandler.NewHandler(loginLogService)
+		mediaHandler          = media.NewHandler(mediaConfigService, mediaFileService)
 	)
 
 	var (
@@ -222,6 +228,16 @@ func Start(svc bootstrap.ServiceContext) {
 		loginLogRouter := openapiRouter.Group("/login_log", wrap(userMiddleware.Auth(true)))
 		{
 			loginLogRouter.GET("/list", wrap(loginLogHandler.List()))
+		}
+	}
+
+	{
+		mediaRouter := openapiRouter.Group("/media", wrap(userMiddleware.Auth(true)))
+		{
+			mediaRouter.GET("/config/info", wrap(mediaHandler.ConfigInfo()))
+			mediaRouter.POST("/config/init", wrap(mediaHandler.ConfigInit()))
+			mediaRouter.POST("/config/update", wrap(mediaHandler.ConfigUpdate()))
+			mediaRouter.POST("/config/toggle", wrap(mediaHandler.ConfigToggle()))
 		}
 	}
 

@@ -5,4 +5,7 @@ declare namespace Enums {
   type LoginEvent = 'login' | 'refresh_token'
   // 登录日志状态（status）
   type LoginStatus = 'success' | 'failed' | 'blocked'
+
+  // 媒体配置文件冲突策略
+  type MediaFileConflictPolicy = 'skip' | 'replace'
 }

@@ -211,4 +211,17 @@ declare namespace Models {
     createdAt: string
     updatedAt: string
   }
+
+  // 媒体配置（对应后端 models.MediaConfig）
+  interface MediaConfig {
+    id: number
+    enable: boolean
+    storagePath: string // 落盘根路径
+    autoClean: boolean // 自动清理空文件夹
+    conflictPolicy: Enums.MediaFileConflictPolicy // 冲突策略：skip/replace
+    baseURL: string
+    includedSuffixes: string[] // 包括的后缀格式 不包括的将过滤 如果为空则表示不过滤
+    createdAt: string
+    updatedAt: string
+  }
 }

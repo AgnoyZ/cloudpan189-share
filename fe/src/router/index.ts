@@ -109,6 +109,33 @@ const router = createRouter({
           },
         },
         {
+          path: 'extensions',
+          name: 'Extensions',
+          component: () => import('@/views/dashboard/extensions/index.vue'),
+          meta: {
+            title: '拓展功能',
+            requiresAuth: true,
+            requiresAdmin: true,
+          },
+          children: [
+            {
+              path: '',
+              name: 'ExtensionsIndex',
+              redirect: { name: 'ExtensionsMedia' },
+            },
+            {
+              path: 'media',
+              name: 'ExtensionsMedia',
+              component: () => import('@/views/dashboard/extensions/media/index.vue'),
+              meta: {
+                title: 'STRM 生成',
+                requiresAuth: true,
+                requiresAdmin: true,
+              },
+            },
+          ],
+        },
+        {
           path: 'logs',
           name: 'Logs',
           component: () => import('@/views/dashboard/logs/index.vue'),

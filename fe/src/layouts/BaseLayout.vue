@@ -176,6 +176,7 @@ import {
   HammerOutline as AutoIngestIcon,
   SunnyOutline as SunnyIcon,
   MoonOutline as MoonIcon,
+  AppsOutline as ExtensionsIcon,
 } from '@vicons/ionicons5'
 import { useAuthStore, useSystemStore, useThemeStore } from '@/stores'
 import CloudPanLogo from '@/components/CloudPanLogo.vue'
@@ -278,6 +279,11 @@ const menuOptions = computed((): MenuOption[] => {
       label: '自动入库',
       key: '/@dashboard/autoingest',
       icon: () => h(NIcon, null, { default: () => h(AutoIngestIcon) }),
+    },
+    {
+      label: '拓展功能',
+      key: '/@dashboard/extensions',
+      icon: () => h(NIcon, null, { default: () => h(ExtensionsIcon) }),
     },
     {
       label: '聚合日志',
