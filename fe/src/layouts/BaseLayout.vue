@@ -173,7 +173,6 @@ import {
   PersonOutline as ProfileIcon,
   FolderOpenOutline as FileBrowserIcon,
   DocumentTextOutline as TaskLogIcon,
-  PlayCircleOutline as EngineLogIcon,
   HammerOutline as AutoIngestIcon,
   SunnyOutline as SunnyIcon,
   MoonOutline as MoonIcon,
@@ -281,14 +280,9 @@ const menuOptions = computed((): MenuOption[] => {
       icon: () => h(NIcon, null, { default: () => h(AutoIngestIcon) }),
     },
     {
-      label: '任务日志',
-      key: '/@dashboard/tasklogs',
+      label: '聚合日志',
+      key: '/@dashboard/logs',
       icon: () => h(NIcon, null, { default: () => h(TaskLogIcon) }),
-    },
-    {
-      label: '执行日志',
-      key: '/@dashboard/enginelogs',
-      icon: () => h(NIcon, null, { default: () => h(EngineLogIcon) }),
     },
     {
       label: '系统设置',

@@ -194,4 +194,21 @@ declare namespace Models {
     createdAt: string
     updatedAt: string
   }
+
+  // 登录日志（对应后端 models.LoginLog）
+  interface LoginLog {
+    id: number
+    userId: number
+    username: string
+    addr: string
+    location: string
+    userAgent: string
+    traceId: string
+    reason: string
+    method: Enums.LoginMethod
+    event: Enums.LoginEvent
+    status: Enums.LoginStatus
+    createdAt: string
+    updatedAt: string
+  }
 }

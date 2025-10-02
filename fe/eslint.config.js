@@ -59,6 +59,7 @@ export default [
         $modal: 'readonly',
         Models: 'readonly',
         NodeJS: 'readonly',
+        Enums: 'readonly',
       },
     },
   },
