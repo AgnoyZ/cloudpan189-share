@@ -21,37 +21,39 @@
     <div class="status-cards">
       <n-card title="引擎状态" class="status-card">
         <div class="engine-status">
-          <n-tag :type="engineData?.isRunning ? 'success' : 'error'" size="large">
+          <n-tag :type="state.engineData?.isRunning ? 'success' : 'error'" size="large">
             <template #icon>
               <n-icon>
-                <component :is="engineData?.isRunning ? PlayCircleOutline : StopCircleOutline" />
+                <component
+                  :is="state.engineData?.isRunning ? PlayCircleOutline : StopCircleOutline"
+                />
               </n-icon>
             </template>
-            {{ engineData?.isRunning ? '运行中' : '已停止' }}
+            {{ state.engineData?.isRunning ? '运行中' : '已停止' }}
           </n-tag>
         </div>
       </n-card>
 
       <n-card title="任务统计" class="status-card">
-        <div v-if="engineData?.stats" class="stats-grid">
+        <div v-if="state.engineData?.stats" class="stats-grid">
           <div class="stat-item">
-            <div class="stat-value">{{ engineData.stats.totalTasks }}</div>
+            <div class="stat-value">{{ state.engineData.stats.totalTasks }}</div>
             <div class="stat-label">总任务数</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value pending">{{ engineData.stats.pendingTasks }}</div>
+            <div class="stat-value pending">{{ state.engineData.stats.pendingTasks }}</div>
             <div class="stat-label">待处理</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value running">{{ engineData.stats.runningTasks }}</div>
+            <div class="stat-value running">{{ state.engineData.stats.runningTasks }}</div>
             <div class="stat-label">运行中</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value completed">{{ engineData.stats.completedTasks }}</div>
+            <div class="stat-value completed">{{ state.engineData.stats.completedTasks }}</div>
             <div class="stat-label">已完成</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value failed">{{ engineData.stats.failedTasks }}</div>
+            <div class="stat-value failed">{{ state.engineData.stats.failedTasks }}</div>
             <div class="stat-label">失败</div>
           </div>
         </div>
@@ -64,18 +66,18 @@
       <n-card title="正在运行的任务" class="task-list-card">
         <template #header-extra>
           <n-tag type="info" size="small">
-            {{ engineData?.runningTasks?.length || 0 }} 个任务
+            {{ state.engineData?.runningTasks?.length || 0 }} 个任务
           </n-tag>
         </template>
-        <div v-if="loading" class="loading-container">
+        <div v-if="state.loading" class="loading-container">
           <n-spin size="medium" />
         </div>
-        <div v-else-if="!engineData?.runningTasks?.length" class="empty-container">
+        <div v-else-if="!state.engineData?.runningTasks?.length" class="empty-container">
           <n-empty description="暂无正在运行的任务" />
         </div>
         <div v-else class="task-list">
           <div
-            v-for="task in engineData.runningTasks"
+            v-for="task in state.engineData.runningTasks"
             :key="task.id"
             class="task-item"
             @click="handleViewTaskDetail(task)"
@@ -100,18 +102,18 @@
       <n-card title="待处理的任务" class="task-list-card">
         <template #header-extra>
           <n-tag type="warning" size="small">
-            {{ engineData?.pendingTasks?.length || 0 }} 个任务
+            {{ state.engineData?.pendingTasks?.length || 0 }} 个任务
           </n-tag>
         </template>
-        <div v-if="loading" class="loading-container">
+        <div v-if="state.loading" class="loading-container">
           <n-spin size="medium" />
         </div>
-        <div v-else-if="!engineData?.pendingTasks?.length" class="empty-container">
+        <div v-else-if="!state.engineData?.pendingTasks?.length" class="empty-container">
           <n-empty description="暂无待处理的任务" />
         </div>
         <div v-else class="task-list">
           <div
-            v-for="task in engineData.pendingTasks"
+            v-for="task in state.engineData.pendingTasks"
             :key="task.id"
             class="task-item"
             @click="handleViewTaskDetail(task)"
@@ -133,44 +135,52 @@
     </div>
 
     <!-- 任务详情弹窗 -->
-    <n-modal v-model:show="showTaskDetailModal" preset="card" title="任务详情" style="width: 800px">
-      <div v-if="currentTask" class="task-detail">
+    <n-modal
+      v-model:show="state.showTaskDetailModal"
+      preset="card"
+      title="任务详情"
+      style="width: 800px"
+    >
+      <div v-if="state.currentTask" class="task-detail">
         <n-descriptions :column="2" label-placement="left" bordered>
           <n-descriptions-item label="任务ID">
-            {{ currentTask.id }}
+            {{ state.currentTask.id }}
           </n-descriptions-item>
           <n-descriptions-item label="状态">
-            <n-tag :type="getTaskStatusTagType(currentTask.status)" size="small">
-              {{ currentTask.status }}
+            <n-tag :type="getTaskStatusTagType(state.currentTask.status)" size="small">
+              {{ state.currentTask.status }}
             </n-tag>
           </n-descriptions-item>
           <n-descriptions-item label="主题">
-            {{ currentTask.topic }}
+            {{ state.currentTask.topic }}
           </n-descriptions-item>
           <n-descriptions-item label="Worker ID">
-            {{ currentTask.workerId || '未分配' }}
+            {{ state.currentTask.workerId || '未分配' }}
           </n-descriptions-item>
           <n-descriptions-item label="接收时间">
-            {{ formatDateTime(currentTask.receiveAt) }}
+            {{ formatDateTime(state.currentTask.receiveAt) }}
           </n-descriptions-item>
           <n-descriptions-item label="开始时间">
-            {{ currentTask.startAt ? formatDateTime(currentTask.startAt) : '未开始' }}
+            {{ state.currentTask.startAt ? formatDateTime(state.currentTask.startAt) : '未开始' }}
           </n-descriptions-item>
           <n-descriptions-item label="结束时间">
-            {{ currentTask.endAt ? formatDateTime(currentTask.endAt) : '未结束' }}
+            {{ state.currentTask.endAt ? formatDateTime(state.currentTask.endAt) : '未结束' }}
           </n-descriptions-item>
           <n-descriptions-item label="载荷大小">
-            {{ currentTask.payload?.length || 0 }} 字节
+            {{ state.currentTask.payload?.length || 0 }} 字节
           </n-descriptions-item>
         </n-descriptions>
 
         <n-divider />
 
-        <div v-if="currentTask.results && currentTask.results.length > 0" class="processor-results">
+        <div
+          v-if="state.currentTask.results && state.currentTask.results.length > 0"
+          class="processor-results"
+        >
           <h4>处理器结果</h4>
           <div class="results-list">
             <n-card
-              v-for="(result, index) in currentTask.results"
+              v-for="(result, index) in state.currentTask.results"
               :key="index"
               size="small"
               class="result-card"
@@ -203,9 +213,12 @@
           </div>
         </div>
 
-        <div v-if="currentTask.payload && currentTask.payload.length > 0" class="task-payload">
+        <div
+          v-if="state.currentTask.payload && state.currentTask.payload.length > 0"
+          class="task-payload"
+        >
           <h4>载荷数据</h4>
-          <n-code :code="formatPayload(currentTask.payload)" language="json" />
+          <n-code :code="formatPayload(state.currentTask.payload)" language="json" />
         </div>
       </div>
     </n-modal>
@@ -213,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { reactive, onMounted, onUnmounted } from 'vue'
 import {
   NCard,
   NButton,
@@ -235,12 +248,12 @@ import { formatDateTime } from '@/utils/time'
 import type { TaskEngineListResponse } from '@/api/taskstate'
 
 // 数据状态
-const engineData = ref<TaskEngineListResponse | null>(null)
-const loading = ref(false)
-
-// 任务详情弹窗
-const showTaskDetailModal = ref(false)
-const currentTask = ref<Models.TaskInfo | null>(null)
+const state = reactive({
+  engineData: null as TaskEngineListResponse | null,
+  loading: false,
+  showTaskDetailModal: false,
+  currentTask: null as Models.TaskInfo | null,
+})
 
 // 消息提示
 const message = useMessage()
@@ -250,22 +263,20 @@ let refreshTimer: NodeJS.Timeout | null = null
 
 // 获取任务引擎状态
 const fetchEngineStatus = () => {
-  loading.value = true
+  state.loading = true
 
   getTaskEngineList()
     .then((response) => {
-      if (response.code === 200 && response.data) {
-        engineData.value = response.data
-      } else {
-        message.error(response.msg || '获取执行日志失败')
+      if (response.data) {
+        state.engineData = response.data
       }
     })
     .catch((error) => {
       console.error('获取执行日志失败:', error)
-      message.error('获取执行日志失败')
+      message.error(error?.message || '获取执行日志失败')
     })
     .finally(() => {
-      loading.value = false
+      state.loading = false
     })
 }
 
@@ -276,8 +287,8 @@ const handleRefresh = () => {
 
 // 查看任务详情
 const handleViewTaskDetail = (task: Models.TaskInfo) => {
-  currentTask.value = task
-  showTaskDetailModal.value = true
+  state.currentTask = task
+  state.showTaskDetailModal = true
 }
 
 // 获取任务状态标签类型

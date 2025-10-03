@@ -4,28 +4,28 @@
     <div class="header">
       <div class="header-left">
         <n-input
-          v-model:value="searchKeyword"
+          v-model:value="state.searchKeyword"
           placeholder="请输入任务标题搜索"
           clearable
           style="width: 200px; margin-right: 12px"
           @keyup.enter="handleSearch"
         />
         <n-select
-          v-model:value="statusFilter"
+          v-model:value="state.statusFilter"
           placeholder="任务状态"
           clearable
           style="width: 120px; margin-right: 12px"
           :options="statusOptions"
         />
         <n-select
-          v-model:value="typeFilter"
+          v-model:value="state.typeFilter"
           placeholder="任务类型"
           clearable
           style="width: 120px; margin-right: 12px"
           :options="typeOptions"
         />
         <n-date-picker
-          v-model:value="dateRange"
+          v-model:value="state.dateRange"
           type="datetimerange"
           clearable
           style="width: 300px; margin-right: 12px"
@@ -37,7 +37,7 @@
         <n-button @click="handleReset"> 重置 </n-button>
       </div>
       <div class="header-right">
-        <n-button :loading="loading" @click="handleRefresh">
+        <n-button :loading="state.loading" @click="handleRefresh">
           <template #icon>
             <n-icon>
               <RefreshOutline />
@@ -51,8 +51,8 @@
     <!-- 任务日志列表表格 -->
     <n-data-table
       :columns="columns"
-      :data="tableData"
-      :loading="loading"
+      :data="state.tableData"
+      :loading="state.loading"
       :pagination="paginationReactive"
       class="task-logs-table"
       :row-key="(row: Models.FileTaskLog) => row.id"
@@ -61,47 +61,54 @@
     />
 
     <!-- 任务详情弹窗 -->
-    <n-modal v-model:show="showDetailModal" preset="card" title="任务详情" style="width: 800px">
-      <div v-if="currentTask" class="task-detail">
+    <n-modal
+      v-model:show="state.showDetailModal"
+      preset="card"
+      title="任务详情"
+      style="width: 800px"
+    >
+      <div v-if="state.currentTask" class="task-detail">
         <n-descriptions :column="2" label-placement="left" bordered>
           <n-descriptions-item label="任务ID">
-            {{ currentTask.id }}
+            {{ state.currentTask.id }}
           </n-descriptions-item>
           <n-descriptions-item label="任务标题">
-            {{ currentTask.title }}
+            {{ state.currentTask.title }}
           </n-descriptions-item>
           <n-descriptions-item label="任务类型">
-            <n-tag :type="getTypeTagType(currentTask.type)" size="small">
-              {{ getTypeText(currentTask.type) }}
+            <n-tag :type="getTypeTagType(state.currentTask.type)" size="small">
+              {{ getTypeText(state.currentTask.type) }}
             </n-tag>
           </n-descriptions-item>
           <n-descriptions-item label="任务状态">
-            <n-tag :type="getStatusTagType(currentTask.status)" size="small">
-              {{ getStatusText(currentTask.status) }}
+            <n-tag :type="getStatusTagType(state.currentTask.status)" size="small">
+              {{ getStatusText(state.currentTask.status) }}
             </n-tag>
           </n-descriptions-item>
           <n-descriptions-item label="开始时间">
-            {{ formatDate(currentTask.beginAt) }}
+            {{ formatDate(state.currentTask.beginAt) }}
           </n-descriptions-item>
           <n-descriptions-item label="结束时间">
-            {{ currentTask.endAt ? formatDate(currentTask.endAt) : '未结束' }}
+            {{ state.currentTask.endAt ? formatDate(state.currentTask.endAt) : '未结束' }}
           </n-descriptions-item>
           <n-descriptions-item label="执行时长">
-            {{ formatDuration(currentTask.duration) }}
+            {{ formatDuration(state.currentTask.duration) }}
           </n-descriptions-item>
           <n-descriptions-item label="进度">
             {{
-              currentTask.total > 0 ? `${currentTask.completed}/${currentTask.total}` : '无进度信息'
+              state.currentTask.total > 0
+                ? `${state.currentTask.completed}/${state.currentTask.total}`
+                : '无进度信息'
             }}
           </n-descriptions-item>
           <n-descriptions-item label="文件ID">
-            {{ currentTask.fileId }}
+            {{ state.currentTask.fileId }}
           </n-descriptions-item>
           <n-descriptions-item label="用户ID">
-            {{ currentTask.userId }}
+            {{ state.currentTask.userId }}
           </n-descriptions-item>
           <n-descriptions-item label="创建时间" :span="2">
-            {{ formatDate(currentTask.createdAt) }}
+            {{ formatDate(state.currentTask.createdAt) }}
           </n-descriptions-item>
         </n-descriptions>
 
@@ -109,27 +116,27 @@
 
         <div class="task-description">
           <h4>任务描述</h4>
-          <n-text>{{ currentTask.desc || '无描述' }}</n-text>
+          <n-text>{{ state.currentTask.desc || '无描述' }}</n-text>
         </div>
 
-        <div v-if="currentTask.result" class="task-result">
+        <div v-if="state.currentTask.result" class="task-result">
           <h4>执行结果</h4>
-          <n-code :code="currentTask.result" language="json" />
+          <n-code :code="state.currentTask.result" language="json" />
         </div>
 
-        <div v-if="currentTask.errorMsg" class="task-error">
+        <div v-if="state.currentTask.errorMsg" class="task-error">
           <h4>错误信息</h4>
           <n-alert type="error" :show-icon="false">
-            {{ currentTask.errorMsg }}
+            {{ state.currentTask.errorMsg }}
           </n-alert>
         </div>
 
         <div
-          v-if="currentTask.addition && Object.keys(currentTask.addition).length > 0"
+          v-if="state.currentTask.addition && Object.keys(state.currentTask.addition).length > 0"
           class="task-addition"
         >
           <h4>附加信息</h4>
-          <n-code :code="JSON.stringify(currentTask.addition, null, 2)" language="json" />
+          <n-code :code="JSON.stringify(state.currentTask.addition, null, 2)" language="json" />
         </div>
       </div>
     </n-modal>
@@ -137,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { reactive, onMounted, h } from 'vue'
 import {
   NDataTable,
   NInput,
@@ -177,19 +184,16 @@ import {
   TASK_STATUS_TAG_MAP,
 } from '@/constants/taskTypes'
 
-// 表格数据
-const tableData = ref<Models.FileTaskLog[]>([])
-const loading = ref(false)
-
-// 搜索条件
-const searchKeyword = ref('')
-const statusFilter = ref<string | null>(null)
-const typeFilter = ref<string | null>(null)
-const dateRange = ref<[number, number] | null>(null)
-
-// 任务详情弹窗
-const showDetailModal = ref(false)
-const currentTask = ref<Models.FileTaskLog | null>(null)
+const state = reactive({
+  tableData: [] as Models.FileTaskLog[],
+  loading: false,
+  searchKeyword: '',
+  statusFilter: null as string | null,
+  typeFilter: null as string | null,
+  dateRange: null as [number, number] | null,
+  showDetailModal: false,
+  currentTask: null as Models.FileTaskLog | null,
+})
 
 // 消息提示
 const message = useMessage()
@@ -223,43 +227,41 @@ const paginationReactive = reactive<PaginationProps>({
 
 // 获取任务日志列表
 const fetchTaskLogList = () => {
-  loading.value = true
+  state.loading = true
 
-  const params: Record<string, string | number> = {
-    currentPage: paginationReactive.page || 1,
-    pageSize: paginationReactive.pageSize || 10,
+  const params: Record<string, unknown> = {
+    currentPage: paginationReactive.page,
+    pageSize: paginationReactive.pageSize,
   }
 
   // 添加搜索条件
-  if (searchKeyword.value) {
-    params.title = searchKeyword.value
+  if (state.searchKeyword) {
+    params.title = state.searchKeyword
   }
-  if (statusFilter.value) {
-    params.status = statusFilter.value
+  if (state.statusFilter) {
+    params.status = state.statusFilter
   }
-  if (typeFilter.value) {
-    params.type = typeFilter.value
+  if (state.typeFilter) {
+    params.type = state.typeFilter
   }
-  if (dateRange.value && dateRange.value.length === 2) {
-    params.beginAt = new Date(dateRange.value[0]).toISOString()
-    params.endAt = new Date(dateRange.value[1]).toISOString()
+  if (state.dateRange && state.dateRange.length === 2) {
+    params.beginAt = new Date(state.dateRange[0]).toISOString()
+    params.endAt = new Date(state.dateRange[1]).toISOString()
   }
 
   getFileLogList(params)
     .then((response) => {
-      if (response.code === 200 && response.data) {
-        tableData.value = response.data.data || []
+      if (response.data) {
+        state.tableData = response.data.data || []
         paginationReactive.itemCount = response.data.total || 0
-      } else {
-        message.error(response.msg || '获取任务日志失败')
       }
     })
     .catch((error) => {
       console.error('获取任务日志失败:', error)
-      message.error('获取任务日志失败')
+      message.error(error?.message || '获取任务日志失败')
     })
     .finally(() => {
-      loading.value = false
+      state.loading = false
     })
 }
 
@@ -271,10 +273,10 @@ const handleSearch = () => {
 
 // 重置
 const handleReset = () => {
-  searchKeyword.value = ''
-  statusFilter.value = null
-  typeFilter.value = null
-  dateRange.value = null
+  state.searchKeyword = ''
+  state.statusFilter = null
+  state.typeFilter = null
+  state.dateRange = null
   paginationReactive.page = 1
   fetchTaskLogList()
 }
@@ -286,8 +288,8 @@ const handleRefresh = () => {
 
 // 查看详情
 const handleViewDetail = (task: Models.FileTaskLog) => {
-  currentTask.value = task
-  showDetailModal.value = true
+  state.currentTask = task
+  state.showDetailModal = true
 }
 
 // 获取状态标签类型

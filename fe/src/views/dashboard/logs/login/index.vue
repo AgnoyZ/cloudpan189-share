@@ -3,24 +3,29 @@
     <!-- 头部筛选 -->
     <div class="header">
       <div class="header-left">
-        <n-input v-model:value="username" placeholder="用户名" clearable style="width: 140px" />
-        <n-input v-model:value="addr" placeholder="地址/IP" clearable style="width: 140px" />
+        <n-input
+          v-model:value="state.username"
+          placeholder="用户名"
+          clearable
+          style="width: 140px"
+        />
+        <n-input v-model:value="state.addr" placeholder="地址/IP" clearable style="width: 140px" />
         <n-select
-          v-model:value="event"
+          v-model:value="state.event"
           :options="eventOptions"
           clearable
           placeholder="事件"
           style="width: 120px"
         />
         <n-select
-          v-model:value="status"
+          v-model:value="state.status"
           :options="statusOptions"
           clearable
           placeholder="状态"
           style="width: 120px"
         />
         <n-date-picker
-          v-model:value="dateRange"
+          v-model:value="state.dateRange"
           type="datetimerange"
           clearable
           style="width: 280px"
@@ -46,8 +51,8 @@
     <!-- 表格 -->
     <n-data-table
       :columns="columns"
-      :data="tableData"
-      :loading="loading"
+      :data="state.tableData"
+      :loading="state.loading"
       :pagination="paginationReactive"
       :row-key="(row: Models.LoginLog) => row.id"
       class="login-logs-table"
@@ -58,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted } from 'vue'
+import { reactive, h, onMounted } from 'vue'
 import {
   NDataTable,
   NInput,
@@ -94,15 +99,16 @@ import {
 } from '@/constants/loginLog'
 
 const message = useMessage()
-const loading = ref(false)
-const tableData = ref<Models.LoginLog[]>([])
 
-// 筛选项
-const username = ref<string>('')
-const addr = ref<string>('')
-const event = ref<Enums.LoginEvent | null>(null)
-const status = ref<Enums.LoginStatus | null>(null)
-const dateRange = ref<[number, number] | null>(null)
+const state = reactive({
+  loading: false,
+  tableData: [] as Models.LoginLog[],
+  username: '',
+  addr: '',
+  event: null as Enums.LoginEvent | null,
+  status: null as Enums.LoginStatus | null,
+  dateRange: null as [number, number] | null,
+})
 
 // 选项
 const eventOptions = LOGIN_EVENT_OPTIONS
@@ -235,35 +241,33 @@ const columns: DataTableColumns<Models.LoginLog> = [
 
 // 拉取列表
 const fetchList = () => {
-  loading.value = true
+  state.loading = true
   const params: LoginLogListQuery = {
     currentPage: paginationReactive.page ?? 1,
     pageSize: paginationReactive.pageSize ?? 10,
   }
-  if (username.value) params.username = username.value
-  if (addr.value) params.addr = addr.value
-  if (event.value) params.event = event.value
-  if (status.value) params.status = status.value
-  if (dateRange.value && dateRange.value.length === 2) {
-    params.beginAt = new Date(dateRange.value[0]).toISOString()
-    params.endAt = new Date(dateRange.value[1]).toISOString()
+  if (state.username) params.username = state.username
+  if (state.addr) params.addr = state.addr
+  if (state.event) params.event = state.event
+  if (state.status) params.status = state.status
+  if (state.dateRange && state.dateRange.length === 2) {
+    params.beginAt = new Date(state.dateRange[0]).toISOString()
+    params.endAt = new Date(state.dateRange[1]).toISOString()
   }
 
   getLoginLogList(params)
     .then((res) => {
-      if (res.code === 200 && res.data) {
-        tableData.value = res.data.data || []
+      if (res.data) {
+        state.tableData = res.data.data || []
         paginationReactive.itemCount = res.data.total || 0
-      } else {
-        message.error(res.msg || '获取登录日志失败')
       }
     })
     .catch((err) => {
       console.error(err)
-      message.error('获取登录日志失败')
+      message.error(err?.message || '获取登录日志失败')
     })
     .finally(() => {
-      loading.value = false
+      state.loading = false
     })
 }
 
@@ -272,11 +276,11 @@ const handleSearch = () => {
   fetchList()
 }
 const handleReset = () => {
-  username.value = ''
-  addr.value = ''
-  event.value = null
-  status.value = null
-  dateRange.value = null
+  state.username = ''
+  state.addr = ''
+  state.event = null
+  state.status = null
+  state.dateRange = null
   paginationReactive.page = 1
   fetchList()
 }

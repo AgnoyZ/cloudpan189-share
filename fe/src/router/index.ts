@@ -144,6 +144,43 @@ const router = createRouter({
             requiresAuth: true,
             requiresAdmin: true,
           },
+          children: [
+            {
+              path: '',
+              name: 'LogsIndex',
+              redirect: { name: 'LogsEngine' },
+            },
+            {
+              path: 'engine',
+              name: 'LogsEngine',
+              component: () => import('@/views/dashboard/logs/engine/index.vue'),
+              meta: {
+                title: '执行日志',
+                requiresAuth: true,
+                requiresAdmin: true,
+              },
+            },
+            {
+              path: 'file',
+              name: 'LogsFile',
+              component: () => import('@/views/dashboard/logs/file/index.vue'),
+              meta: {
+                title: '任务日志',
+                requiresAuth: true,
+                requiresAdmin: true,
+              },
+            },
+            {
+              path: 'login',
+              name: 'LogsLogin',
+              component: () => import('@/views/dashboard/logs/login/index.vue'),
+              meta: {
+                title: '登录日志',
+                requiresAuth: true,
+                requiresAdmin: true,
+              },
+            },
+          ],
         },
       ],
     },

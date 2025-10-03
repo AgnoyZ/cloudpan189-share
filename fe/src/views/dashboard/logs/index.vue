@@ -1,47 +1,66 @@
 <template>
   <div class="logs-tabs-page">
-    <n-card>
-      <n-tabs v-model:value="active" type="line" animated>
-        <n-tab-pane name="engine" tab="执行日志">
-          <keep-alive>
-            <EngineLogs v-if="active === 'engine'" />
-          </keep-alive>
-        </n-tab-pane>
-        <n-tab-pane name="task" tab="任务日志">
-          <keep-alive>
-            <TaskLogs v-if="active === 'task'" />
-          </keep-alive>
-        </n-tab-pane>
-        <n-tab-pane name="login" tab="登录日志">
-          <keep-alive>
-            <LoginLogs v-if="active === 'login'" />
-          </keep-alive>
-        </n-tab-pane>
-      </n-tabs>
-    </n-card>
+    <n-tabs type="line" :value="activeTab" @update:value="handleTabChange">
+      <n-tab name="engine">执行日志</n-tab>
+      <n-tab name="file">任务日志</n-tab>
+      <n-tab name="login">登录日志</n-tab>
+    </n-tabs>
+
+    <!-- 子路由内容渲染 -->
+    <div class="content">
+      <router-view />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { NTabs, NTabPane, NCard } from 'naive-ui'
-import EngineLogs from '@/components/logs/EngineLogs.vue'
-import TaskLogs from '@/components/logs/TaskLogs.vue'
-import LoginLogs from '@/components/logs/LoginLogs.vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { NTabs, NTab } from 'naive-ui'
 
-// 默认 激活 执行日志
-const active = ref<'engine' | 'task' | 'login'>('engine')
+const router = useRouter()
+const route = useRoute()
 
-// 若未来希望根据 query 或 hash 指定默认标签，可在此处理
-onMounted(() => {
-  // const url = new URL(window.location.href)
-  // const tab = (url.searchParams.get('tab') || '').toLowerCase()
-  // if (tab === 'task' || tab === 'login') active.value = tab
-})
+const activeTab = ref<string>('engine')
+
+// 根据当前路由初始化/同步选中的 Tab
+watch(
+  () => route.name,
+  (name) => {
+    if (name === 'LogsEngine') {
+      activeTab.value = 'engine'
+    } else if (name === 'LogsFile') {
+      activeTab.value = 'file'
+    } else if (name === 'LogsLogin') {
+      activeTab.value = 'login'
+    }
+  },
+  { immediate: true }
+)
+
+// 切换 Tab 时进行路由跳转
+const handleTabChange = (name: 'engine' | 'file' | 'login') => {
+  if (name === 'engine') {
+    router.push({ name: 'LogsEngine' })
+  } else if (name === 'file') {
+    router.push({ name: 'LogsFile' })
+  } else if (name === 'login') {
+    router.push({ name: 'LogsLogin' })
+  }
+}
 </script>
 
 <style scoped>
 .logs-tabs-page {
-  padding: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.content {
+  background: var(--n-card-color);
+  border-radius: 6px;
+  padding: 24px 0;
 }
 </style>
