@@ -7,7 +7,7 @@ import (
 )
 
 type toggleEnableAuthRequest struct {
-	EnableAuth bool `json:"enableAuth" binding:"required" example:"true"` // 是否启用鉴权
+	EnableAuth bool `json:"enableAuth" example:"true"` // 是否启用鉴权
 }
 
 // ToggleEnableAuth 切换系统鉴权开关
