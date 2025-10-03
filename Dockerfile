@@ -76,7 +76,9 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 # 设置时区
 ENV TZ=Asia/Shanghai
 ENV GIN_MODE=release
-RUN apk add --no-cache ca-certificates tzdata wget
+RUN cat /etc/apk/repositories \
+  && apk update \
+  && apk add --no-cache ca-certificates tzdata wget
 
 # Copy backend executable from backend-builder stage
 COPY --from=backend-builder /app/share .
