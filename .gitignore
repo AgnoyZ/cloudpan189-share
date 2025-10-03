@@ -6,7 +6,7 @@ session.json
 .idea
 .vscode
 .env
-
+/media_files
 
 datadir
 media_dir

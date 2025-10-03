@@ -1,14 +1,5 @@
 <template>
-  <n-modal v-model:show="visible" preset="dialog" title="个人文件夹挂载" style="width: 900px">
-    <template #header>
-      <div style="display: flex; align-items: center; gap: 8px">
-        <n-icon :size="20">
-          <PersonOutline />
-        </n-icon>
-        <span>个人文件夹挂载</span>
-      </div>
-    </template>
-
+  <div class="person-mount-container">
     <div class="person-mount-content">
       <!-- 第一步：选择令牌 -->
       <div v-if="currentStep === 1" class="step-content">
@@ -29,9 +20,7 @@
           <div v-else-if="tokenState.tokens.length === 0" class="empty-state">
             <n-empty description="暂无可用令牌" size="large">
               <template #icon>
-                <n-icon size="64" :depth="3">
-                  <KeyOutline />
-                </n-icon>
+                <n-icon size="64" :depth="3"><KeyOutline /></n-icon>
               </template>
               <template #extra>
                 <n-text depth="3">请先添加天翼云盘令牌</n-text>
@@ -70,11 +59,9 @@
               @click="handleNextToFileSelection"
               style="width: 100%"
             >
-              <template #icon>
-                <n-icon>
-                  <ArrowForwardOutline />
-                </n-icon>
-              </template>
+              <template #icon
+                ><n-icon><ArrowForwardOutline /></n-icon
+              ></template>
               下一步：选择文件夹
             </n-button>
           </div>
@@ -98,13 +85,10 @@
           </div>
 
           <div v-else class="file-tree-container">
-            <!-- 面包屑导航 -->
             <div class="breadcrumb-container">
               <n-breadcrumb>
                 <n-breadcrumb-item @click="handleNavigateToRoot">
-                  <n-icon :size="16">
-                    <HomeOutline />
-                  </n-icon>
+                  <n-icon :size="16"><HomeOutline /></n-icon>
                   根目录
                 </n-breadcrumb-item>
                 <n-breadcrumb-item
@@ -117,7 +101,6 @@
               </n-breadcrumb>
             </div>
 
-            <!-- 文件树 -->
             <div class="file-tree">
               <n-tree
                 :data="fileTreeData"
@@ -134,13 +117,10 @@
               />
             </div>
 
-            <!-- 当前选择信息 -->
             <div v-if="fileState.selectedFile" class="selected-info">
               <div class="selected-card">
                 <div class="selected-header">
-                  <n-icon :size="20" color="#18a058">
-                    <CheckmarkCircleOutline />
-                  </n-icon>
+                  <n-icon :size="20" color="#18a058"><CheckmarkCircleOutline /></n-icon>
                   <n-text strong>已选择文件夹</n-text>
                 </div>
                 <div class="selected-details">
@@ -156,42 +136,29 @@
       </div>
     </div>
 
-    <template #action>
-      <div class="modal-actions">
-        <n-button v-if="currentStep === 2" @click="handleBackToTokenSelection">
-          <template #icon>
-            <n-icon>
-              <ArrowBackOutline />
-            </n-icon>
-          </template>
-          返回上一步
-        </n-button>
-        <n-button @click="handleCancel">取消</n-button>
-        <n-button
-          v-if="currentStep === 2"
-          type="primary"
-          :disabled="!fileState.selectedFile"
-          @click="handleConfirm"
-        >
-          绑定挂载点
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
-
-  <!-- 绑定挂载点Modal -->
-  <MountPointBindModal
-    v-model:show="mountBindState.show"
-    :items="mountBindState.items"
-    :default-cloud-token="tokenState.selectedTokenId || undefined"
-    @success="handleMountBindSuccess"
-  />
+    <div class="modal-actions">
+      <n-button v-if="currentStep === 2" @click="handleBackToTokenSelection">
+        <template #icon
+          ><n-icon><ArrowBackOutline /></n-icon
+        ></template>
+        返回上一步
+      </n-button>
+      <n-button @click="handleCancel">取消</n-button>
+      <n-button
+        v-if="currentStep === 2"
+        type="primary"
+        :disabled="!fileState.selectedFile"
+        @click="handleConfirm"
+      >
+        绑定挂载点
+      </n-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, onMounted, h } from 'vue'
 import {
-  NModal,
   NIcon,
   NText,
   NButton,
@@ -204,7 +171,6 @@ import {
   useMessage,
 } from 'naive-ui'
 import {
-  PersonOutline,
   KeyOutline,
   CheckmarkCircleOutline,
   ArrowForwardOutline,
@@ -213,35 +179,22 @@ import {
   FolderOutline,
   DocumentOutline,
 } from '@vicons/ionicons5'
-import { h } from 'vue'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { getPersonFiles } from '@/api/storage/advance'
 import type { FileNode, GetPersonFilesQuery } from '@/api/storage/advance'
 import { OS_TYPES } from '@/utils/osType'
-import MountPointBindModal from './MountPointBindModal.vue'
-
-// Props
-interface Props {
-  show: boolean
-}
+import { useMountPointBind } from '@/composables/useMountPointBind'
 
 // Emits
 interface Emits {
-  (e: 'update:show', value: boolean): void
   (e: 'confirm', data: { success: boolean }): void
+  (e: 'cancel'): void
 }
-
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 消息提示
+// Hooks
 const message = useMessage()
-
-// 双向绑定
-const visible = computed({
-  get: () => props.show,
-  set: (value) => emit('update:show', value),
-})
+const mountPointBind = useMountPointBind()
 
 // 步骤控制
 const currentStep = ref(1)
@@ -258,25 +211,12 @@ const fileState = reactive({
   loading: false,
   treeLoading: false,
   files: [] as FileNode[],
-  selectedFileId: null as string | null,
   selectedFile: null as FileNode | null,
   currentParentId: '-11', // 根目录ID
   breadcrumbs: [] as Array<{ id: string; name: string }>,
   selectedKeys: [] as string[],
   expandedKeys: [] as string[],
-  treeData: new Map<string, FileNode[]>(), // 缓存各级目录的文件数据
-})
-
-// 绑定挂载点Modal状态
-const mountBindState = reactive({
-  show: false,
-  items: [] as Array<{
-    name: string
-    osType: string
-    cloudToken: number
-    disableSwitchCloudToken: boolean
-    fileId: string
-  }>,
+  treeData: new Map<string, FileNode[]>(),
 })
 
 // 获取令牌列表
@@ -318,7 +258,6 @@ const handleNextToFileSelection = () => {
 const fetchPersonFiles = (parentId: string = '-11') => {
   if (!tokenState.selectedTokenId) return
 
-  // 根目录显示主加载状态，子目录显示树加载状态
   if (parentId === '-11') {
     fileState.loading = true
   } else {
@@ -332,23 +271,15 @@ const fetchPersonFiles = (parentId: string = '-11') => {
     parentId: parentId,
   }
 
-  console.log('请求文件列表:', params)
-
   getPersonFiles(params)
     .then((response) => {
-      console.log('文件列表响应:', response)
       if (response.code === 200 && response.data) {
         const files = response.data.data || []
-
         if (parentId === '-11') {
-          // 根目录
           fileState.files = files
           fileState.currentParentId = parentId
         }
-
-        // 缓存当前目录的文件数据
         fileState.treeData.set(parentId, files)
-        console.log('缓存文件数据:', parentId, files)
       } else {
         message.error(response.msg || '获取文件列表失败')
       }
@@ -371,14 +302,12 @@ const fileTreeData = computed(() => {
   const buildTreeNode = (file: FileNode): Record<string, unknown> => {
     const isFolder = file.isFolder === 1
     const hasChildren = isFolder && fileState.treeData.has(file.id)
-
     return {
       key: file.id,
       label: file.name,
       isLeaf: !isFolder,
-      disabled: !isFolder, // 文件不可选择
+      disabled: !isFolder,
       file: file,
-      // 如果是文件夹但还没有加载子数据，设置为空数组以显示展开箭头
       children: isFolder
         ? hasChildren
           ? fileState.treeData.get(file.id)?.map(buildTreeNode)
@@ -386,64 +315,39 @@ const fileTreeData = computed(() => {
         : undefined,
     }
   }
-
   return fileState.files.map(buildTreeNode)
 })
 
-// 树形组件渲染函数
-const renderTreeLabel = ({ option }: { option: Record<string, unknown> }) => {
-  return h('span', { class: 'tree-label' }, option.label as string)
-}
-
+// 树形组件渲染
+const renderTreeLabel = ({ option }: { option: Record<string, unknown> }) =>
+  h('span', { class: 'tree-label' }, option.label as string)
 const renderTreePrefix = ({ option }: { option: Record<string, unknown> }) => {
   const file = option.file as FileNode
   const isFolder = file.isFolder === 1
   return h(
     NIcon,
-    {
-      size: 18,
-      color: isFolder ? '#ff9800' : '#2196f3',
-    },
-    {
-      default: () => h(isFolder ? FolderOutline : DocumentOutline),
-    }
+    { size: 18, color: isFolder ? '#ff9800' : '#2196f3' },
+    { default: () => h(isFolder ? FolderOutline : DocumentOutline) }
   )
 }
-
 const renderTreeSuffix = ({ option }: { option: Record<string, unknown> }) => {
   const isSelected = fileState.selectedKeys.includes(option.key as string)
   const file = option.file as FileNode
   const isFolder = file.isFolder === 1
-
   if (isSelected && isFolder) {
-    return h(
-      NIcon,
-      {
-        size: 16,
-        color: '#18a058',
-      },
-      {
-        default: () => h(CheckmarkCircleOutline),
-      }
-    )
+    return h(NIcon, { size: 16, color: '#18a058' }, { default: () => h(CheckmarkCircleOutline) })
   }
-
   return null
 }
 
 // 树形选择处理
 const handleTreeSelect = (keys: string[]) => {
-  console.log('树形选择:', keys)
   fileState.selectedKeys = keys
-
   if (keys.length > 0) {
     const selectedKey = keys[0]
-
-    // 递归查找选中的文件
     const findFileById = (files: FileNode[], id: string): FileNode | null => {
       for (const file of files) {
         if (file.id === id) return file
-        // 如果有子节点，递归查找
         const childFiles = fileState.treeData.get(file.id)
         if (childFiles) {
           const found = findFileById(childFiles, id)
@@ -452,27 +356,19 @@ const handleTreeSelect = (keys: string[]) => {
       }
       return null
     }
-
-    // 从所有缓存的数据中查找
     let selectedFile: FileNode | null = null
     for (const [, files] of fileState.treeData) {
       selectedFile = findFileById(files, selectedKey)
       if (selectedFile) break
     }
-
-    // 如果在缓存中没找到，从当前文件列表中查找
     if (!selectedFile) {
       selectedFile = findFileById(fileState.files, selectedKey)
     }
-
     if (selectedFile && selectedFile.isFolder === 1) {
       fileState.selectedFile = selectedFile
-      fileState.selectedFileId = selectedFile.id
-      console.log('选中文件夹:', selectedFile)
     }
   } else {
     fileState.selectedFile = null
-    fileState.selectedFileId = null
   }
 }
 
@@ -480,52 +376,45 @@ const handleTreeSelect = (keys: string[]) => {
 const handleTreeExpand = (keys: string[]) => {
   const newExpandedKeys = keys.filter((key) => !fileState.expandedKeys.includes(key))
   fileState.expandedKeys = keys
-
-  // 加载新展开节点的子数据
   newExpandedKeys.forEach((key) => {
     if (!fileState.treeData.has(key)) {
-      console.log('加载子目录:', key)
       fetchPersonFiles(key)
     }
   })
 }
 
-// 导航到根目录
+// 导航处理
 const handleNavigateToRoot = () => {
   fileState.breadcrumbs = []
-  fileState.selectedFileId = null
   fileState.selectedFile = null
   fetchPersonFiles('-11')
 }
-
-// 导航到面包屑
 const handleNavigateToBreadcrumb = (index: number) => {
   const targetBreadcrumb = fileState.breadcrumbs[index]
   fileState.breadcrumbs = fileState.breadcrumbs.slice(0, index + 1)
-  fileState.selectedFileId = null
   fileState.selectedFile = null
   fetchPersonFiles(targetBreadcrumb.id)
 }
 
-// 获取选中文件的完整路径
+// 获取选中文件路径
 const getSelectedFilePath = () => {
   if (!fileState.selectedFile) return ''
-
-  const pathParts = ['根目录']
-  pathParts.push(...fileState.breadcrumbs.map((b) => b.name))
-  pathParts.push(fileState.selectedFile.name)
-
+  const pathParts = [
+    '根目录',
+    ...fileState.breadcrumbs.map((b) => b.name),
+    fileState.selectedFile.name,
+  ]
   return pathParts.join(' / ')
 }
 
-// 返回令牌选择
+// 返回上一步
 const handleBackToTokenSelection = () => {
   currentStep.value = 1
 }
 
 // 取消
 const handleCancel = () => {
-  visible.value = false
+  emit('cancel')
 }
 
 // 确认挂载
@@ -534,59 +423,39 @@ const handleConfirm = () => {
     message.warning('请选择文件夹和令牌')
     return
   }
-
-  // 将选择信息转换为挂载项
-  mountBindState.items = [
+  const itemsToMount = [
     {
       name: fileState.selectedFile.name,
       osType: OS_TYPES.PERSON_FOLDER,
       cloudToken: tokenState.selectedTokenId,
-      disableSwitchCloudToken: true, // 个人文件夹禁止修改令牌
+      disableSwitchCloudToken: true,
       fileId: fileState.selectedFile.id,
     },
   ]
-
-  // 打开绑定挂载点Modal
-  mountBindState.show = true
+  mountPointBind
+    .show(itemsToMount, { defaultCloudToken: tokenState.selectedTokenId || undefined })
+    .then((payload) => {
+      if (payload && payload.length > 0) {
+        handleMountBindSuccess()
+      }
+    })
 }
 
-// 绑定挂载点成功回调
+// 挂载成功回调
 const handleMountBindSuccess = () => {
-  message.success('挂载点绑定成功')
   emit('confirm', { success: true })
-  visible.value = false
 }
-
-// 重置所有状态
-const resetAllState = () => {
-  currentStep.value = 1
-  tokenState.selectedTokenId = null
-  tokenState.tokens = []
-  fileState.loading = false
-  fileState.treeLoading = false
-  fileState.files = []
-  fileState.selectedFileId = null
-  fileState.selectedFile = null
-  fileState.currentParentId = '-11'
-  fileState.breadcrumbs = []
-  fileState.selectedKeys = []
-  fileState.expandedKeys = []
-  fileState.treeData.clear()
-  mountBindState.show = false
-  mountBindState.items = []
-}
-
-// 监听弹窗打开，加载令牌列表
-watch(visible, (newVal) => {
-  if (newVal) {
-    fetchTokenList()
-  } else {
-    resetAllState()
-  }
+onMounted(() => {
+  fetchTokenList()
 })
 </script>
 
 <style scoped>
+.person-mount-container {
+  min-width: 800px;
+  width: 100%;
+}
+
 .person-mount-content {
   padding: 16px 0;
 }
@@ -606,13 +475,7 @@ watch(visible, (newVal) => {
   font-size: 18px;
 }
 
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-}
-
+.loading-container,
 .empty-state {
   display: flex;
   justify-content: center;
@@ -620,7 +483,6 @@ watch(visible, (newVal) => {
   min-height: 200px;
 }
 
-/* 令牌选择样式 */
 .token-section {
   max-width: 600px;
   margin: 0 auto;
@@ -682,7 +544,6 @@ watch(visible, (newVal) => {
   margin-top: 24px;
 }
 
-/* 文件选择样式 */
 .file-section {
   max-width: 800px;
   margin: 0 auto;
@@ -706,71 +567,6 @@ watch(visible, (newVal) => {
   overflow-y: auto;
 }
 
-.empty-folder {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-}
-
-.file-list {
-  padding: 8px;
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.file-item:hover {
-  background: var(--n-color-target);
-}
-
-.file-item.selected {
-  background: var(--n-primary-color-suppl);
-  border: 1px solid var(--n-primary-color);
-}
-
-.file-item.disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.file-item.disabled:hover {
-  background: transparent;
-}
-
-.file-icon {
-  flex-shrink: 0;
-}
-
-.file-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.file-name {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 2px;
-  word-break: break-all;
-}
-
-.file-type {
-  font-size: 12px;
-}
-
-.file-actions {
-  flex-shrink: 0;
-}
-
-/* 选中信息样式 */
 .selected-info {
   margin-top: 16px;
 }
@@ -804,9 +600,10 @@ watch(visible, (newVal) => {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--n-border-color);
 }
 
-/* 响应式设计 */
 @media (width <= 768px) {
   .token-card {
     flex-direction: column;
@@ -816,12 +613,6 @@ watch(visible, (newVal) => {
 
   .token-actions {
     align-self: flex-end;
-  }
-
-  .file-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
   }
 
   .modal-actions {

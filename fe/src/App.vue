@@ -4,7 +4,9 @@
     <n-message-provider>
       <n-notification-provider>
         <n-dialog-provider>
-          <router-view />
+          <n-modal-provider>
+            <router-view />
+          </n-modal-provider>
         </n-dialog-provider>
       </n-notification-provider>
     </n-message-provider>
@@ -13,6 +15,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import {
+  NModalProvider,
+  NDialogProvider,
+  NMessageProvider,
+  NNotificationProvider,
+  NGlobalStyle,
+} from 'naive-ui'
 import { useThemeStore, useSystemStore, useUserStore } from '@/stores'
 import { createTheme, createThemeOverrides } from '@/theme'
 import router from './router'

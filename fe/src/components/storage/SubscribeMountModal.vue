@@ -1,51 +1,36 @@
 <template>
-  <n-modal v-model:show="visible" preset="dialog" title="订阅号资源挂载" style="width: 1000px">
-    <template #header>
-      <div style="display: flex; align-items: center; gap: 8px">
-        <n-icon :size="20">
-          <DocumentTextOutline />
-        </n-icon>
-        <span>订阅号资源挂载</span>
-      </div>
-    </template>
-
+  <div class="subscribe-mount-container">
     <div class="subscribe-mount-content">
       <!-- 第一步：输入订阅用户ID -->
       <div v-if="currentStep === 1" class="step-content">
         <div class="step-header">
-          <n-text strong>第一步：输入订阅用户ID</n-text>
-          <n-text depth="3">请输入要订阅的天翼云盘用户ID</n-text>
+          <n-text strong>第一步：输入订阅号ID</n-text>
+          <n-text depth="3">请输入要挂载的天翼云盘订阅号ID</n-text>
         </div>
-
         <div class="input-section">
           <n-input
-            v-model:value="searchState.subscribeUserId"
-            placeholder="请输入订阅用户ID"
+            v-model:value="subscribeUserId"
+            placeholder="请输入订阅号ID"
             clearable
             size="large"
             @keyup.enter="handleSearchUser"
           >
             <template #prefix>
-              <n-icon :size="16">
-                <PersonOutline />
-              </n-icon>
+              <n-icon :size="16"><PersonOutline /></n-icon>
             </template>
           </n-input>
-
           <n-button
             type="primary"
             size="large"
-            :loading="searchState.loading"
+            :loading="searchLoading"
             :disabled="!isValidSubscribeUserId"
             @click="handleSearchUser"
             style="margin-top: 16px; width: 100%"
           >
-            <template #icon>
-              <n-icon>
-                <SearchOutline />
-              </n-icon>
-            </template>
-            查询分享列表
+            <template #icon
+              ><n-icon><SearchOutline /></n-icon
+            ></template>
+            查询订阅号资源列表
           </n-button>
         </div>
       </div>
@@ -55,9 +40,7 @@
         <div class="step-header">
           <n-text strong>第二步：选择要挂载的资源</n-text>
           <div class="user-info-line">
-            <n-text depth="3"
-              >用户：{{ resourceState.userInfo?.name || searchState.subscribeUserId }}</n-text
-            >
+            <n-text depth="3">用户：{{ resourceState.userInfo?.name || subscribeUserId }}</n-text>
             <n-text v-if="hasSelectedResources" type="primary" class="selected-count">
               <n-icon :size="14" color="#2196f3" style="vertical-align: middle; margin-right: 4px">
                 <CheckmarkCircleOutline />
@@ -69,20 +52,6 @@
 
         <!-- 批量操作区域 -->
         <div class="batch-actions">
-          <div class="batch-select-actions">
-            <n-button size="small" @click="handleSelectAll" :disabled="!hasResourceList">
-              全选
-            </n-button>
-            <n-button
-              size="small"
-              @click="handleSelectNone"
-              :disabled="!hasSelectedResources"
-              style="margin-left: 8px"
-            >
-              取消全选
-            </n-button>
-          </div>
-
           <div class="search-section">
             <n-input
               v-model:value="resourceState.searchKeyword"
@@ -91,16 +60,14 @@
               @keyup.enter="handleSearchResource"
               style="width: 200px"
             >
-              <template #prefix>
-                <n-icon :size="16">
-                  <SearchOutline />
-                </n-icon>
-              </template>
+              <template #prefix
+                ><n-icon :size="16"><SearchOutline /></n-icon
+              ></template>
             </n-input>
-            <n-button type="primary" @click="handleSearchResource" style="margin-left: 8px">
-              搜索
-            </n-button>
-            <n-button @click="handleResetResourceSearch" style="margin-left: 8px"> 重置 </n-button>
+            <n-button type="primary" @click="handleSearchResource" style="margin-left: 8px"
+              >搜索</n-button
+            >
+            <n-button @click="handleResetResourceSearch" style="margin-left: 8px">重置</n-button>
           </div>
         </div>
 
@@ -116,14 +83,13 @@
               size="small"
               class="resource-table"
               :row-key="(row: ShareResourceInfo) => row.id"
+              :checked-row-keys="checkedRowKeys"
+              @update:checked-row-keys="handleCheckedRowKeysChange"
             />
-
             <n-empty v-else description="暂无资源数据" size="large" style="min-height: 200px">
-              <template #icon>
-                <n-icon size="48" :depth="3">
-                  <DocumentTextOutline />
-                </n-icon>
-              </template>
+              <template #icon
+                ><n-icon size="48" :depth="3"><DocumentTextOutline /></n-icon
+              ></template>
             </n-empty>
           </n-spin>
         </div>
@@ -143,41 +109,30 @@
       </div>
     </div>
 
-    <template #action>
-      <div class="modal-actions">
-        <n-button v-if="currentStep === 2" @click="handleBackToStep1">
-          <template #icon>
-            <n-icon>
-              <ArrowBackOutline />
-            </n-icon>
-          </template>
-          返回上一步
-        </n-button>
-        <n-button @click="handleCancel">取消</n-button>
-        <n-button
-          v-if="currentStep === 2"
-          type="primary"
-          :disabled="!hasSelectedResources"
-          @click="handleConfirm"
-        >
-          绑定挂载点
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
-
-  <!-- 绑定挂载点Modal -->
-  <MountPointBindModal
-    v-model:show="mountBindState.show"
-    :items="mountBindState.items"
-    @success="handleMountBindSuccess"
-  />
+    <!-- 操作按钮 -->
+    <div class="modal-actions">
+      <n-button v-if="currentStep === 2" @click="handleBackToStep1">
+        <template #icon
+          ><n-icon><ArrowBackOutline /></n-icon
+        ></template>
+        返回上一步
+      </n-button>
+      <n-button @click="handleCancel">取消</n-button>
+      <n-button
+        v-if="currentStep === 2"
+        type="primary"
+        :disabled="!hasSelectedResources"
+        @click="handleConfirm"
+      >
+        绑定挂载点
+      </n-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, h } from 'vue'
+import { ref, computed, h, onMounted } from 'vue'
 import {
-  NModal,
   NIcon,
   NText,
   NInput,
@@ -186,7 +141,6 @@ import {
   NEmpty,
   NPagination,
   NDataTable,
-  NCheckbox,
   useMessage,
   type DataTableColumns,
 } from 'naive-ui'
@@ -199,264 +153,112 @@ import {
   CheckmarkCircleOutline,
   ArrowBackOutline,
 } from '@vicons/ionicons5'
-import { getSubscribeUser } from '@/api/storage/advance'
-import type { ShareResourceInfo, GetSubscribeUserResponse } from '@/api/storage/advance'
-import type { ApiResponse } from '@/utils/api'
+import type { ShareResourceInfo } from '@/api/storage/advance'
 import { formatDateTime } from '@/utils/time'
 import { OS_TYPES } from '@/utils/osType'
-import MountPointBindModal from './MountPointBindModal.vue'
+import { useMountPointBind } from '@/composables/useMountPointBind'
+import { useSubscribeResource } from '@/composables/useSubscribeResource'
 
 // 常量定义
 const PAGINATION_CONFIG = {
-  DEFAULT_PAGE_SIZE: 30,
   PAGE_SIZES: [20, 30, 50, 100] as number[],
-  DEFAULT_PAGE: 1,
-}
-
-// Props
-interface Props {
-  show: boolean
 }
 
 // Emits
 interface Emits {
-  (e: 'update:show', value: boolean): void
   (e: 'confirm', data: { success: boolean }): void
+  (e: 'cancel'): void
 }
-
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 消息提示
+// Hooks
 const message = useMessage()
-
-// 双向绑定
-const visible = computed({
-  get: () => props.show,
-  set: (value) => emit('update:show', value),
-})
+const mountPointBind = useMountPointBind()
 
 // 步骤控制
 const currentStep = ref(1)
 
 // 第一步：用户搜索状态
-const searchState = reactive({
-  subscribeUserId: '',
-  loading: false,
-})
+const subscribeUserId = ref('')
+const searchLoading = ref(false)
+const isValidSubscribeUserId = computed(() => subscribeUserId.value.trim().length > 0)
 
-// 第二步：资源列表状态
-const resourceState = reactive({
-  userInfo: null as GetSubscribeUserResponse | null,
-  list: [] as ShareResourceInfo[],
-  loading: false,
-  searchKeyword: '',
-  selected: [] as ShareResourceInfo[],
-})
-
-// 分页配置
-const resourcePagination = reactive({
-  page: PAGINATION_CONFIG.DEFAULT_PAGE,
-  pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
-  itemCount: 0,
-})
-
-// 绑定挂载点Modal状态
-const mountBindState = reactive({
-  show: false,
-  items: [] as Array<{
-    name: string
-    osType: string
-    subscribeUser: string
-    shareCode: string
-  }>,
-})
-
-// 计算属性
-const isValidSubscribeUserId = computed(() => searchState.subscribeUserId.trim().length > 0)
-const hasSelectedResources = computed(() => resourceState.selected.length > 0)
-const hasResourceList = computed(() => resourceState.list.length > 0)
+// 第二步：资源管理
+const {
+  resourceState,
+  resourcePagination,
+  hasSelectedResources,
+  hasResourceList,
+  fetchResourceList,
+  handleSearchResource,
+  handleResetResourceSearch,
+  handleResourcePageChange,
+  handleResourcePageSizeChange,
+  resetState: resetResourceState,
+  checkedRowKeys,
+  handleCheckedRowKeysChange,
+} = useSubscribeResource(subscribeUserId, message)
 
 // 表格列定义
 const resourceColumns: DataTableColumns<ShareResourceInfo> = [
   {
-    title: '选择',
-    key: 'select',
-    width: 80,
-    render: (row) => {
-      const isSelected = resourceState.selected.some((r) => r.id === row.id)
-      return h(NCheckbox, {
-        checked: isSelected,
-        onUpdateChecked: () => handleSelectResource(row),
-      })
-    },
+    type: 'selection',
+    align: 'center',
   },
   {
     title: '序号',
     key: 'index',
     width: 80,
+    align: 'center',
+    ellipsis: { tooltip: true },
     render: (_, index) => (resourcePagination.page - 1) * resourcePagination.pageSize + index + 1,
   },
   {
     title: '资源名称',
     key: 'name',
     width: 300,
-    ellipsis: {
-      tooltip: true,
-    },
-    render: (row) => {
-      return h('div', { style: 'display: flex; align-items: center; gap: 8px;' }, [
+    align: 'left',
+    ellipsis: { tooltip: true },
+    render: (row) =>
+      h('div', { style: 'display: flex; align-items: center; gap: 8px; justify-content: left' }, [
         h(
           NIcon,
-          {
-            size: 20,
-            color: row.isFolder ? '#ff9800' : '#2196f3',
-          },
-          {
-            default: () => (row.isFolder ? h(FolderOutline) : h(DocumentOutline)),
-          }
+          { size: 20, color: row.isFolder ? '#ff9800' : '#2196f3' },
+          { default: () => (row.isFolder ? h(FolderOutline) : h(DocumentOutline)) }
         ),
         h('span', { style: 'word-break: break-all;' }, row.name),
-      ])
-    },
+      ]),
   },
   {
     title: '类型',
     key: 'type',
     width: 100,
+    align: 'center',
+    ellipsis: { tooltip: true },
     render: (row) => (row.isFolder ? '文件夹' : '单文件'),
   },
   {
     title: '分享时间',
     key: 'shareTime',
     width: 180,
+    align: 'center',
+    ellipsis: { tooltip: true },
     render: (row) => formatDateTime(row.shareTime),
   },
 ]
 
-// 处理API响应的公共方法
-const handleApiResponse = (
-  response: ApiResponse<GetSubscribeUserResponse>,
-  isInitialSearch = false
-) => {
-  if (response.code === 200 && response.data) {
-    resourceState.userInfo = response.data
-    resourceState.list = response.data.data || []
-    resourcePagination.itemCount = response.data.total || 0
-
-    if (isInitialSearch) {
-      resourcePagination.page = PAGINATION_CONFIG.DEFAULT_PAGE
-      resourcePagination.pageSize = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
-
-      if (resourceState.list.length > 0) {
-        currentStep.value = 2
-        message.success(`找到 ${resourcePagination.itemCount} 个资源`)
-      } else {
-        message.warning('该用户暂无分享资源')
-      }
-    }
-  } else {
-    message.error(response.msg || '获取用户资源失败')
-  }
-}
-
 // 搜索用户资源
-const handleSearchUser = () => {
+const handleSearchUser = async () => {
   if (!isValidSubscribeUserId.value) {
     message.warning('请输入订阅用户ID')
     return
   }
-
-  searchState.loading = true
-
-  return getSubscribeUser({
-    subscribeUser: searchState.subscribeUserId.trim(),
-    currentPage: PAGINATION_CONFIG.DEFAULT_PAGE,
-    pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
-  })
-    .then((response) => {
-      handleApiResponse(response, true)
-    })
-    .catch((error) => {
-      console.error('搜索用户资源失败:', error)
-      message.error('搜索用户资源失败')
-    })
-    .finally(() => {
-      searchState.loading = false
-    })
-}
-
-// 搜索资源
-const handleSearchResource = () => {
-  resourcePagination.page = PAGINATION_CONFIG.DEFAULT_PAGE
-  fetchResourceList()
-}
-
-// 重置资源搜索
-const handleResetResourceSearch = () => {
-  resourceState.searchKeyword = ''
-  resourcePagination.page = PAGINATION_CONFIG.DEFAULT_PAGE
-  fetchResourceList()
-}
-
-// 获取资源列表
-const fetchResourceList = () => {
-  if (!isValidSubscribeUserId.value) return
-
-  resourceState.loading = true
-
-  return getSubscribeUser({
-    subscribeUser: searchState.subscribeUserId.trim(),
-    name: resourceState.searchKeyword || undefined,
-    currentPage: resourcePagination.page,
-    pageSize: resourcePagination.pageSize,
-  })
-    .then((response) => {
-      handleApiResponse(response)
-    })
-    .catch((error) => {
-      console.error('获取资源列表失败:', error)
-      message.error('获取资源列表失败')
-    })
-    .finally(() => {
-      resourceState.loading = false
-    })
-}
-
-// 分页处理
-const handleResourcePageChange = (page: number) => {
-  resourcePagination.page = page
-  fetchResourceList()
-}
-
-const handleResourcePageSizeChange = (pageSize: number) => {
-  resourcePagination.pageSize = pageSize
-  resourcePagination.page = PAGINATION_CONFIG.DEFAULT_PAGE
-  fetchResourceList()
-}
-
-// 选择资源（多选）
-const handleSelectResource = (resource: ShareResourceInfo) => {
-  const index = resourceState.selected.findIndex((r) => r.id === resource.id)
-  if (index > -1) {
-    // 已选中，取消选择
-    resourceState.selected.splice(index, 1)
-  } else {
-    // 未选中，添加选择
-    resourceState.selected.push(resource)
+  searchLoading.value = true
+  const success = await fetchResourceList(true)
+  if (success) {
+    currentStep.value = 2
   }
-}
-
-// 全选
-const handleSelectAll = () => {
-  resourceState.selected = [...resourceState.list]
-  message.success(`已选中 ${resourceState.list.length} 个资源`)
-}
-
-// 取消全选
-const handleSelectNone = () => {
-  resourceState.selected = []
-  message.success('已取消所有选择')
+  searchLoading.value = false
 }
 
 // 返回上一步
@@ -467,7 +269,7 @@ const handleBackToStep1 = () => {
 
 // 取消
 const handleCancel = () => {
-  visible.value = false
+  emit('cancel')
 }
 
 // 确认挂载
@@ -476,52 +278,46 @@ const handleConfirm = () => {
     message.warning('请选择要挂载的资源')
     return
   }
-
-  // 将选中的资源转换为挂载项
-  mountBindState.items = resourceState.selected.map((resource) => ({
+  const itemsToMount = resourceState.selected.map((resource) => ({
     name: resource.name,
     osType: OS_TYPES.SUBSCRIBE_SHARE_FOLDER,
-    subscribeUser: searchState.subscribeUserId.trim(),
+    subscribeUser: subscribeUserId.value.trim(),
     shareCode: resource.accessCode,
+    fileId: resource.id,
   }))
 
-  // 打开绑定挂载点Modal
-  mountBindState.show = true
+  mountPointBind.show(itemsToMount).then((payload) => {
+    if (payload && payload.length > 0) {
+      handleMountBindSuccess()
+    }
+  })
 }
 
-// 绑定挂载点成功回调
+// 挂载成功回调
 const handleMountBindSuccess = () => {
-  message.success('挂载点绑定成功')
   emit('confirm', { success: true })
-  visible.value = false
 }
 
 // 重置所有状态
 const resetAllState = () => {
   currentStep.value = 1
-  searchState.subscribeUserId = ''
-  searchState.loading = false
-  resourceState.userInfo = null
-  resourceState.list = []
-  resourceState.loading = false
-  resourceState.searchKeyword = ''
-  resourceState.selected = []
-  resourcePagination.page = PAGINATION_CONFIG.DEFAULT_PAGE
-  resourcePagination.pageSize = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
-  resourcePagination.itemCount = 0
-  mountBindState.show = false
-  mountBindState.items = []
+  subscribeUserId.value = ''
+  searchLoading.value = false
+  resetResourceState()
 }
 
-// 监听弹窗关闭，重置状态
-watch(visible, (newVal) => {
-  if (!newVal) {
-    resetAllState()
-  }
+// 组件挂载时重置状态
+onMounted(() => {
+  resetAllState()
 })
 </script>
 
 <style scoped>
+.subscribe-mount-container {
+  min-width: 800px;
+  width: 100%;
+}
+
 .subscribe-mount-content {
   padding: 16px 0;
 }
@@ -598,7 +394,6 @@ watch(visible, (newVal) => {
   min-height: 200px;
 }
 
-/* 固定表格标题 */
 :deep(.n-data-table-thead) {
   position: sticky;
   top: 0;
@@ -606,7 +401,6 @@ watch(visible, (newVal) => {
   background: var(--n-th-color);
 }
 
-/* 表格样式优化 */
 :deep(.n-data-table-th) {
   background: var(--n-th-color);
   font-weight: 600;
@@ -624,24 +418,14 @@ watch(visible, (newVal) => {
   border-top: 1px solid var(--n-border-color);
 }
 
-.selected-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  margin-bottom: 12px;
-  background: var(--n-primary-color-suppl);
-  border: 1px solid var(--n-primary-color);
-  border-radius: 6px;
-}
-
 .modal-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--n-border-color);
 }
 
-/* 响应式设计 */
 @media (width <= 768px) {
   .search-section {
     flex-direction: column;
@@ -650,17 +434,6 @@ watch(visible, (newVal) => {
 
   .search-section .n-input {
     width: 100%;
-  }
-
-  .resource-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .resource-meta {
-    flex-direction: column;
-    gap: 4px;
   }
 
   .modal-actions {

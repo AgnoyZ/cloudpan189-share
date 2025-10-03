@@ -35,14 +35,16 @@
         <n-text> 上次刷新时间：{{ refreshTime.format('YYYY-MM-DD HH:mm:ss') }} </n-text>
       </div>
       <div class="header-right">
-        <n-button type="primary" @click="showAddModal = true">
-          <template #icon>
-            <n-icon>
-              <AddOutline />
-            </n-icon>
-          </template>
-          新增挂载
-        </n-button>
+        <n-dropdown trigger="click" :options="addMountOptions" @select="handleSelectMountType">
+          <n-button type="primary">
+            <template #icon>
+              <n-icon>
+                <AddOutline />
+              </n-icon>
+            </template>
+            新增挂载
+          </n-button>
+        </n-dropdown>
       </div>
     </div>
 
@@ -262,55 +264,10 @@
         show-size-picker
         @update:page="handlePageChange"
         @update:page-size="handlePageSizeChange"
-      />
+      >
+        <template #prefix="{ itemCount }"> 共 {{ itemCount }} 项 </template>
+      </n-pagination>
     </div>
-
-    <!-- 新增挂载类型选择弹窗 -->
-    <n-modal v-model:show="showAddModal" preset="dialog" title="请选择挂载类型">
-      <template #header>
-        <div style="display: flex; align-items: center; gap: 8px">
-          <span>请选择挂载类型</span>
-        </div>
-      </template>
-      <div class="mount-type-selection">
-        <div class="mount-type-grid">
-          <div
-            v-for="mountType in mountTypes"
-            :key="mountType.value"
-            class="mount-type-card"
-            @click="handleSelectMountType(mountType.value)"
-          >
-            <div class="mount-type-icon">
-              <n-icon :size="32" :color="mountType.color">
-                <component :is="mountType.icon" />
-              </n-icon>
-            </div>
-            <div class="mount-type-info">
-              <n-text strong class="mount-type-title">{{ mountType.label }}</n-text>
-              <n-text depth="3" class="mount-type-desc">{{ mountType.description }}</n-text>
-            </div>
-          </div>
-        </div>
-      </div>
-      <template #action>
-        <n-button @click="showAddModal = false">取消</n-button>
-      </template>
-    </n-modal>
-
-    <!-- 订阅号挂载弹窗 -->
-    <SubscribeMountModal
-      v-model:show="showSubscribeMountModal"
-      @confirm="handleSubscribeMountConfirm"
-    />
-
-    <!-- 文件分享挂载弹窗 -->
-    <ShareMountModal v-model:show="showShareMountModal" @confirm="handleShareMountConfirm" />
-
-    <!-- 个人文件夹挂载弹窗 -->
-    <PersonMountModal v-model:show="showPersonMountModal" @confirm="handlePersonMountConfirm" />
-
-    <!-- 家庭文件夹挂载弹窗 -->
-    <FamilyMountModal v-model:show="showFamilyMountModal" @confirm="handleFamilyMountConfirm" />
 
     <!-- 自动刷新配置弹窗 -->
     <n-modal v-model:show="showAutoRefreshModal" preset="dialog" title="自动刷新配置">
@@ -406,7 +363,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import {
   NInput,
   NButton,
@@ -456,27 +413,25 @@ import { getCloudTokenList } from '@/api/cloudtoken'
 import { formatDateTime } from '@/utils/time'
 import { getOsTypeDisplayName, getOsTypeColor, mountTypeConfigs } from '@/utils/osType'
 import { getTaskStatusInfo } from '@/utils/taskStatus'
-import {
-  SubscribeMountModal,
-  ShareMountModal,
-  PersonMountModal,
-  FamilyMountModal,
-} from '@/components/storage'
+import { useSubscribeMount } from '@/composables/useSubscribeMount'
+import { useShareMount } from '@/composables/useShareMount'
+import { usePersonMount } from '@/composables/usePersonMount'
+import { useFamilyMount } from '@/composables/useFamilyMount'
 import dayjs from 'dayjs'
 
 // 表格数据
-const tableData = ref<StorageInfo[]>([])
+const tableData = reactive<StorageInfo[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 
 // 弹窗控制
-const showAddModal = ref(false)
-const showSubscribeMountModal = ref(false)
-const showShareMountModal = ref(false)
-const showPersonMountModal = ref(false)
-const showFamilyMountModal = ref(false)
 const showAutoRefreshModal = ref(false)
 const showModifyTokenModal = ref(false)
+
+const subscribeMount = useSubscribeMount()
+const shareMount = useShareMount()
+const personMount = usePersonMount()
+const familyMount = useFamilyMount()
 
 // 自动刷新配置表单
 const autoRefreshFormRef = ref<FormInst>()
@@ -557,16 +512,14 @@ const fetchStorageList = () => {
   getStorageList(params)
     .then((response) => {
       console.log('API响应:', response)
-
-      if (response.code === 200 && response.data) {
-        tableData.value = response.data.data || []
-        paginationReactive.itemCount = response.data.total || 0
-        console.log('表格数据:', tableData.value)
-        console.log('总数据量:', paginationReactive.itemCount)
+      if (response.data) {
+        tableData.splice(0, tableData.length, ...response.data.data)
+        paginationReactive.itemCount = response.data.total
       }
     })
     .catch((error) => {
       console.error('获取存储列表失败:', error)
+      message.error(error?.message || '获取存储列表失败')
     })
     .finally(() => {
       loading.value = false
@@ -591,23 +544,29 @@ const handleReset = () => {
 // 挂载类型配置
 const mountTypes = mountTypeConfigs
 
+const addMountOptions = computed(() =>
+  mountTypes.map((type) => ({
+    label: type.label,
+    key: type.value,
+  }))
+)
+
 // 选择挂载类型
 const handleSelectMountType = (mountType: string) => {
   console.log('选择的挂载类型:', mountType)
-  showAddModal.value = false
 
   if (mountType === 'subscribe') {
     // 打开订阅号挂载弹窗
-    showSubscribeMountModal.value = true
+    subscribeMount.show().then(addNewStorageCallback)
   } else if (mountType === 'share_folder') {
     // 打开文件分享挂载弹窗
-    showShareMountModal.value = true
+    shareMount.show().then(addNewStorageCallback)
   } else if (mountType === 'person_folder') {
     // 打开个人文件夹挂载弹窗
-    showPersonMountModal.value = true
+    personMount.show().then(addNewStorageCallback)
   } else if (mountType === 'family_folder') {
     // 打开家庭文件夹挂载弹窗
-    showFamilyMountModal.value = true
+    familyMount.show().then(addNewStorageCallback)
   } else {
     // 其他类型暂时显示提示
     message.info(
@@ -616,60 +575,12 @@ const handleSelectMountType = (mountType: string) => {
   }
 }
 
-// 处理订阅号挂载确认
-const handleSubscribeMountConfirm = (data: unknown) => {
-  console.log('订阅号挂载数据:', data)
-
-  // 检查是否是成功回调
-  if (typeof data === 'object' && data !== null && 'success' in data) {
+const addNewStorageCallback = (data: { success: boolean }) => {
+  if (data.success) {
     message.success('挂载点创建成功')
-    // 刷新列表
-    fetchStorageList()
-  } else {
-    console.log('其他类型的回调数据:', data)
   }
-}
 
-// 处理文件分享挂载确认
-const handleShareMountConfirm = (data: unknown) => {
-  console.log('文件分享挂载数据:', data)
-
-  // 检查是否是成功回调
-  if (typeof data === 'object' && data !== null && 'success' in data) {
-    message.success('挂载点创建成功')
-    // 刷新列表
-    fetchStorageList()
-  } else {
-    console.log('其他类型的回调数据:', data)
-  }
-}
-
-// 处理个人文件夹挂载确认
-const handlePersonMountConfirm = (data: unknown) => {
-  console.log('个人文件夹挂载数据:', data)
-
-  // 检查是否是成功回调
-  if (typeof data === 'object' && data !== null && 'success' in data) {
-    message.success('挂载点创建成功')
-    // 刷新列表
-    fetchStorageList()
-  } else {
-    console.log('其他类型的回调数据:', data)
-  }
-}
-
-// 处理家庭文件夹挂载确认
-const handleFamilyMountConfirm = (data: unknown) => {
-  console.log('家庭文件夹挂载数据:', data)
-
-  // 检查是否是成功回调
-  if (typeof data === 'object' && data !== null && 'success' in data) {
-    message.success('挂载点创建成功')
-    // 刷新列表
-    fetchStorageList()
-  } else {
-    console.log('其他类型的回调数据:', data)
-  }
+  fetchStorageList()
 }
 
 // 获取刷新选项
@@ -700,26 +611,20 @@ const handleRefreshSelect = (key: string) => {
 
 // 处理刷新
 const handleRefresh = (storageId: number, deep: boolean) => {
-  const storage = tableData.value.find((s) => s.id === storageId)
+  const storage = tableData.find((s) => s.id === storageId)
   const refreshType = deep ? '深度刷新' : '普通刷新'
 
   message.loading(`正在执行${refreshType}...`)
 
   refreshStorage({ id: storageId, deep })
-    .then((response) => {
-      if (response.code === 200) {
-        message.success(`${storage?.name || '存储'} ${refreshType}成功`)
-        // 刷新列表
-        fetchStorageList()
-      } else {
-        message.error(
-          `${refreshType}失败: ${(response as { message?: string }).message || '未知错误'}`
-        )
-      }
+    .then(() => {
+      message.success(`${storage?.name || '存储'} ${refreshType}成功`)
+      // 刷新列表
+      fetchStorageList()
     })
     .catch((error) => {
       console.error('刷新存储失败:', error)
-      message.error(`刷新失败: ${error instanceof Error ? error.message : '网络错误'}`)
+      message.error(error?.message || '刷新失败')
     })
     .finally(() => {
       // 可以在这里添加清理逻辑
@@ -737,18 +642,14 @@ const handleDelete = (storage: StorageInfo) => {
       message.loading(`正在删除 ${storage.name || '存储'}...`)
 
       deleteStorage({ id: storage.id })
-        .then((response) => {
-          if (response.code === 200) {
-            message.success(`${storage.name || '存储'} 删除成功`)
-            // 刷新列表
-            fetchStorageList()
-          } else {
-            message.error(`删除失败: ${(response as { message?: string }).message || '未知错误'}`)
-          }
+        .then(() => {
+          message.success(`${storage.name || '存储'} 删除成功`)
+          // 刷新列表
+          fetchStorageList()
         })
         .catch((error) => {
           console.error('删除存储失败:', error)
-          message.error(`删除失败: ${error instanceof Error ? error.message : '网络错误'}`)
+          message.error(error?.message || '删除失败')
         })
         .finally(() => {
           // 可以在这里添加清理逻辑
@@ -805,18 +706,14 @@ const handleAutoRefreshConfirm = () => {
         ? autoRefreshForm.value.enableDeepRefresh
         : undefined,
     })
-      .then((response) => {
-        if (response.code === 200) {
-          message.success('自动刷新配置更新成功')
-          showAutoRefreshModal.value = false
-          fetchStorageList()
-        } else {
-          message.error(`配置更新失败: ${(response as { message?: string }).message || '未知错误'}`)
-        }
+      .then(() => {
+        message.success('自动刷新配置更新成功')
+        showAutoRefreshModal.value = false
+        fetchStorageList()
       })
       .catch((error) => {
         console.error('更新自动刷新配置失败:', error)
-        message.error(`配置更新失败: ${error instanceof Error ? error.message : '网络错误'}`)
+        message.error(error?.message || '配置更新失败')
       })
       .finally(() => {
         autoRefreshSubmitting.value = false
@@ -871,9 +768,9 @@ const handleModifyToken = (storage: StorageInfo) => {
   // 获取云盘令牌列表
   getCloudTokenList({ noPaginate: true })
     .then((response) => {
-      if (response.code === 200 && response.data) {
+      if (response.data) {
         cloudTokenOptions.value = response.data.data.map((token) => ({
-          label: token.name || `令牌${token.id}`,
+          label: token.name,
           value: token.id,
         }))
         // 添加"解绑"选项
@@ -882,13 +779,11 @@ const handleModifyToken = (storage: StorageInfo) => {
           value: 0,
         })
         showModifyTokenModal.value = true
-      } else {
-        message.error('获取令牌列表失败')
       }
     })
     .catch((error) => {
       console.error('获取云盘令牌列表失败:', error)
-      message.error('获取令牌列表失败')
+      message.error(error?.message || '获取令牌列表失败')
     })
 }
 
@@ -904,19 +799,15 @@ const handleModifyTokenConfirm = () => {
     id: currentModifyStorage.value.id,
     tokenId,
   })
-    .then((response) => {
-      if (response.code === 200) {
-        const actionText = tokenId === 0 ? '解绑' : '修改绑定'
-        message.success(`令牌${actionText}成功`)
-        showModifyTokenModal.value = false
-        fetchStorageList()
-      } else {
-        message.error(`令牌修改失败: ${(response as { message?: string }).message || '未知错误'}`)
-      }
+    .then(() => {
+      const actionText = tokenId === 0 ? '解绑' : '修改绑定'
+      message.success(`令牌${actionText}成功`)
+      showModifyTokenModal.value = false
+      fetchStorageList()
     })
     .catch((error) => {
       console.error('修改令牌失败:', error)
-      message.error(`令牌修改失败: ${error instanceof Error ? error.message : '网络错误'}`)
+      message.error(error?.message || '令牌修改失败')
     })
     .finally(() => {
       modifyTokenSubmitting.value = false
@@ -1427,81 +1318,6 @@ onUnmounted(() => {
   .storage-actions .n-button {
     width: 28px;
     height: 28px;
-  }
-}
-
-/* 挂载类型选择弹窗样式 */
-.mount-type-selection {
-  padding: 16px 0;
-}
-
-.mount-type-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.mount-type-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid var(--n-border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: var(--n-card-color);
-}
-
-.mount-type-card:hover {
-  border-color: var(--n-primary-color);
-  background: var(--n-color-target);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
-}
-
-.mount-type-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: var(--n-color-target);
-}
-
-.mount-type-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.mount-type-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--n-text-color);
-}
-
-.mount-type-desc {
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-/* 弹窗响应式设计 */
-@media (width >=768px) {
-  .mount-type-grid {
-    gap: 16px;
-  }
-
-  .mount-type-card {
-    padding: 20px;
-  }
-
-  .mount-type-icon {
-    width: 56px;
-    height: 56px;
   }
 }
 </style>

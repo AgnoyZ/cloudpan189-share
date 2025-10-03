@@ -1,44 +1,15 @@
 <template>
-  <n-modal v-model:show="visible" preset="dialog" title="绑定挂载点" style="width: 1000px">
-    <template #header>
-      <div style="display: flex; align-items: center; gap: 8px">
-        <n-icon :size="20">
-          <FolderOutline />
-        </n-icon>
-        <span>绑定挂载点</span>
-      </div>
-    </template>
-
-    <div class="mount-bind-content">
-      <!-- 批量操作区域 -->
-      <div class="batch-actions">
-        <div class="batch-operations">
-          <div class="batch-token-select" v-if="!allTokenSwitchDisabled">
-            <n-text depth="2" style="margin-right: 8px">批量设置令牌：</n-text>
-            <n-select
-              v-model:value="batchState.selectedToken"
-              :options="cloudTokenOptions"
-              placeholder="选择要批量应用的令牌"
-              clearable
-              :disabled="allTokenSwitchDisabled"
-              style="width: 180px; margin-right: 8px"
-            />
-            <n-button
-              type="primary"
-              size="small"
-              :disabled="batchState.selectedToken === undefined || allTokenSwitchDisabled"
-              @click="handleBatchApplyToken"
-            >
-              一键应用
-            </n-button>
-          </div>
-
-          <div class="batch-path-prefix">
-            <n-text depth="2" style="margin-right: 8px">批量设置路径前缀：</n-text>
+  <div class="mount-bind-content">
+    <!-- 批量操作区域 -->
+    <div class="batch-actions">
+      <n-card size="small" title="批量设置">
+        <div class="batch-grid">
+          <div class="batch-item">
+            <n-text class="batch-label">路径前缀</n-text>
             <n-input
-              v-model:value="batchState.pathPrefix"
-              placeholder="请输入路径前缀（必须以/开头）"
-              style="width: 180px; margin-right: 8px"
+              v-model:value="storageSetting.pathPrefix"
+              placeholder="必须以 / 开头"
+              style="flex-grow: 1"
             />
             <n-button
               type="primary"
@@ -46,40 +17,54 @@
               :disabled="!hasValidPathPrefix"
               @click="handleBatchApplyPathPrefix"
             >
-              一键应用
+              应用
+            </n-button>
+          </div>
+
+          <div class="batch-item" v-if="!allTokenSwitchDisabled">
+            <n-text class="batch-label">云盘令牌</n-text>
+            <n-select
+              v-model:value="storageSetting.selectedToken"
+              :options="cloudTokenOptions"
+              placeholder="选择令牌"
+              clearable
+              style="flex-grow: 1"
+            />
+            <n-button
+              type="primary"
+              size="small"
+              :disabled="storageSetting.selectedToken === undefined"
+              @click="handleBatchApplyToken"
+            >
+              应用
             </n-button>
           </div>
         </div>
-      </div>
-
-      <div class="table-container">
-        <n-data-table
-          :columns="columns"
-          :data="tableData"
-          :pagination="false"
-          :bordered="false"
-          size="small"
-          class="mount-table"
-        />
-      </div>
+        <template #footer>
+          <n-text depth="3">
+            提示：批量设置将应用到下方所有可编辑的行。路径前缀会与识别出的名称组合成完整挂载路径。
+          </n-text>
+        </template>
+      </n-card>
     </div>
 
-    <template #action>
-      <div class="modal-actions">
-        <n-button @click="handleCancel">取消</n-button>
-        <n-button type="primary" :loading="state.submitLoading" @click="handleConfirm">
-          确认挂载
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
+    <div class="table-container">
+      <n-data-table
+        :columns="columns"
+        :data="tableData"
+        :pagination="false"
+        :bordered="false"
+        size="small"
+        class="mount-table"
+      />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, h, watch } from 'vue'
+import { reactive, computed, h, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import {
-  NModal,
-  NIcon,
   NButton,
   NDataTable,
   NInput,
@@ -87,15 +72,15 @@ import {
   NText,
   useMessage,
   type DataTableColumns,
+  NCard,
 } from 'naive-ui'
-import { FolderOutline } from '@vicons/ionicons5'
 import { addStorage, type AddStorageRequest, type AddStorageResponse } from '@/api/storage'
 import type { ApiResponse } from '@/utils/api'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { getOsTypeDisplayName, getOsTypeColor } from '@/utils/osType'
+import { useSharedStore } from '@/stores/modules/shared'
 
-// Props
-interface MountItem {
+export interface MountItem {
   name: string
   osType: string
   subscribeUser?: string
@@ -108,15 +93,13 @@ interface MountItem {
 }
 
 interface Props {
-  show: boolean
   items: MountItem[]
   defaultCloudToken?: number
 }
 
-// Emits
 interface Emits {
-  (e: 'update:show', value: boolean): void
-  (e: 'success'): void
+  (e: 'confirm', payload: AddStorageResponse[]): void
+  (e: 'cancel'): void
 }
 
 const props = defineProps<Props>()
@@ -125,23 +108,15 @@ const emit = defineEmits<Emits>()
 // 消息提示
 const message = useMessage()
 
-// 双向绑定
-const visible = computed({
-  get: () => props.show,
-  set: (value) => emit('update:show', value),
-})
-
 // 状态管理
 const state = reactive({
   submitLoading: false,
   cloudTokens: [] as Models.CloudToken[],
 })
 
-// 批量操作状态
-const batchState = reactive({
-  selectedToken: undefined as number | undefined,
-  pathPrefix: '/',
-})
+// 共享存储
+const sharedStore = useSharedStore()
+const { storageSetting } = storeToRefs(sharedStore)
 
 // 表格数据
 interface TableRow extends MountItem {
@@ -150,11 +125,11 @@ interface TableRow extends MountItem {
   selectedCloudToken?: number
 }
 
-const tableData = ref<TableRow[]>([])
+const tableData = reactive<TableRow[]>([])
 
 // 计算属性
 const cloudTokenOptions = computed(() => [
-  { label: '不绑定', value: undefined },
+  { label: '不绑定', value: 0 },
   ...state.cloudTokens.map((token) => ({
     label: token.name,
     value: token.id,
@@ -162,14 +137,14 @@ const cloudTokenOptions = computed(() => [
 ])
 
 const hasValidPathPrefix = computed(
-  () => batchState.pathPrefix && batchState.pathPrefix.startsWith('/')
+  () => storageSetting.value.pathPrefix && storageSetting.value.pathPrefix.startsWith('/')
 )
 
-const hasInvalidRows = computed(() => tableData.value.some((row) => !row.localPath.trim()))
+const hasInvalidRows = computed(() => tableData.some((row) => !row.localPath.trim()))
 
 // 检查是否所有项目都禁用令牌切换
 const allTokenSwitchDisabled = computed(
-  () => tableData.value.length > 0 && tableData.value.every((row) => row.disableSwitchCloudToken)
+  () => tableData.length > 0 && tableData.every((row) => row.disableSwitchCloudToken)
 )
 
 // 表格列定义
@@ -179,11 +154,14 @@ const columns: DataTableColumns<TableRow> = [
     key: 'index',
     width: 80,
     render: (_, index) => index + 1,
+    align: 'center',
+    ellipsis: { tooltip: true },
   },
   {
     title: '识别出的名称',
     key: 'name',
     width: 200,
+    align: 'center',
     ellipsis: {
       tooltip: true,
     },
@@ -192,6 +170,8 @@ const columns: DataTableColumns<TableRow> = [
     title: '挂载类型',
     key: 'osType',
     width: 150,
+    align: 'center',
+    ellipsis: { tooltip: true },
     render: (row) => {
       const displayName = getOsTypeDisplayName(row.osType)
       const colorInfo = getOsTypeColor(row.osType)
@@ -202,12 +182,14 @@ const columns: DataTableColumns<TableRow> = [
     title: '挂载路径',
     key: 'localPath',
     width: 250,
+    align: 'left',
+    titleAlign: 'center',
     render: (row, index) => {
       return h(NInput, {
         value: row.localPath,
         placeholder: '请输入挂载路径',
         onUpdateValue: (value: string) => {
-          tableData.value[index].localPath = value
+          tableData[index].localPath = value
         },
       })
     },
@@ -216,6 +198,7 @@ const columns: DataTableColumns<TableRow> = [
     title: '绑定令牌',
     key: 'selectedCloudToken',
     width: 200,
+    align: 'center',
     render: (row, index) => {
       return h(NSelect, {
         value: row.selectedCloudToken,
@@ -224,7 +207,7 @@ const columns: DataTableColumns<TableRow> = [
         clearable: true,
         disabled: row.disableSwitchCloudToken,
         onUpdateValue: (value: number | undefined) => {
-          tableData.value[index].selectedCloudToken = value
+          tableData[index].selectedCloudToken = value
         },
       })
     },
@@ -233,37 +216,36 @@ const columns: DataTableColumns<TableRow> = [
 
 // 初始化表格数据
 const initTableData = () => {
-  tableData.value = props.items.map(
+  const newItems = props.items.map(
     (item, index) =>
       ({
         ...item,
         id: `item_${index}`,
-        localPath: `/${item.name}`,
-        selectedCloudToken: props.defaultCloudToken,
+        localPath: `${storageSetting.value.pathPrefix || ''}/${item.name}`,
+        selectedCloudToken: item.disableSwitchCloudToken
+          ? item.cloudToken
+          : storageSetting.value.selectedToken,
       }) as TableRow
   )
+  tableData.length = 0
+  tableData.push(...newItems)
 }
 
 // 获取云盘令牌列表
 const fetchCloudTokens = () => {
-  return getCloudTokenList({ currentPage: 1, pageSize: 100 })
-    .then((response) => {
-      if (response.code === 200 && response.data) {
-        state.cloudTokens = response.data.data || []
+  return getCloudTokenList({ noPaginate: true })
+    .then((res) => {
+      if (res.data) {
+        state.cloudTokens = res.data.data
       }
     })
     .catch((error) => {
-      console.error('获取云盘令牌列表失败:', error)
+      message.error(error?.message || '获取云盘令牌列表失败')
     })
 }
 
 // 批量应用令牌
 const handleBatchApplyToken = () => {
-  if (batchState.selectedToken === undefined) {
-    message.warning('请选择要应用的令牌')
-    return
-  }
-
   if (allTokenSwitchDisabled.value) {
     message.warning('所有项目都禁止修改令牌')
     return
@@ -273,9 +255,9 @@ const handleBatchApplyToken = () => {
   let appliedCount = 0
   let skippedCount = 0
 
-  tableData.value.forEach((row) => {
+  tableData.forEach((row) => {
     if (!row.disableSwitchCloudToken) {
-      row.selectedCloudToken = batchState.selectedToken
+      row.selectedCloudToken = storageSetting.value.selectedToken
       appliedCount++
     } else {
       skippedCount++
@@ -297,13 +279,13 @@ const handleBatchApplyPathPrefix = () => {
   }
 
   // 确保前缀以 / 结尾（如果不是单独的 /）
-  let prefix = batchState.pathPrefix
+  let prefix = storageSetting.value.pathPrefix
   if (prefix !== '/' && !prefix.endsWith('/')) {
     prefix += '/'
   }
 
   // 将路径前缀应用到所有行
-  tableData.value.forEach((row) => {
+  tableData.forEach((row) => {
     if (prefix === '/') {
       row.localPath = `/${row.name}`
     } else {
@@ -316,12 +298,12 @@ const handleBatchApplyPathPrefix = () => {
 
 // 取消
 const handleCancel = () => {
-  visible.value = false
+  emit('cancel')
 }
 
 // 构建请求数据
 const buildRequests = (): AddStorageRequest[] => {
-  return tableData.value.map((row) => ({
+  return tableData.map((row) => ({
     localPath: row.localPath.trim(),
     osType: row.osType as AddStorageRequest['osType'],
     cloudToken: row.selectedCloudToken,
@@ -335,17 +317,19 @@ const buildRequests = (): AddStorageRequest[] => {
 
 // 处理批量挂载结果
 const handleMountResults = (responses: ApiResponse<AddStorageResponse>[]) => {
-  const successCount = responses.filter((res) => res.code === 200).length
+  const successResponses = responses
+    .filter((res) => res.code === 200)
+    .map((res) => res.data) as AddStorageResponse[]
+  const successCount = successResponses.length
   const failCount = responses.length - successCount
 
   if (failCount === 0) {
     message.success(`成功挂载 ${successCount} 个存储点`)
-    emit('success')
-    visible.value = false
+    emit('confirm', successResponses)
   } else {
     message.warning(`成功挂载 ${successCount} 个，失败 ${failCount} 个`)
     if (successCount > 0) {
-      emit('success')
+      emit('confirm', successResponses)
     }
   }
 }
@@ -377,37 +361,21 @@ const handleConfirm = () => {
     })
 }
 
-// 重置状态
-const resetState = () => {
-  batchState.selectedToken = undefined
-  batchState.pathPrefix = '/'
-  tableData.value = []
-}
+// 组件挂载时初始化数据
+onMounted(() => {
+  // 如果有默认令牌，并且用户没有自定义设置，则使用默认令牌
+  if (props.defaultCloudToken && storageSetting.value.selectedToken === 0) {
+    storageSetting.value.selectedToken = props.defaultCloudToken
+  }
+  initTableData()
+  fetchCloudTokens()
+})
 
-// 监听弹窗显示状态
-watch(
-  () => props.show,
-  (newShow) => {
-    if (newShow && props.items.length > 0) {
-      initTableData()
-      fetchCloudTokens()
-    } else if (!newShow) {
-      resetState()
-    }
-  },
-  { immediate: true }
-)
-
-// 监听items变化
-watch(
-  () => props.items,
-  (newItems) => {
-    if (props.show && newItems.length > 0) {
-      initTableData()
-    }
-  },
-  { immediate: true }
-)
+defineExpose({
+  handleConfirm,
+  handleCancel,
+  state,
+})
 </script>
 
 <style scoped>
@@ -417,35 +385,23 @@ watch(
 
 .batch-actions {
   margin-bottom: 16px;
-  padding: 12px 16px;
-  background: var(--n-card-color);
-  border: 1px solid var(--n-border-color);
-  border-radius: 6px;
 }
 
-.batch-operations {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 24px;
+.batch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
 }
 
-.batch-token-select,
-.batch-path-prefix {
+.batch-item {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
-.batch-token-warning {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  background: var(--n-warning-color-suppl);
-  border: 1px solid var(--n-warning-color);
-  border-radius: 4px;
-  margin-top: 8px;
+.batch-label {
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .table-container {

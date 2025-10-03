@@ -1,14 +1,5 @@
 <template>
-  <n-modal v-model:show="visible" preset="dialog" title="家庭文件夹挂载" style="width: 900px">
-    <template #header>
-      <div style="display: flex; align-items: center; gap: 8px">
-        <n-icon :size="20">
-          <PeopleOutline />
-        </n-icon>
-        <span>家庭文件夹挂载</span>
-      </div>
-    </template>
-
+  <div class="family-mount-container">
     <div class="family-mount-content">
       <!-- 第一步：选择令牌 -->
       <div v-if="currentStep === 1" class="step-content">
@@ -20,22 +11,16 @@
         <div class="token-section">
           <div v-if="tokenState.loading" class="loading-container">
             <n-spin size="large">
-              <template #description>
-                <n-text depth="2">正在加载令牌列表...</n-text>
-              </template>
+              <template #description><n-text depth="2">正在加载令牌列表...</n-text></template>
             </n-spin>
           </div>
 
           <div v-else-if="tokenState.tokens.length === 0" class="empty-state">
             <n-empty description="暂无可用令牌" size="large">
-              <template #icon>
-                <n-icon size="64" :depth="3">
-                  <KeyOutline />
-                </n-icon>
-              </template>
-              <template #extra>
-                <n-text depth="3">请先添加天翼云盘令牌</n-text>
-              </template>
+              <template #icon
+                ><n-icon size="64" :depth="3"><KeyOutline /></n-icon
+              ></template>
+              <template #extra><n-text depth="3">请先添加天翼云盘令牌</n-text></template>
             </n-empty>
           </div>
 
@@ -70,11 +55,9 @@
               @click="handleNextToFamilySelection"
               style="width: 100%"
             >
-              <template #icon>
-                <n-icon>
-                  <ArrowForwardOutline />
-                </n-icon>
-              </template>
+              <template #icon
+                ><n-icon><ArrowForwardOutline /></n-icon
+              ></template>
               下一步：选择家庭
             </n-button>
           </div>
@@ -91,22 +74,16 @@
         <div class="family-section">
           <div v-if="familyState.loading" class="loading-container">
             <n-spin size="large">
-              <template #description>
-                <n-text depth="2">正在加载家庭列表...</n-text>
-              </template>
+              <template #description><n-text depth="2">正在加载家庭列表...</n-text></template>
             </n-spin>
           </div>
 
           <div v-else-if="familyState.families.length === 0" class="empty-state">
             <n-empty description="暂无可用家庭云" size="large">
-              <template #icon>
-                <n-icon size="64" :depth="3">
-                  <PeopleOutline />
-                </n-icon>
-              </template>
-              <template #extra>
-                <n-text depth="3">当前账号未加入任何家庭云</n-text>
-              </template>
+              <template #icon
+                ><n-icon size="64" :depth="3"><PeopleOutline /></n-icon
+              ></template>
+              <template #extra><n-text depth="3">当前账号未加入任何家庭云</n-text></template>
             </n-empty>
           </div>
 
@@ -123,21 +100,21 @@
                   <n-text strong class="family-name">{{
                     family.remarkName || '未命名家庭'
                   }}</n-text>
-                  <n-tag size="small" type="success" class="family-role-tag">
-                    {{ getFamilyRoleText(family.userRole) }}
-                  </n-tag>
+                  <n-tag size="small" type="success" class="family-role-tag">{{
+                    getFamilyRoleText(family.userRole)
+                  }}</n-tag>
                 </div>
                 <div class="family-details">
                   <n-text depth="3" class="family-id">家庭ID: {{ family.familyId }}</n-text>
                   <n-text depth="3" class="family-count">成员数: {{ family.count }}</n-text>
                 </div>
                 <div class="family-time">
-                  <n-text depth="3" class="family-create-time">
-                    创建时间: {{ formatTime(family.createTime) }}
-                  </n-text>
-                  <n-text depth="3" class="family-expire-time">
-                    到期时间: {{ formatTime(family.expireTime) }}
-                  </n-text>
+                  <n-text depth="3" class="family-create-time"
+                    >创建时间: {{ formatTime(family.createTime) }}</n-text
+                  >
+                  <n-text depth="3" class="family-expire-time"
+                    >到期时间: {{ formatTime(family.expireTime) }}</n-text
+                  >
                 </div>
               </div>
               <div class="family-actions">
@@ -160,11 +137,9 @@
               @click="handleNextToFileSelection"
               style="width: 100%"
             >
-              <template #icon>
-                <n-icon>
-                  <ArrowForwardOutline />
-                </n-icon>
-              </template>
+              <template #icon
+                ><n-icon><ArrowForwardOutline /></n-icon
+              ></template>
               下一步：选择文件夹
             </n-button>
           </div>
@@ -181,20 +156,15 @@
         <div class="file-section">
           <div v-if="fileState.loading" class="loading-container">
             <n-spin size="large">
-              <template #description>
-                <n-text depth="2">正在加载文件列表...</n-text>
-              </template>
+              <template #description><n-text depth="2">正在加载文件列表...</n-text></template>
             </n-spin>
           </div>
 
           <div v-else class="file-tree-container">
-            <!-- 面包屑导航 -->
             <div class="breadcrumb-container">
               <n-breadcrumb>
                 <n-breadcrumb-item @click="handleNavigateToRoot">
-                  <n-icon :size="16">
-                    <HomeOutline />
-                  </n-icon>
+                  <n-icon :size="16"><HomeOutline /></n-icon>
                   根目录
                 </n-breadcrumb-item>
                 <n-breadcrumb-item
@@ -207,7 +177,6 @@
               </n-breadcrumb>
             </div>
 
-            <!-- 文件树 -->
             <div class="file-tree">
               <n-tree
                 :data="fileTreeData"
@@ -224,20 +193,15 @@
               />
             </div>
 
-            <!-- 当前选择信息 -->
             <div v-if="fileState.selectedFile" class="selected-info">
               <div class="selected-card">
                 <div class="selected-header">
-                  <n-icon :size="20" color="#18a058">
-                    <CheckmarkCircleOutline />
-                  </n-icon>
+                  <n-icon :size="20" color="#18a058"><CheckmarkCircleOutline /></n-icon>
                   <n-text strong>已选择文件夹</n-text>
                 </div>
                 <div class="selected-details">
                   <n-text class="selected-name">{{ fileState.selectedFile.name }}</n-text>
-                  <n-text depth="3" class="selected-path">
-                    路径：{{ getSelectedFilePath() }}
-                  </n-text>
+                  <n-text depth="3" class="selected-path">路径：{{ getSelectedFilePath() }}</n-text>
                 </div>
               </div>
             </div>
@@ -246,50 +210,35 @@
       </div>
     </div>
 
-    <template #action>
-      <div class="modal-actions">
-        <n-button v-if="currentStep === 2" @click="handleBackToTokenSelection">
-          <template #icon>
-            <n-icon>
-              <ArrowBackOutline />
-            </n-icon>
-          </template>
-          返回上一步
-        </n-button>
-        <n-button v-if="currentStep === 3" @click="handleBackToFamilySelection">
-          <template #icon>
-            <n-icon>
-              <ArrowBackOutline />
-            </n-icon>
-          </template>
-          返回上一步
-        </n-button>
-        <n-button @click="handleCancel">取消</n-button>
-        <n-button
-          v-if="currentStep === 3"
-          type="primary"
-          :disabled="!fileState.selectedFile"
-          @click="handleConfirm"
-        >
-          绑定挂载点
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
-
-  <!-- 绑定挂载点Modal -->
-  <MountPointBindModal
-    v-model:show="mountBindState.show"
-    :items="mountBindState.items"
-    :default-cloud-token="tokenState.selectedTokenId || undefined"
-    @success="handleMountBindSuccess"
-  />
+    <div class="modal-actions">
+      <n-button v-if="currentStep === 2" @click="handleBackToTokenSelection">
+        <template #icon
+          ><n-icon><ArrowBackOutline /></n-icon
+        ></template>
+        返回上一步
+      </n-button>
+      <n-button v-if="currentStep === 3" @click="handleBackToFamilySelection">
+        <template #icon
+          ><n-icon><ArrowBackOutline /></n-icon
+        ></template>
+        返回上一步
+      </n-button>
+      <n-button @click="handleCancel">取消</n-button>
+      <n-button
+        v-if="currentStep === 3"
+        type="primary"
+        :disabled="!fileState.selectedFile"
+        @click="handleConfirm"
+      >
+        绑定挂载点
+      </n-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, onMounted, h } from 'vue'
 import {
-  NModal,
   NIcon,
   NText,
   NButton,
@@ -311,7 +260,6 @@ import {
   FolderOutline,
   DocumentOutline,
 } from '@vicons/ionicons5'
-import { h } from 'vue'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { getFamilyList, getFamilyFiles } from '@/api/storage/advance'
 import type {
@@ -321,30 +269,18 @@ import type {
   GetFamilyListQuery,
 } from '@/api/storage/advance'
 import { OS_TYPES } from '@/utils/osType'
-import MountPointBindModal from './MountPointBindModal.vue'
-
-// Props
-interface Props {
-  show: boolean
-}
+import { useMountPointBind } from '@/composables/useMountPointBind'
 
 // Emits
 interface Emits {
-  (e: 'update:show', value: boolean): void
   (e: 'confirm', data: { success: boolean }): void
+  (e: 'cancel'): void
 }
-
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 消息提示
+// Hooks
 const message = useMessage()
-
-// 双向绑定
-const visible = computed({
-  get: () => props.show,
-  set: (value) => emit('update:show', value),
-})
+const mountPointBind = useMountPointBind()
 
 // 步骤控制
 const currentStep = ref(1)
@@ -368,26 +304,12 @@ const fileState = reactive({
   loading: false,
   treeLoading: false,
   files: [] as FileNode[],
-  selectedFileId: null as string | null,
   selectedFile: null as FileNode | null,
   currentParentId: '', // 家庭云根目录ID为空字符串
   breadcrumbs: [] as Array<{ id: string; name: string }>,
   selectedKeys: [] as string[],
   expandedKeys: [] as string[],
-  treeData: new Map<string, FileNode[]>(), // 缓存各级目录的文件数据
-})
-
-// 绑定挂载点Modal状态
-const mountBindState = reactive({
-  show: false,
-  items: [] as Array<{
-    name: string
-    osType: string
-    cloudToken: number
-    disableSwitchCloudToken: boolean
-    fileId: string
-    familyId: string
-  }>,
+  treeData: new Map<string, FileNode[]>(),
 })
 
 // 获取令牌列表
@@ -428,18 +350,10 @@ const handleNextToFamilySelection = () => {
 // 获取家庭列表
 const fetchFamilyList = () => {
   if (!tokenState.selectedTokenId) return
-
   familyState.loading = true
-
-  const params: GetFamilyListQuery = {
-    cloudToken: tokenState.selectedTokenId,
-  }
-
-  console.log('请求家庭列表:', params)
-
+  const params: GetFamilyListQuery = { cloudToken: tokenState.selectedTokenId }
   getFamilyList(params)
     .then((response) => {
-      console.log('家庭列表响应:', response)
       if (response.code === 200 && response.data) {
         familyState.families = response.data.familyInfoResp || []
       } else {
@@ -462,14 +376,7 @@ const handleSelectFamily = (familyId: string) => {
 
 // 获取家庭角色文本
 const getFamilyRoleText = (userRole: number) => {
-  switch (userRole) {
-    case 0:
-      return '管理员'
-    case 1:
-      return '成员'
-    default:
-      return '未知'
-  }
+  return userRole === 0 ? '管理员' : userRole === 1 ? '成员' : '未知'
 }
 
 // 格式化时间
@@ -495,14 +402,11 @@ const handleNextToFileSelection = () => {
 // 获取家庭文件列表
 const fetchFamilyFiles = (parentId: string = '') => {
   if (!tokenState.selectedTokenId || !familyState.selectedFamilyId) return
-
-  // 根目录显示主加载状态，子目录显示树加载状态
   if (parentId === '') {
     fileState.loading = true
   } else {
     fileState.treeLoading = true
   }
-
   const params: GetFamilyFilesQuery = {
     pageNum: 1,
     pageSize: 100,
@@ -510,24 +414,15 @@ const fetchFamilyFiles = (parentId: string = '') => {
     familyId: familyState.selectedFamilyId,
     parentId: parentId,
   }
-
-  console.log('请求家庭文件列表:', params)
-
   getFamilyFiles(params)
     .then((response) => {
-      console.log('家庭文件列表响应:', response)
       if (response.code === 200 && response.data) {
         const files = response.data.data || []
-
         if (parentId === '') {
-          // 根目录
           fileState.files = files
           fileState.currentParentId = parentId
         }
-
-        // 缓存当前目录的文件数据
         fileState.treeData.set(parentId, files)
-        console.log('缓存家庭文件数据:', parentId, files)
       } else {
         message.error(response.msg || '获取家庭文件列表失败')
       }
@@ -550,14 +445,12 @@ const fileTreeData = computed(() => {
   const buildTreeNode = (file: FileNode): Record<string, unknown> => {
     const isFolder = file.isFolder === 1
     const hasChildren = isFolder && fileState.treeData.has(file.id)
-
     return {
       key: file.id,
       label: file.name,
       isLeaf: !isFolder,
-      disabled: !isFolder, // 文件不可选择
+      disabled: !isFolder,
       file: file,
-      // 如果是文件夹但还没有加载子数据，设置为空数组以显示展开箭头
       children: isFolder
         ? hasChildren
           ? fileState.treeData.get(file.id)?.map(buildTreeNode)
@@ -565,64 +458,39 @@ const fileTreeData = computed(() => {
         : undefined,
     }
   }
-
   return fileState.files.map(buildTreeNode)
 })
 
-// 树形组件渲染函数
-const renderTreeLabel = ({ option }: { option: Record<string, unknown> }) => {
-  return h('span', { class: 'tree-label' }, option.label as string)
-}
-
+// 树形组件渲染
+const renderTreeLabel = ({ option }: { option: Record<string, unknown> }) =>
+  h('span', { class: 'tree-label' }, option.label as string)
 const renderTreePrefix = ({ option }: { option: Record<string, unknown> }) => {
   const file = option.file as FileNode
   const isFolder = file.isFolder === 1
   return h(
     NIcon,
-    {
-      size: 18,
-      color: isFolder ? '#ff9800' : '#2196f3',
-    },
-    {
-      default: () => h(isFolder ? FolderOutline : DocumentOutline),
-    }
+    { size: 18, color: isFolder ? '#ff9800' : '#2196f3' },
+    { default: () => h(isFolder ? FolderOutline : DocumentOutline) }
   )
 }
-
 const renderTreeSuffix = ({ option }: { option: Record<string, unknown> }) => {
   const isSelected = fileState.selectedKeys.includes(option.key as string)
   const file = option.file as FileNode
   const isFolder = file.isFolder === 1
-
   if (isSelected && isFolder) {
-    return h(
-      NIcon,
-      {
-        size: 16,
-        color: '#18a058',
-      },
-      {
-        default: () => h(CheckmarkCircleOutline),
-      }
-    )
+    return h(NIcon, { size: 16, color: '#18a058' }, { default: () => h(CheckmarkCircleOutline) })
   }
-
   return null
 }
 
 // 树形选择处理
 const handleTreeSelect = (keys: string[]) => {
-  console.log('树形选择:', keys)
   fileState.selectedKeys = keys
-
   if (keys.length > 0) {
     const selectedKey = keys[0]
-
-    // 递归查找选中的文件
     const findFileById = (files: FileNode[], id: string): FileNode | null => {
       for (const file of files) {
         if (file.id === id) return file
-        // 如果有子节点，递归查找
         const childFiles = fileState.treeData.get(file.id)
         if (childFiles) {
           const found = findFileById(childFiles, id)
@@ -631,27 +499,19 @@ const handleTreeSelect = (keys: string[]) => {
       }
       return null
     }
-
-    // 从所有缓存的数据中查找
     let selectedFile: FileNode | null = null
     for (const [, files] of fileState.treeData) {
       selectedFile = findFileById(files, selectedKey)
       if (selectedFile) break
     }
-
-    // 如果在缓存中没找到，从当前文件列表中查找
     if (!selectedFile) {
       selectedFile = findFileById(fileState.files, selectedKey)
     }
-
     if (selectedFile && selectedFile.isFolder === 1) {
       fileState.selectedFile = selectedFile
-      fileState.selectedFileId = selectedFile.id
-      console.log('选中家庭文件夹:', selectedFile)
     }
   } else {
     fileState.selectedFile = null
-    fileState.selectedFileId = null
   }
 }
 
@@ -659,57 +519,48 @@ const handleTreeSelect = (keys: string[]) => {
 const handleTreeExpand = (keys: string[]) => {
   const newExpandedKeys = keys.filter((key) => !fileState.expandedKeys.includes(key))
   fileState.expandedKeys = keys
-
-  // 加载新展开节点的子数据
   newExpandedKeys.forEach((key) => {
     if (!fileState.treeData.has(key)) {
-      console.log('加载家庭子目录:', key)
       fetchFamilyFiles(key)
     }
   })
 }
 
-// 导航到根目录
+// 导航处理
 const handleNavigateToRoot = () => {
   fileState.breadcrumbs = []
-  fileState.selectedFileId = null
   fileState.selectedFile = null
   fetchFamilyFiles('')
 }
-
-// 导航到面包屑
 const handleNavigateToBreadcrumb = (index: number) => {
   const targetBreadcrumb = fileState.breadcrumbs[index]
   fileState.breadcrumbs = fileState.breadcrumbs.slice(0, index + 1)
-  fileState.selectedFileId = null
   fileState.selectedFile = null
   fetchFamilyFiles(targetBreadcrumb.id)
 }
 
-// 获取选中文件的完整路径
+// 获取选中文件路径
 const getSelectedFilePath = () => {
   if (!fileState.selectedFile) return ''
-
-  const pathParts = ['根目录']
-  pathParts.push(...fileState.breadcrumbs.map((b) => b.name))
-  pathParts.push(fileState.selectedFile.name)
-
+  const pathParts = [
+    '根目录',
+    ...fileState.breadcrumbs.map((b) => b.name),
+    fileState.selectedFile.name,
+  ]
   return pathParts.join(' / ')
 }
 
-// 返回令牌选择
+// 返回上一步
 const handleBackToTokenSelection = () => {
   currentStep.value = 1
 }
-
-// 返回家庭选择
 const handleBackToFamilySelection = () => {
   currentStep.value = 2
 }
 
 // 取消
 const handleCancel = () => {
-  visible.value = false
+  emit('cancel')
 }
 
 // 确认挂载
@@ -718,63 +569,40 @@ const handleConfirm = () => {
     message.warning('请选择文件夹和令牌')
     return
   }
-
-  // 将选择信息转换为挂载项
-  mountBindState.items = [
+  const itemsToMount = [
     {
       name: fileState.selectedFile.name,
       osType: OS_TYPES.FAMILY_FOLDER,
       cloudToken: tokenState.selectedTokenId,
-      disableSwitchCloudToken: true, // 家庭文件夹禁止修改令牌
+      disableSwitchCloudToken: true,
       fileId: fileState.selectedFile.id,
       familyId: familyState.selectedFamilyId!,
     },
   ]
-
-  // 打开绑定挂载点Modal
-  mountBindState.show = true
+  mountPointBind
+    .show(itemsToMount, { defaultCloudToken: tokenState.selectedTokenId || undefined })
+    .then((payload) => {
+      if (payload && payload.length > 0) {
+        handleMountBindSuccess()
+      }
+    })
 }
 
-// 绑定挂载点成功回调
+// 挂载成功回调
 const handleMountBindSuccess = () => {
-  message.success('挂载点绑定成功')
   emit('confirm', { success: true })
-  visible.value = false
 }
-
-// 重置所有状态
-const resetAllState = () => {
-  currentStep.value = 1
-  tokenState.selectedTokenId = null
-  tokenState.tokens = []
-  familyState.loading = false
-  familyState.families = []
-  familyState.selectedFamilyId = null
-  fileState.loading = false
-  fileState.treeLoading = false
-  fileState.files = []
-  fileState.selectedFileId = null
-  fileState.selectedFile = null
-  fileState.currentParentId = ''
-  fileState.breadcrumbs = []
-  fileState.selectedKeys = []
-  fileState.expandedKeys = []
-  fileState.treeData.clear()
-  mountBindState.show = false
-  mountBindState.items = []
-}
-
-// 监听弹窗打开，加载令牌列表
-watch(visible, (newVal) => {
-  if (newVal) {
-    fetchTokenList()
-  } else {
-    resetAllState()
-  }
+onMounted(() => {
+  fetchTokenList()
 })
 </script>
 
 <style scoped>
+.family-mount-container {
+  min-width: 800px;
+  width: 100%;
+}
+
 .family-mount-content {
   padding: 16px 0;
 }
@@ -794,13 +622,7 @@ watch(visible, (newVal) => {
   font-size: 18px;
 }
 
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-}
-
+.loading-container,
 .empty-state {
   display: flex;
   justify-content: center;
@@ -808,70 +630,13 @@ watch(visible, (newVal) => {
   min-height: 200px;
 }
 
-/* 令牌选择样式 */
-.token-section {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.token-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.token-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border: 1px solid var(--n-border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: var(--n-card-color);
-}
-
-.token-card:hover {
-  border-color: var(--n-primary-color);
-  background: var(--n-color-target);
-}
-
-.token-card.active {
-  border-color: var(--n-primary-color);
-  background: var(--n-primary-color-suppl);
-}
-
-.token-info {
-  flex: 1;
-}
-
-.token-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.token-name {
-  font-size: 16px;
-}
-
-.token-id-tag {
-  font-size: 11px;
-}
-
-.token-username {
-  font-size: 13px;
-}
-
-/* 家庭选择样式 */
+.token-section,
 .family-section {
   max-width: 700px;
   margin: 0 auto;
 }
 
+.token-list,
 .family-list {
   display: flex;
   flex-direction: column;
@@ -879,6 +644,7 @@ watch(visible, (newVal) => {
   margin-bottom: 24px;
 }
 
+.token-card,
 .family-card {
   display: flex;
   align-items: center;
@@ -891,20 +657,24 @@ watch(visible, (newVal) => {
   background: var(--n-card-color);
 }
 
+.token-card:hover,
 .family-card:hover {
   border-color: var(--n-primary-color);
   background: var(--n-color-target);
 }
 
+.token-card.active,
 .family-card.active {
   border-color: var(--n-primary-color);
   background: var(--n-primary-color-suppl);
 }
 
+.token-info,
 .family-info {
   flex: 1;
 }
 
+.token-header,
 .family-header {
   display: flex;
   align-items: center;
@@ -912,12 +682,18 @@ watch(visible, (newVal) => {
   margin-bottom: 8px;
 }
 
+.token-name,
 .family-name {
   font-size: 16px;
 }
 
+.token-id-tag,
 .family-role-tag {
   font-size: 11px;
+}
+
+.token-username {
+  font-size: 13px;
 }
 
 .family-details {
@@ -946,7 +722,6 @@ watch(visible, (newVal) => {
   margin-top: 24px;
 }
 
-/* 文件选择样式 */
 .file-section {
   max-width: 800px;
   margin: 0 auto;
@@ -970,7 +745,6 @@ watch(visible, (newVal) => {
   overflow-y: auto;
 }
 
-/* 选中信息样式 */
 .selected-info {
   margin-top: 16px;
 }
@@ -1004,9 +778,10 @@ watch(visible, (newVal) => {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--n-border-color);
 }
 
-/* 响应式设计 */
 @media (width <= 768px) {
   .token-card,
   .family-card {

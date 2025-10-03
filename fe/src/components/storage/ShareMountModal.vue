@@ -1,14 +1,5 @@
 <template>
-  <n-modal v-model:show="visible" preset="dialog" title="文件分享挂载" style="width: 800px">
-    <template #header>
-      <div style="display: flex; align-items: center; gap: 8px">
-        <n-icon :size="20">
-          <FolderOutline />
-        </n-icon>
-        <span>文件分享挂载</span>
-      </div>
-    </template>
-
+  <div class="share-mount-container">
     <div class="share-mount-content">
       <!-- 第一步：输入分享码和访问码 -->
       <div v-if="currentStep === 1" class="step-content">
@@ -28,9 +19,7 @@
               @keyup.enter="handleGetShareInfo"
             >
               <template #prefix>
-                <n-icon :size="16">
-                  <LinkOutline />
-                </n-icon>
+                <n-icon :size="16"><LinkOutline /></n-icon>
               </template>
             </n-input>
           </div>
@@ -45,9 +34,7 @@
               @keyup.enter="handleGetShareInfo"
             >
               <template #prefix>
-                <n-icon :size="16">
-                  <LockClosedOutline />
-                </n-icon>
+                <n-icon :size="16"><LockClosedOutline /></n-icon>
               </template>
             </n-input>
           </div>
@@ -60,11 +47,9 @@
             @click="handleGetShareInfo"
             style="margin-top: 24px; width: 100%"
           >
-            <template #icon>
-              <n-icon>
-                <SearchOutline />
-              </n-icon>
-            </template>
+            <template #icon
+              ><n-icon><SearchOutline /></n-icon
+            ></template>
             获取分享信息
           </n-button>
         </div>
@@ -110,40 +95,29 @@
       </div>
     </div>
 
-    <template #action>
-      <div class="modal-actions">
-        <n-button v-if="currentStep === 2" @click="handleBackToStep1">
-          <template #icon>
-            <n-icon>
-              <ArrowBackOutline />
-            </n-icon>
-          </template>
-          返回上一步
-        </n-button>
-        <n-button @click="handleCancel">取消</n-button>
-        <n-button
-          v-if="currentStep === 2"
-          type="primary"
-          :disabled="!shareState.shareInfo"
-          @click="handleConfirm"
-        >
-          绑定挂载点
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
-
-  <!-- 绑定挂载点Modal -->
-  <MountPointBindModal
-    v-model:show="mountBindState.show"
-    :items="mountBindState.items"
-    @success="handleMountBindSuccess"
-  />
+    <div class="modal-actions">
+      <n-button v-if="currentStep === 2" @click="handleBackToStep1">
+        <template #icon
+          ><n-icon><ArrowBackOutline /></n-icon
+        ></template>
+        返回上一步
+      </n-button>
+      <n-button @click="handleCancel">取消</n-button>
+      <n-button
+        v-if="currentStep === 2"
+        type="primary"
+        :disabled="!shareState.shareInfo"
+        @click="handleConfirm"
+      >
+        绑定挂载点
+      </n-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
-import { NModal, NIcon, NText, NInput, NButton, useMessage } from 'naive-ui'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { NIcon, NText, NInput, NButton, useMessage } from 'naive-ui'
 import {
   FolderOutline,
   DocumentOutline,
@@ -157,30 +131,18 @@ import type { ShareInfo, GetShareInfoQuery } from '@/api/storage/advance'
 import type { ApiResponse } from '@/utils/api'
 import { formatDateTime } from '@/utils/time'
 import { OS_TYPES } from '@/utils/osType'
-import MountPointBindModal from './MountPointBindModal.vue'
-
-// Props
-interface Props {
-  show: boolean
-}
+import { useMountPointBind } from '@/composables/useMountPointBind'
 
 // Emits
 interface Emits {
-  (e: 'update:show', value: boolean): void
   (e: 'confirm', data: { success: boolean }): void
+  (e: 'cancel'): void
 }
-
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 消息提示
+// Hooks
 const message = useMessage()
-
-// 双向绑定
-const visible = computed({
-  get: () => props.show,
-  set: (value) => emit('update:show', value),
-})
+const mountPointBind = useMountPointBind()
 
 // 步骤控制
 const currentStep = ref(1)
@@ -191,17 +153,6 @@ const shareState = reactive({
   shareAccessCode: '',
   loading: false,
   shareInfo: null as ShareInfo | null,
-})
-
-// 绑定挂载点Modal状态
-const mountBindState = reactive({
-  show: false,
-  items: [] as Array<{
-    name: string
-    osType: string
-    shareCode: string
-    shareAccessCode?: string
-  }>,
 })
 
 // 计算属性
@@ -220,12 +171,11 @@ const handleGetShareInfo = () => {
     shareCode: shareState.shareCode.trim(),
   }
 
-  // 如果有访问码，添加到参数中
   if (shareState.shareAccessCode.trim()) {
     params.shareAccessCode = shareState.shareAccessCode.trim()
   }
 
-  return getShareInfo(params)
+  getShareInfo(params)
     .then((response: ApiResponse<ShareInfo>) => {
       if (response.code === 200 && response.data) {
         shareState.shareInfo = response.data
@@ -251,7 +201,7 @@ const handleBackToStep1 = () => {
 
 // 取消
 const handleCancel = () => {
-  visible.value = false
+  emit('cancel')
 }
 
 // 确认挂载
@@ -261,8 +211,7 @@ const handleConfirm = () => {
     return
   }
 
-  // 将分享信息转换为挂载项
-  mountBindState.items = [
+  const itemsToMount = [
     {
       name: shareState.shareInfo.name,
       osType: OS_TYPES.SHARE_FOLDER,
@@ -271,15 +220,16 @@ const handleConfirm = () => {
     },
   ]
 
-  // 打开绑定挂载点Modal
-  mountBindState.show = true
+  mountPointBind.show(itemsToMount).then((payload) => {
+    if (payload && payload.length > 0) {
+      handleMountBindSuccess()
+    }
+  })
 }
 
 // 绑定挂载点成功回调
 const handleMountBindSuccess = () => {
-  message.success('挂载点绑定成功')
   emit('confirm', { success: true })
-  visible.value = false
 }
 
 // 重置所有状态
@@ -289,19 +239,19 @@ const resetAllState = () => {
   shareState.shareAccessCode = ''
   shareState.loading = false
   shareState.shareInfo = null
-  mountBindState.show = false
-  mountBindState.items = []
 }
 
-// 监听弹窗关闭，重置状态
-watch(visible, (newVal) => {
-  if (!newVal) {
-    resetAllState()
-  }
+onMounted(() => {
+  resetAllState()
 })
 </script>
 
 <style scoped>
+.share-mount-container {
+  min-width: 800px;
+  width: 100%;
+}
+
 .share-mount-content {
   padding: 16px 0;
 }
@@ -394,9 +344,10 @@ watch(visible, (newVal) => {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--n-border-color);
 }
 
-/* 响应式设计 */
 @media (width <= 768px) {
   .share-info-header {
     flex-direction: column;
