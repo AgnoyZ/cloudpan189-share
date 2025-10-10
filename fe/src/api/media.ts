@@ -54,3 +54,15 @@ export const updateMediaConfig = (data: ConfigUpdateRequest): Promise<ApiRespons
 export const toggleMediaConfig = (data: ConfigToggleRequest): Promise<ApiResponse> => {
   return api.post('/media/config/toggle', data).then((res) => res.data)
 }
+
+// ===== 媒体操作（Media Operations）相关接口 =====
+
+// 清理媒体文件 - 清理媒体存储路径下的所有媒体文件
+export const clearMediaFiles = (): Promise<ApiResponse> => {
+  return api.post('/media/clear').then((res) => res.data)
+}
+
+// 重建strm文件 - 扫描所有挂载点并重新生成strm文件
+export const rebuildStrmFiles = (): Promise<ApiResponse> => {
+  return api.post('/media/rebuild_strm_file').then((res) => res.data)
+}

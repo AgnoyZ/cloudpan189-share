@@ -1497,6 +1497,56 @@
                 }
             }
         },
+        "/api/media/clear": {
+            "post": {
+                "description": "清理媒体存储路径下的所有媒体文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "媒体操作"
+                ],
+                "summary": "清理媒体文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "清理任务已提交",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "提交清理任务失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/media/config/info": {
             "get": {
                 "consumes": [
@@ -1677,6 +1727,56 @@
                     },
                     "400": {
                         "description": "更新媒体配置失败",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/media/rebuild_strm_file": {
+            "post": {
+                "description": "扫描所有挂载点并重新生成strm文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "媒体操作"
+                ],
+                "summary": "重建strm文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "重建任务已提交",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "提交重建任务失败，code=xxxx",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
                         "schema": {
                             "$ref": "#/definitions/httpcontext.Response"
                         }

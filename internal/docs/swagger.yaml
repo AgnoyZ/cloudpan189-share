@@ -2810,6 +2810,39 @@ paths:
       summary: 获取登录日志列表
       tags:
       - 登录日志
+  /api/media/clear:
+    post:
+      consumes:
+      - application/json
+      description: 清理媒体存储路径下的所有媒体文件
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 清理任务已提交
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "400":
+          description: 提交清理任务失败，code=xxxx
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+      summary: 清理媒体文件
+      tags:
+      - 媒体操作
   /api/media/config/info:
     get:
       consumes:
@@ -2929,6 +2962,39 @@ paths:
       summary: 更新媒体配置
       tags:
       - 媒体配置
+  /api/media/rebuild_strm_file:
+    post:
+      consumes:
+      - application/json
+      description: 扫描所有挂载点并重新生成strm文件
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 重建任务已提交
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "400":
+          description: 提交重建任务失败，code=xxxx
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/httpcontext.Response'
+      summary: 重建strm文件
+      tags:
+      - 媒体操作
   /api/setting/addition:
     get:
       consumes:

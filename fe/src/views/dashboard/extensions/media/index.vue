@@ -63,9 +63,43 @@
             </n-descriptions-item>
           </n-descriptions>
 
-          <n-space justify="end">
-            <n-button size="small" type="primary" @click="openEditModal">编辑配置</n-button>
-            <n-button size="small" type="info" @click="reload">刷新配置</n-button>
+          <n-space justify="space-between" align="center">
+            <n-space>
+              <n-popover trigger="hover" placement="top">
+                <template #trigger>
+                  <n-button
+                    size="small"
+                    type="error"
+                    :loading="clearingMedia"
+                    @click="handleClearMedia"
+                  >
+                    清理媒体文件
+                  </n-button>
+                </template>
+                <n-text style="font-size: 12px">
+                  警告：会把整个媒体目录文件全部清空，包括自己创建的文件，请谨慎操作
+                </n-text>
+              </n-popover>
+              <n-popover trigger="hover" placement="top">
+                <template #trigger>
+                  <n-button
+                    size="small"
+                    type="warning"
+                    :loading="rebuildingStrm"
+                    @click="handleRebuildStrm"
+                  >
+                    重建strm文件
+                  </n-button>
+                </template>
+                <n-text style="font-size: 12px">
+                  只会给还没有创建strm的创建，已创建的不会影响。如需重新构建，请先清空再重建
+                </n-text>
+              </n-popover>
+            </n-space>
+            <n-space>
+              <n-button size="small" type="primary" @click="openEditModal">编辑配置</n-button>
+              <n-button size="small" type="info" @click="reload">刷新配置</n-button>
+            </n-space>
           </n-space>
         </n-space>
       </template>
@@ -193,6 +227,7 @@ import {
   NAlert,
   NDynamicTags,
   useMessage,
+  useDialog,
 } from 'naive-ui'
 import type { ConfigInitRequest, ConfigUpdateRequest } from '@/api/media'
 import {
@@ -200,9 +235,12 @@ import {
   initMediaConfig,
   toggleMediaConfig,
   updateMediaConfig,
+  clearMediaFiles,
+  rebuildStrmFiles,
 } from '@/api/media'
 
 const message = useMessage()
+const dialog = useDialog()
 
 const loading = ref<boolean>(true)
 const initialized = ref<boolean>(true)
@@ -210,6 +248,8 @@ const config = ref<Models.MediaConfig | undefined>(undefined)
 const showInitModal = ref(false)
 const showEditModal = ref(false)
 const savingEnable = ref(false)
+const clearingMedia = ref(false)
+const rebuildingStrm = ref(false)
 
 const editForm = reactive<ConfigUpdateRequest>({
   storagePath: '',
@@ -411,6 +451,52 @@ const handleToggleEnable = (val: boolean) => {
     .finally(() => {
       savingEnable.value = false
     })
+}
+
+// 清理媒体文件
+const handleClearMedia = () => {
+  dialog.warning({
+    title: '确认清理媒体文件',
+    content: '此操作将清空整个媒体目录，包括所有文件以及自己创建的文件，请确认是否继续？',
+    positiveText: '确认清理',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      clearingMedia.value = true
+      clearMediaFiles()
+        .then(() => {
+          message.success('清理任务已提交，请稍后查看效果')
+        })
+        .catch((err) => {
+          message.error(err?.message || '清理媒体文件失败')
+        })
+        .finally(() => {
+          clearingMedia.value = false
+        })
+    },
+  })
+}
+
+// 重建strm文件
+const handleRebuildStrm = () => {
+  dialog.info({
+    title: '确认重建strm文件',
+    content: '确认重新生成strm文件吗？只会给还没有创建strm的创建，已创建的不会影响。',
+    positiveText: '确认重建',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      rebuildingStrm.value = true
+      rebuildStrmFiles()
+        .then(() => {
+          message.success('重建任务已提交，将扫描所有挂载点并重新生成strm文件')
+        })
+        .catch((err) => {
+          message.error(err?.message || '重建strm文件失败')
+        })
+        .finally(() => {
+          rebuildingStrm.value = false
+        })
+    },
+  })
 }
 
 onMounted(reload)
