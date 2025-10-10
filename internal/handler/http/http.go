@@ -87,7 +87,7 @@ func Start(svc bootstrap.ServiceContext) {
 		taskStateHandler      = taskstate.NewHandler(taskEngine, fileTaskLogService)
 		autoIngestHandler     = autoingest.NewHandler(taskEngine, autoIngestPlanService, autoIngestLogService, cloudBridgeService)
 		loginLogHandler       = loginlogHandler.NewHandler(loginLogService)
-		mediaHandler          = media.NewHandler(mediaConfigService, mediaFileService)
+		mediaHandler          = media.NewHandler(mediaConfigService, mediaFileService, mountPointService, virtualFileService, verifyService, taskEngine)
 	)
 
 	var (
@@ -238,6 +238,8 @@ func Start(svc bootstrap.ServiceContext) {
 			mediaRouter.POST("/config/init", wrap(mediaHandler.ConfigInit()))
 			mediaRouter.POST("/config/update", wrap(mediaHandler.ConfigUpdate()))
 			mediaRouter.POST("/config/toggle", wrap(mediaHandler.ConfigToggle()))
+			mediaRouter.POST("/clear", wrap(mediaHandler.Clear()))
+			mediaRouter.POST("/rebuild_strm_file", wrap(mediaHandler.RebuildStrmFile()))
 		}
 	}
 

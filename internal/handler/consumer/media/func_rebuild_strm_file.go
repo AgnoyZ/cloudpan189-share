@@ -42,7 +42,7 @@ func (h *handler) RebuildStrmFile() taskcontext.HandlerFunc {
 
 		for _, mountpoint := range mountpoints {
 			logger.Debug("处理挂载点", zap.String("mountpoint", mountpoint.FullPath))
-			h.walkBuildStrm(ctx.GetContext(), mountpoint.ID, car.NewSubCar(mountpoint.FullPath), 0)
+			h.walkBuildStrm(ctx.GetContext(), mountpoint.FileId, car.NewSubCar(mountpoint.FullPath), 0)
 		}
 
 		return nil

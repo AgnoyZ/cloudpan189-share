@@ -46,7 +46,7 @@ func (s *service) Clear(ctx context.Context, rootPath string) error {
 	}
 
 	// 再删除数据库中的所有记录
-	if err := s.getDB(ctx).Delete(new(models.MediaFile)).Error; err != nil {
+	if err := s.getDB(ctx).Where("1 = 1").Delete(new(models.MediaFile)).Error; err != nil {
 		ctx.Error("清空数据库失败", zap.Error(err))
 
 		return err
