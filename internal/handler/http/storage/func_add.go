@@ -23,6 +23,11 @@ type (
 		CloudToken      int64  `json:"cloudToken" example:"1"`
 		FileId          string `json:"fileId" example:"file123"`
 		FamilyId        string `json:"familyId" example:"family123"`
+
+		EnableAutoRefresh bool `json:"enableAutoRefresh" example:"true"`
+		AutoRefreshDays   int  `json:"autoRefreshDays" example:"7"`
+		RefreshInterval   int  `json:"refreshInterval" example:"3600"`
+		EnableDeepRefresh bool `json:"enableDeepRefresh" example:"true"`
 	}
 
 	addResponse struct {

@@ -5858,9 +5858,6 @@ const docTemplate = `{
         },
         "setting.toggleEnableAuthRequest": {
             "type": "object",
-            "required": [
-                "enableAuth"
-            ],
             "properties": {
                 "enableAuth": {
                     "description": "是否启用鉴权",
@@ -5876,9 +5873,21 @@ const docTemplate = `{
                 "osType"
             ],
             "properties": {
+                "autoRefreshDays": {
+                    "type": "integer",
+                    "example": 7
+                },
                 "cloudToken": {
                     "type": "integer",
                     "example": 1
+                },
+                "enableAutoRefresh": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "enableDeepRefresh": {
+                    "type": "boolean",
+                    "example": true
                 },
                 "familyId": {
                     "type": "string",
@@ -5902,6 +5911,10 @@ const docTemplate = `{
                         "family_folder"
                     ],
                     "example": "subscribe"
+                },
+                "refreshInterval": {
+                    "type": "integer",
+                    "example": 3600
                 },
                 "shareAccessCode": {
                     "type": "string",
@@ -6283,6 +6296,7 @@ const docTemplate = `{
         },
         "time.Duration": {
             "type": "integer",
+            "format": "int64",
             "enum": [
                 -9223372036854775808,
                 9223372036854775807,

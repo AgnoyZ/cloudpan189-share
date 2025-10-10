@@ -1145,14 +1145,21 @@ definitions:
         description: 是否启用鉴权
         example: true
         type: boolean
-    required:
-    - enableAuth
     type: object
   storage.addRequest:
     properties:
+      autoRefreshDays:
+        example: 7
+        type: integer
       cloudToken:
         example: 1
         type: integer
+      enableAutoRefresh:
+        example: true
+        type: boolean
+      enableDeepRefresh:
+        example: true
+        type: boolean
       familyId:
         example: family123
         type: string
@@ -1171,6 +1178,9 @@ definitions:
         - family_folder
         example: subscribe
         type: string
+      refreshInterval:
+        example: 3600
+        type: integer
       shareAccessCode:
         example: "1234"
         type: string
@@ -1452,6 +1462,7 @@ definitions:
     - 1000000000
     - 60000000000
     - 3600000000000
+    format: int64
     type: integer
     x-enum-varnames:
     - minDuration
