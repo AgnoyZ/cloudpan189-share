@@ -32,3 +32,15 @@ type AutoIngestRefreshSubscribeRequest struct {
 func (r AutoIngestRefreshSubscribeRequest) Topic() taskengine.Topic {
 	return taskengine.Topic(KeyAutoIngestRefreshSubscribe)
 }
+
+type MediaClearRequest struct{}
+
+func (r MediaClearRequest) Topic() taskengine.Topic {
+	return taskengine.Topic(KeyMediaClear)
+}
+
+type MediaRebuildStrmFileRequest struct{}
+
+func (r MediaRebuildStrmFileRequest) Topic() taskengine.Topic {
+	return taskengine.Topic(KeyMediaRebuildStrmFile)
+}

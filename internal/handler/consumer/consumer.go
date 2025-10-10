@@ -5,6 +5,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/consumer/autoingest"
 	"github.com/xxcheng123/cloudpan189-share/internal/handler/consumer/file"
+	"github.com/xxcheng123/cloudpan189-share/internal/handler/consumer/media"
 
 	autoingestlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestlog"
 	autoingestplanSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestplan"
@@ -47,6 +48,7 @@ func Start(svc bootstrap.ServiceContext) error {
 	var (
 		fileHandler       = file.NewHandler(virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService, mediaFileService, verifyService)
 		autoIngestHandler = autoingest.NewHandler(taskEngine, cloudBridgeService, autoIngestPlanService, authIngestLogService, storageFacadeService, virtualFileService)
+		mediaHandler      = media.NewHandler(mediaFileService, mountPointService, virtualFileService, verifyService)
 	)
 
 	{
@@ -66,6 +68,20 @@ func Start(svc bootstrap.ServiceContext) error {
 	{
 		if err := taskEngine.RegisterProcessor(new(topic.AutoIngestRefreshSubscribeRequest).Topic(), wrap(autoIngestHandler.RefreshSubscribe())); err != nil {
 			logger.Error("注册订阅号自动入库刷新处理器失败")
+
+			return err
+		}
+	}
+
+	{
+		if err := taskEngine.RegisterProcessor(new(topic.MediaClearRequest).Topic(), wrap(mediaHandler.Clear())); err != nil {
+			logger.Error("注册媒体文件清理处理器失败")
+
+			return err
+		}
+
+		if err := taskEngine.RegisterProcessor(new(topic.MediaRebuildStrmFileRequest).Topic(), wrap(mediaHandler.RebuildStrmFile())); err != nil {
+			logger.Error("注册媒体文件STRM重建处理器失败")
 
 			return err
 		}

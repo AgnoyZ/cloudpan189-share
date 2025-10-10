@@ -19,6 +19,7 @@ type Service interface {
 	QueryByPath(ctx context.Context, path string) (*models.MediaFile, error)
 	DeleteStrm(ctx context.Context, fid int64, rootPath string) error
 	ClearEmptyDir(ctx context.Context, entryPath string) error
+	Clear(ctx context.Context, rootPath string) error
 }
 
 type service struct {
