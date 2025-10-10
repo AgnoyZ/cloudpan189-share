@@ -1150,6 +1150,8 @@ definitions:
     properties:
       autoRefreshDays:
         example: 7
+        maximum: 365
+        minimum: 1
         type: integer
       cloudToken:
         example: 1
@@ -1180,6 +1182,8 @@ definitions:
         type: string
       refreshInterval:
         example: 3600
+        maximum: 1440
+        minimum: 30
         type: integer
       shareAccessCode:
         example: "1234"

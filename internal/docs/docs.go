@@ -5875,6 +5875,8 @@ const docTemplate = `{
             "properties": {
                 "autoRefreshDays": {
                     "type": "integer",
+                    "maximum": 365,
+                    "minimum": 1,
                     "example": 7
                 },
                 "cloudToken": {
@@ -5914,6 +5916,8 @@ const docTemplate = `{
                 },
                 "refreshInterval": {
                     "type": "integer",
+                    "maximum": 1440,
+                    "minimum": 30,
                     "example": 3600
                 },
                 "shareAccessCode": {

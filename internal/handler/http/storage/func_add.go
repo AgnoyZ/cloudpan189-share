@@ -24,9 +24,9 @@ type (
 		FileId          string `json:"fileId" example:"file123"`
 		FamilyId        string `json:"familyId" example:"family123"`
 
-		EnableAutoRefresh bool `json:"enableAutoRefresh" example:"true"`
-		AutoRefreshDays   int  `json:"autoRefreshDays" example:"7"`
-		RefreshInterval   int  `json:"refreshInterval" example:"3600"`
+		EnableAutoRefresh bool `json:"enableAutoRefresh" binding:"omitempty" example:"true"`
+		AutoRefreshDays   int  `json:"autoRefreshDays" binding:"omitempty,min=1,max=365" example:"7"`
+		RefreshInterval   int  `json:"refreshInterval" binding:"omitempty,min=30,max=1440" example:"3600"`
 		EnableDeepRefresh bool `json:"enableDeepRefresh" example:"true"`
 	}
 
@@ -101,11 +101,15 @@ func (h *handler) Add() httpcontext.HandlerFunc {
 
 		// 使用组合服务创建存储（内部完成校验、父级创建、虚拟文件与挂载点创建与补偿）
 		id, err := h.storageFacadeService.CreateStorage(ctx.GetContext(), &storagefacadeSvi.CreateStorageRequest{
-			LocalPath:  req.LocalPath,
-			OsType:     req.OsType,
-			CloudToken: req.CloudToken,
-			FileId:     fileId,
-			Addition:   addition,
+			LocalPath:         req.LocalPath,
+			OsType:            req.OsType,
+			CloudToken:        req.CloudToken,
+			FileId:            fileId,
+			Addition:          addition,
+			EnableAutoRefresh: req.EnableAutoRefresh,
+			AutoRefreshDays:   req.AutoRefreshDays,
+			RefreshInterval:   req.RefreshInterval,
+			EnableDeepRefresh: req.EnableDeepRefresh,
 		})
 		if err != nil {
 			ctx.Fail(busCodeStorageAddMountPointFailed.WithError(err))
