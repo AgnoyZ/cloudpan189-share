@@ -17,6 +17,10 @@ export interface AddStorageRequest {
   shareAccessCode?: string // 分享访问码
   shareCode?: string // 分享码
   subscribeUser?: string // 订阅用户
+  enableAutoRefresh?: boolean // 是否启用自动刷新
+  autoRefreshDays?: number // 自动刷新持续天数，单位天
+  refreshInterval?: number // 刷新间隔，单位秒
+  enableDeepRefresh?: boolean // 是否启用深度刷新
 }
 
 export interface AddStorageResponse {

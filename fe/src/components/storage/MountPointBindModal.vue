@@ -39,6 +39,19 @@
               应用
             </n-button>
           </div>
+
+          <div class="batch-item">
+            <n-text class="batch-label">自动刷新</n-text>
+            <n-switch v-model:value="storageSetting.enableAutoRefresh" />
+            <n-button
+              v-if="storageSetting.enableAutoRefresh"
+              type="primary"
+              size="small"
+              @click="handleEditAutoRefreshConfig"
+            >
+              编辑
+            </n-button>
+          </div>
         </div>
         <template #footer>
           <n-text depth="3">
@@ -58,11 +71,53 @@
         class="mount-table"
       />
     </div>
+
+    <!-- 自动刷新配置弹窗 -->
+    <n-modal v-model:show="showAutoRefreshModal" preset="dialog" title="自动刷新配置">
+      <div class="auto-refresh-config">
+        <n-form
+          ref="autoRefreshFormRef"
+          :model="autoRefreshForm"
+          :rules="autoRefreshRules"
+          label-placement="left"
+          label-width="120px"
+        >
+          <n-form-item label="刷新间隔(分钟)" path="refreshInterval">
+            <n-input-number
+              v-model:value="autoRefreshForm.refreshInterval"
+              :min="30"
+              :max="1440"
+              placeholder="30-1440分钟"
+              style="width: 100%"
+            />
+          </n-form-item>
+
+          <n-form-item label="持续天数" path="autoRefreshDays">
+            <n-input-number
+              v-model:value="autoRefreshForm.autoRefreshDays"
+              :min="1"
+              :max="365"
+              placeholder="1-365天"
+              style="width: 100%"
+            />
+          </n-form-item>
+
+          <n-form-item label="深度刷新" path="enableDeepRefresh">
+            <n-switch v-model:value="autoRefreshForm.enableDeepRefresh" />
+          </n-form-item>
+        </n-form>
+      </div>
+
+      <template #action>
+        <n-button @click="showAutoRefreshModal = false">取消</n-button>
+        <n-button type="primary" @click="handleAutoRefreshConfirm"> 确认 </n-button>
+      </template>
+    </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, h, onMounted } from 'vue'
+import { reactive, computed, h, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   NButton,
@@ -73,12 +128,18 @@ import {
   useMessage,
   type DataTableColumns,
   NCard,
+  NSwitch,
+  NModal,
+  NForm,
+  NFormItem,
+  NInputNumber,
 } from 'naive-ui'
 import { addStorage, type AddStorageRequest, type AddStorageResponse } from '@/api/storage'
 import type { ApiResponse } from '@/utils/api'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { getOsTypeDisplayName, getOsTypeColor } from '@/utils/osType'
 import { useSharedStore } from '@/stores/modules/shared'
+import type { FormRules } from 'naive-ui'
 
 export interface MountItem {
   name: string
@@ -126,6 +187,37 @@ interface TableRow extends MountItem {
 }
 
 const tableData = reactive<TableRow[]>([])
+
+// 自动刷新配置相关
+const showAutoRefreshModal = ref(false)
+const autoRefreshFormRef = ref<InstanceType<typeof NForm>>()
+
+const autoRefreshForm = reactive({
+  refreshInterval: 60,
+  autoRefreshDays: 7,
+  enableDeepRefresh: false,
+})
+
+const autoRefreshRules: FormRules = {
+  refreshInterval: [
+    {
+      type: 'number' as const,
+      min: 30,
+      max: 1440,
+      message: '刷新间隔必须在30-1440分钟之间',
+      trigger: 'blur' as const,
+    },
+  ],
+  autoRefreshDays: [
+    {
+      type: 'number' as const,
+      min: 1,
+      max: 365,
+      message: '持续天数必须在1-365天之间',
+      trigger: 'blur' as const,
+    },
+  ],
+}
 
 // 计算属性
 const cloudTokenOptions = computed(() => [
@@ -286,11 +378,7 @@ const handleBatchApplyPathPrefix = () => {
 
   // 将路径前缀应用到所有行
   tableData.forEach((row) => {
-    if (prefix === '/') {
-      row.localPath = `/${row.name}`
-    } else {
-      row.localPath = `${prefix}${row.name}`
-    }
+    row.localPath = `${prefix}${row.name}`
   })
 
   message.success('已批量应用路径前缀设置')
@@ -299,6 +387,34 @@ const handleBatchApplyPathPrefix = () => {
 // 取消
 const handleCancel = () => {
   emit('cancel')
+}
+
+// 编辑自动刷新配置
+const handleEditAutoRefreshConfig = () => {
+  // 从 store 同步当前配置到表单
+  autoRefreshForm.refreshInterval = storageSetting.value.refreshInterval || 60
+  autoRefreshForm.autoRefreshDays = storageSetting.value.autoRefreshDays || 7
+  autoRefreshForm.enableDeepRefresh = storageSetting.value.enableDeepRefresh || false
+
+  showAutoRefreshModal.value = true
+}
+
+// 确认自动刷新配置
+const handleAutoRefreshConfirm = () => {
+  autoRefreshFormRef.value?.validate((errors: unknown) => {
+    if (errors) {
+      message.error('请检查表单输入')
+      return
+    }
+
+    // 保存配置到共享存储
+    storageSetting.value.autoRefreshDays = autoRefreshForm.autoRefreshDays
+    storageSetting.value.refreshInterval = autoRefreshForm.refreshInterval
+    storageSetting.value.enableDeepRefresh = autoRefreshForm.enableDeepRefresh
+
+    showAutoRefreshModal.value = false
+    message.success('自动刷新配置已保存')
+  })
 }
 
 // 构建请求数据
@@ -312,6 +428,16 @@ const buildRequests = (): AddStorageRequest[] => {
     shareAccessCode: row.shareAccessCode,
     fileId: row.fileId,
     familyId: row.familyId,
+    enableAutoRefresh: storageSetting.value.enableAutoRefresh,
+    autoRefreshDays: storageSetting.value.enableAutoRefresh
+      ? storageSetting.value.autoRefreshDays
+      : undefined,
+    refreshInterval: storageSetting.value.enableAutoRefresh
+      ? storageSetting.value.refreshInterval
+      : undefined,
+    enableDeepRefresh: storageSetting.value.enableAutoRefresh
+      ? storageSetting.value.enableDeepRefresh
+      : undefined,
   }))
 }
 

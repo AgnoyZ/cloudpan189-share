@@ -3,6 +3,10 @@ export namespace StorageType {
   export type StorageSetting = {
     pathPrefix: string
     selectedToken: number
+    enableAutoRefresh?: boolean
+    autoRefreshDays?: number
+    refreshInterval?: number
+    enableDeepRefresh?: boolean
   }
 
   export interface Local {
