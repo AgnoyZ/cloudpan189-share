@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Memory Requirements
+
+**IMPORTANT**: All communication and responses must be in Chinese (中文). Claude must use Chinese for all interactions with the user, including:
+- 所有回复必须使用中文
+- 代码注释和文档说明使用中文
+- 错误信息和提示使用中文
+- 任何交流都必须用中文进行
+
 ## Common Development Commands
 
 ### Building the Project
