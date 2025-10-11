@@ -313,7 +313,7 @@ const initTableData = () => {
       ({
         ...item,
         id: `item_${index}`,
-        localPath: `${storageSetting.value.pathPrefix || ''}/${item.name}`,
+        localPath: `${storageSetting.value.pathPrefix || '/'}${item.name}`,
         selectedCloudToken: item.disableSwitchCloudToken
           ? item.cloudToken
           : storageSetting.value.selectedToken,
