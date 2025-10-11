@@ -20,7 +20,6 @@
             />
             <n-button
               type="primary"
-              secondary
               size="small"
               :loading="savingTitle"
               :disabled="!isTitleChanged"
@@ -39,17 +38,16 @@
         </div>
         <div class="item-right">
           <div class="right-inline">
+            <n-button size="small" @click="autoDetectBaseURL">自动获取</n-button>
             <n-input
               v-model:value="form.baseURL"
               placeholder="http://example.com"
               clearable
               style="width: 320px"
             />
-            <n-button size="small" @click="autoDetectBaseURL">自动获取</n-button>
             <n-button
               size="small"
               type="primary"
-              secondary
               :loading="savingBaseURL"
               :disabled="!isBaseURLChanged"
               @click="handleSaveBaseURL"
@@ -109,7 +107,9 @@
       <div class="setting-item">
         <div class="item-left">
           <div class="item-title">多线程流式下载</div>
-          <div class="item-desc">使用多个连接并发下载提高带宽利用率，优先建议开启本地代理设置</div>
+          <div class="item-desc">
+            通过多连接分片下载大幅提升下载速度，为本地代理的增强版本。优先级大于本地代理（如果同时开启）
+          </div>
         </div>
         <div class="item-right">
           <n-switch
@@ -121,7 +121,7 @@
       </div>
 
       <!-- 多线程数量 -->
-      <div class="setting-item">
+      <div v-if="additionForm.multipleStream" class="setting-item">
         <div class="item-left">
           <div class="item-title">多线程数量</div>
           <div class="item-desc">建议 4-8 线程，过多可能受限于网络或服务端限制</div>
@@ -133,21 +133,14 @@
               :min="1"
               :max="64"
               :step="1"
-              :disabled="!additionForm.multipleStream"
-              style="width: 260px"
-            />
-            <n-input-number
-              v-model:value="additionForm.multipleStreamThreadCount"
-              :min="1"
-              :max="64"
-              :disabled="!additionForm.multipleStream"
-              size="small"
-              class="num"
+              :marks="threadCountMarks"
+              :format-tooltip="formatThreadTooltip"
+              style="width: 340px"
+              @change="handleThreadCountChange"
             />
             <n-button
               size="small"
-              secondary
-              :disabled="!additionForm.multipleStream"
+              type="primary"
               :loading="savingThreadCount"
               @click="handleSaveThreadCount"
             >
@@ -158,7 +151,7 @@
       </div>
 
       <!-- 分片大小 -->
-      <div class="setting-item">
+      <div v-if="additionForm.multipleStream" class="setting-item">
         <div class="item-left">
           <div class="item-title">分片大小</div>
           <div class="item-desc">步长 512 KiB，推荐 ≥ 1 MB。分片越大，对网络稳定性要求越高</div>
@@ -172,13 +165,12 @@
               :step="524288"
               :marks="chunkSizeMarks"
               :format-tooltip="formatChunkTooltip"
-              :disabled="!additionForm.multipleStream"
               style="width: 340px"
+              @change="handleChunkSizeChange"
             />
             <n-button
               size="small"
-              secondary
-              :disabled="!additionForm.multipleStream"
+              type="primary"
               :loading="savingChunkSize"
               @click="handleSaveChunkSize"
             >
@@ -189,7 +181,7 @@
       </div>
 
       <!-- 任务线程数 -->
-      <div class="setting-item">
+      <div v-if="additionForm.multipleStream" class="setting-item">
         <div class="item-left">
           <div class="item-title">任务线程数</div>
           <div class="item-desc">同时执行的下载任务数，建议按设备性能与带宽适度调整</div>
@@ -201,18 +193,14 @@
               :min="1"
               :max="32"
               :step="1"
-              style="width: 260px"
-            />
-            <n-input-number
-              v-model:value="additionForm.taskThreadCount"
-              :min="1"
-              :max="32"
-              size="small"
-              class="num"
+              :marks="taskThreadMarks"
+              :format-tooltip="formatTaskThreadTooltip"
+              style="width: 340px"
+              @change="handleTaskThreadChange"
             />
             <n-button
               size="small"
-              secondary
+              type="primary"
               :loading="savingTaskThreads"
               @click="handleSaveTaskThreads"
             >
@@ -221,30 +209,13 @@
           </div>
         </div>
       </div>
-
-      <!-- 批量保存（如需） -->
-      <div class="setting-item actions">
-        <div class="item-left"></div>
-        <div class="item-right">
-          <n-button
-            type="primary"
-            ghost
-            size="small"
-            :loading="savingAddition"
-            :disabled="!isAdditionChanged || loadingAddition"
-            @click="handleSaveAddition"
-          >
-            保存附加设置
-          </n-button>
-        </div>
-      </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, watchEffect, onMounted, computed } from 'vue'
-import { NInput, NButton, NText, useMessage, NInputNumber, NSlider, NSwitch } from 'naive-ui'
+import { NInput, NButton, NText, useMessage, NSlider, NSwitch } from 'naive-ui'
 import { useSystemStore } from '@/stores'
 import {
   modifySystemTitle,
@@ -302,8 +273,6 @@ const handleToggleEnableAuth = (val: boolean) => {
 }
 
 // ===== 附加设置表单 =====
-const loadingAddition = ref(false)
-const savingAddition = ref(false)
 const originalAddition = ref<Models.SettingAddition | null>(null)
 const additionForm = reactive<Models.SettingAddition>({
   localProxy: false,
@@ -352,7 +321,27 @@ const handleToggleMultipleStream = (val: boolean) => {
   saveAdditionField({ multipleStream: val }, (v) => (savingMultipleStream.value = v))
 }
 
-// 数值与滑轮保存
+// Slider change事件处理
+const handleThreadCountChange = () => {
+  // 当slider值改变时自动保存
+  if (additionLoaded.value) {
+    handleSaveThreadCount()
+  }
+}
+const handleChunkSizeChange = () => {
+  // 当slider值改变时自动保存
+  if (additionLoaded.value) {
+    handleSaveChunkSize()
+  }
+}
+const handleTaskThreadChange = () => {
+  // 当slider值改变时自动保存
+  if (additionLoaded.value) {
+    handleSaveTaskThreads()
+  }
+}
+
+// 数值保存函数
 const handleSaveThreadCount = () => {
   saveAdditionField(
     { multipleStreamThreadCount: additionForm.multipleStreamThreadCount },
@@ -373,6 +362,16 @@ const handleSaveTaskThreads = () => {
 }
 
 // Slider 标记
+const threadCountMarks: Record<number, string> = {
+  1: '1',
+  4: '4',
+  8: '8',
+  16: '16',
+  32: '32',
+  64: '64',
+}
+const formatThreadTooltip = (val: number) => `${val} 线程`
+
 const chunkSizeMarks: Record<number, string> = {
   1048576: '1 MB',
   4194304: '4 MB',
@@ -383,59 +382,15 @@ const chunkSizeMarks: Record<number, string> = {
 }
 const formatChunkTooltip = (val: number) => formatFileSize(val)
 
-// 是否有修改（附加设置）
-const isAdditionChanged = computed(() => {
-  const orig = originalAddition.value
-  if (!orig) return false
-  return (
-    additionForm.localProxy !== orig.localProxy ||
-    additionForm.multipleStream !== orig.multipleStream ||
-    additionForm.multipleStreamThreadCount !== orig.multipleStreamThreadCount ||
-    additionForm.multipleStreamChunkSize !== orig.multipleStreamChunkSize ||
-    additionForm.taskThreadCount !== orig.taskThreadCount
-  )
-})
-
-// 保存附加设置（仅发送变更字段）
-const handleSaveAddition = () => {
-  const orig = originalAddition.value
-  if (!orig) {
-    message.warning('尚未加载当前附加设置')
-    return
-  }
-  const payload: Record<string, unknown> = {}
-  if (additionForm.localProxy !== orig.localProxy) payload.localProxy = additionForm.localProxy
-  if (additionForm.multipleStream !== orig.multipleStream)
-    payload.multipleStream = additionForm.multipleStream
-  if (additionForm.multipleStreamThreadCount !== orig.multipleStreamThreadCount)
-    payload.multipleStreamThreadCount = additionForm.multipleStreamThreadCount
-  if (additionForm.multipleStreamChunkSize !== orig.multipleStreamChunkSize)
-    payload.multipleStreamChunkSize = additionForm.multipleStreamChunkSize
-  if (additionForm.taskThreadCount !== orig.taskThreadCount)
-    payload.taskThreadCount = additionForm.taskThreadCount
-
-  if (Object.keys(payload).length === 0) {
-    message.info('未检测到变更')
-    return
-  }
-
-  savingAddition.value = true
-  modifySettingAddition(payload)
-    .then((res) => {
-      if (res.code === 200) {
-        message.success('附加设置已更新')
-        originalAddition.value = { ...additionForm }
-      } else {
-        message.error(res.msg || '更新失败')
-      }
-    })
-    .catch((err) => {
-      message.error(err instanceof Error ? err.message : '网络错误')
-    })
-    .finally(() => {
-      savingAddition.value = false
-    })
+const taskThreadMarks: Record<number, string> = {
+  1: '1',
+  4: '4',
+  8: '8',
+  16: '16',
+  24: '24',
+  32: '32',
 }
+const formatTaskThreadTooltip = (val: number) => `${val} 任务`
 
 // 标题/URL修改
 const savingTitle = ref(false)
@@ -529,7 +484,6 @@ onMounted(() => {
     .catch(() => {})
     .finally(() => {})
 
-  loadingAddition.value = true
   getSettingAddition()
     .then((res) => {
       if (res.code === 200 && res.data) {
@@ -545,7 +499,6 @@ onMounted(() => {
     })
     .catch(() => {})
     .finally(() => {
-      loadingAddition.value = false
       additionLoaded.value = true
     })
 })
@@ -619,15 +572,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.right-inline .num {
-  width: 120px;
-}
-
-/* 操作行 */
-.setting-item.actions {
-  padding: 12px 0;
 }
 
 /* Switch/Slider 细节优化 */
