@@ -1,9 +1,10 @@
 import localforage from 'localforage'
+import type { StorageType } from '@/types/global'
 
 /** The storage driver (值域) */
-export type StorageType = 'local' | 'session'
+export type StorageDriver = 'local' | 'session'
 
-function createStorage<T extends object>(type: StorageType, storagePrefix: string) {
+function createStorage<T extends object>(type: StorageDriver, storagePrefix: string) {
   const stg = type === 'session' ? window.sessionStorage : window.localStorage
 
   const storage = {
