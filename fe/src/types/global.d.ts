@@ -9,6 +9,11 @@ export namespace StorageType {
     enableDeepRefresh?: boolean
   }
 
+  export type PageAutoRefreshSetting = {
+    autoRefreshEnabled: boolean
+    refreshInterval: number
+  }
+
   export interface Local {
     token: string
     refreshToken: string
@@ -16,5 +21,6 @@ export namespace StorageType {
     user: Models.User
     systemInfo: Models.SystemInfo
     storageSetting: StorageType.StorageSetting
+    pageAutoRefreshSetting: StorageType.PageAutoRefreshSetting
   }
 }

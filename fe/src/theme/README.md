@@ -64,14 +64,14 @@ export const lightThemeOverrides: GlobalThemeOverrides = {
     primaryColor: '#your-color',
     primaryColorHover: '#your-hover-color',
     primaryColorPressed: '#your-pressed-color',
-    
+
     // 修改其他颜色...
   },
-  
+
   // 修改特定组件样式
   Button: {
     borderRadius: '8px', // 修改按钮圆角
-    fontWeight: '600',   // 修改按钮字体粗细
+    fontWeight: '600', // 修改按钮字体粗细
   },
 }
 ```
@@ -86,11 +86,11 @@ export const myCustomTheme: GlobalThemeOverrides = {
     primaryColor: '#your-primary-color',
     // ... 其他配置
   },
-  
+
   Button: {
     // 按钮样式配置
   },
-  
+
   Card: {
     // 卡片样式配置
   },
@@ -125,7 +125,7 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   // ... 其他代码
-  
+
   return {
     isDark,
     themeType,
@@ -150,7 +150,7 @@ const theme = computed(() => createTheme(themeStore.isDark))
 const themeOverrides = computed(() => {
   const baseOverrides = createThemeOverrides(themeStore.isDark)
   const customOverrides = getCustomThemeOverrides(themeStore.themeType)
-  
+
   // 合并主题配置
   return customOverrides ? { ...baseOverrides, ...customOverrides } : baseOverrides
 })
@@ -168,33 +168,33 @@ common: {
   primaryColorHover: string,
   primaryColorPressed: string,
   primaryColorSuppl: string,
-  
+
   // 功能色
   infoColor: string,
   successColor: string,
   warningColor: string,
   errorColor: string,
-  
+
   // 文字颜色
   textColorBase: string,
   textColor1: string,
   textColor2: string,
   textColor3: string,
-  
+
   // 背景颜色
   bodyColor: string,
   cardColor: string,
   modalColor: string,
   popoverColor: string,
-  
+
   // 边框和分割线
   borderColor: string,
   dividerColor: string,
-  
+
   // 圆角
   borderRadius: string,
   borderRadiusSmall: string,
-  
+
   // 字体
   fontFamily: string,
   fontSize: string,
@@ -203,7 +203,7 @@ common: {
   fontSizeMedium: string,
   fontSizeLarge: string,
   fontSizeHuge: string,
-  
+
   // 阴影
   boxShadow1: string,
   boxShadow2: string,
@@ -259,7 +259,7 @@ const colors = {
     500: '#0ea5e9',
     600: '#0284c7',
     700: '#0369a1',
-  }
+  },
 }
 
 // 在主题配置中使用
@@ -268,7 +268,7 @@ export const customTheme: GlobalThemeOverrides = {
     primaryColor: colors.primary[500],
     primaryColorHover: colors.primary[400],
     primaryColorPressed: colors.primary[600],
-  }
+  },
 }
 ```
 
@@ -282,11 +282,11 @@ export const responsiveTheme: GlobalThemeOverrides = {
     fontSize: '14px',
     fontSizeMobile: '16px', // 移动端使用更大的字体
   },
-  
+
   Button: {
     paddingMedium: '0 16px',
     paddingMediumMobile: '0 20px', // 移动端使用更大的内边距
-  }
+  },
 }
 ```
 
@@ -299,12 +299,12 @@ export const accessibleTheme: GlobalThemeOverrides = {
   common: {
     // 确保文字和背景有足够的对比度
     textColor1: '#1a1a1a', // 深色文字
-    bodyColor: '#ffffff',  // 白色背景
-    
+    bodyColor: '#ffffff', // 白色背景
+
     // 使用无障碍友好的颜色
     errorColor: '#dc2626', // 高对比度的红色
     successColor: '#16a34a', // 高对比度的绿色
-  }
+  },
 }
 ```
 
@@ -338,7 +338,7 @@ export const accessibleTheme: GlobalThemeOverrides = {
 const testTheme = {
   Button: {
     color: '#ff0000', // 临时测试红色按钮
-  }
+  },
 }
 </script>
 ```
@@ -348,6 +348,7 @@ const testTheme = {
 ### Q: 主题配置不生效？
 
 A: 检查以下几点：
+
 1. 确保在 `n-config-provider` 中正确传入了 `theme-overrides`
 2. 检查属性名是否正确（参考 Naive UI 官方文档）
 3. 确保颜色值格式正确（使用十六进制或 rgba）
@@ -362,11 +363,11 @@ export const customTheme: GlobalThemeOverrides = {
     // 只影响按钮组件
     color: '#custom-color',
   },
-  
+
   DataTable: {
     // 只影响数据表格组件
     thColor: '#custom-header-color',
-  }
+  },
 }
 ```
 
@@ -385,20 +386,20 @@ const designTokens = {
     small: '4px',
     medium: '6px',
     large: '8px',
-  }
+  },
 }
 
 // 在两个主题中使用相同的令牌
 export const lightTheme = {
   common: {
     borderRadius: designTokens.borderRadius.medium,
-  }
+  },
 }
 
 export const darkTheme = {
   common: {
     borderRadius: designTokens.borderRadius.medium, // 保持一致
-  }
+  },
 }
 ```
 

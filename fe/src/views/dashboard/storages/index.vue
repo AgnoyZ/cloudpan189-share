@@ -32,9 +32,23 @@
           </template>
           重置
         </n-button>
-        <n-text> 上次刷新时间：{{ refreshTime.format('YYYY-MM-DD HH:mm:ss') }} </n-text>
+        <n-text v-if="pageAutoRefreshStore.autoRefreshEnabled">
+          上次刷新时间：{{ refreshTime.format('YYYY-MM-DD HH:mm:ss') }}
+        </n-text>
       </div>
       <div class="header-right">
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <n-button text @click="handlePageSettings" style="margin-right: 8px; font-size: 16px">
+              <template #icon>
+                <n-icon>
+                  <SettingsOutline />
+                </n-icon>
+              </template>
+            </n-button>
+          </template>
+          页面设置
+        </n-tooltip>
         <n-dropdown trigger="click" :options="addMountOptions" @select="handleSelectMountType">
           <n-button type="primary">
             <template #icon>
@@ -328,6 +342,50 @@
       </template>
     </n-modal>
 
+    <!-- 页面设置弹窗 -->
+    <n-modal
+      v-model:show="showPageSettingsModal"
+      preset="dialog"
+      title="页面设置"
+      style="width: 420px"
+    >
+      <div class="page-settings-config">
+        <div class="settings-section">
+          <div class="setting-item">
+            <div class="setting-label">启用自动刷新</div>
+            <n-switch
+              v-model:value="pageSettingsForm.autoRefreshEnabled"
+              @update:value="handlePageAutoRefreshToggle"
+              size="medium"
+            >
+              <template #checked>已开启</template>
+              <template #unchecked>已关闭</template>
+            </n-switch>
+          </div>
+
+          <div v-if="pageSettingsForm.autoRefreshEnabled" class="setting-item">
+            <div class="setting-label">刷新间隔</div>
+            <n-select
+              v-model:value="pageSettingsForm.refreshInterval"
+              :options="refreshIntervalOptions"
+              style="width: 160px"
+              @update:value="handlePageRefreshIntervalChange"
+              size="small"
+            />
+          </div>
+
+          <div v-if="pageSettingsForm.autoRefreshEnabled" class="setting-item">
+            <div class="setting-label">下次刷新</div>
+            <n-text depth="3">{{ nextRefreshTime.format('HH:mm:ss') }}</n-text>
+          </div>
+        </div>
+      </div>
+
+      <template #action>
+        <n-button @click="showPageSettingsModal = false">关闭</n-button>
+      </template>
+    </n-modal>
+
     <!-- 修改令牌弹窗 -->
     <n-modal v-model:show="showModifyTokenModal" preset="dialog" title="修改绑定令牌">
       <div class="modify-token-config">
@@ -383,6 +441,7 @@ import {
   NInputNumber,
   NDatePicker,
   NSelect,
+  NTooltip,
   useMessage,
   useDialog,
   type PaginationProps,
@@ -400,6 +459,7 @@ import {
   AddOutline,
   TrashOutline,
   DocumentsOutline,
+  SettingsOutline,
 } from '@vicons/ionicons5'
 import {
   getStorageList,
@@ -417,6 +477,7 @@ import { useSubscribeMount } from '@/composables/useSubscribeMount'
 import { useShareMount } from '@/composables/useShareMount'
 import { usePersonMount } from '@/composables/usePersonMount'
 import { useFamilyMount } from '@/composables/useFamilyMount'
+import { usePageAutoRefreshStore } from '@/stores/modules/pageAutoRefresh'
 import dayjs from 'dayjs'
 
 // 表格数据
@@ -426,6 +487,7 @@ const searchKeyword = ref('')
 
 // 弹窗控制
 const showAutoRefreshModal = ref(false)
+const showPageSettingsModal = ref(false)
 const showModifyTokenModal = ref(false)
 
 const subscribeMount = useSubscribeMount()
@@ -496,6 +558,91 @@ const handlePageSizeChange = (pageSize: number) => {
 }
 
 const refreshTime = ref(dayjs())
+
+// 使用页面自动刷新store
+const pageAutoRefreshStore = usePageAutoRefreshStore()
+
+// 自动刷新状态管理
+const nextRefreshTime = ref(dayjs().add(pageAutoRefreshStore.refreshInterval, 'second'))
+const intervalTimer = ref<NodeJS.Timeout | null>(null)
+
+// 页面设置表单
+const pageSettingsForm = ref({
+  autoRefreshEnabled: pageAutoRefreshStore.autoRefreshEnabled,
+  refreshInterval: pageAutoRefreshStore.refreshInterval,
+})
+
+// 刷新间隔选项（秒）
+const refreshIntervalOptions = [
+  { label: '30秒', value: 30 },
+  { label: '1分钟', value: 60 },
+  { label: '3分钟', value: 180 },
+  { label: '5分钟', value: 300 },
+  { label: '10分钟', value: 600 },
+]
+
+// 启动自动刷新定时器
+const startAutoRefresh = () => {
+  if (intervalTimer.value) {
+    clearInterval(intervalTimer.value)
+  }
+
+  if (pageAutoRefreshStore.autoRefreshEnabled) {
+    updateNextRefreshTime()
+    intervalTimer.value = setInterval(() => {
+      fetchStorageList()
+      updateNextRefreshTime()
+    }, pageAutoRefreshStore.refreshInterval * 1000)
+  }
+}
+
+// 停止自动刷新定时器
+const stopAutoRefresh = () => {
+  if (intervalTimer.value) {
+    clearInterval(intervalTimer.value)
+    intervalTimer.value = null
+  }
+}
+
+// 更新下次刷新时间
+const updateNextRefreshTime = () => {
+  nextRefreshTime.value = dayjs().add(pageAutoRefreshStore.refreshInterval, 'second')
+}
+
+// 打开页面设置
+const handlePageSettings = () => {
+  // 同步当前状态到表单
+  pageSettingsForm.value = {
+    autoRefreshEnabled: pageAutoRefreshStore.autoRefreshEnabled,
+    refreshInterval: pageAutoRefreshStore.refreshInterval,
+  }
+  showPageSettingsModal.value = true
+}
+
+// 处理页面设置中的自动刷新开关切换
+const handlePageAutoRefreshToggle = (enabled: boolean) => {
+  pageSettingsForm.value.autoRefreshEnabled = enabled
+  pageAutoRefreshStore.updateSettings({ autoRefreshEnabled: enabled })
+
+  if (enabled) {
+    startAutoRefresh()
+    message.success('自动刷新已开启')
+  } else {
+    stopAutoRefresh()
+    message.info('自动刷新已关闭')
+  }
+}
+
+// 处理页面设置中的刷新间隔变更
+const handlePageRefreshIntervalChange = (interval: number) => {
+  pageSettingsForm.value.refreshInterval = interval
+  pageAutoRefreshStore.updateSettings({ refreshInterval: interval })
+
+  if (pageAutoRefreshStore.autoRefreshEnabled) {
+    startAutoRefresh()
+    message.success(`刷新间隔已更改为 ${Math.floor(interval / 60)} 分钟`)
+  }
+}
 
 // 获取存储列表
 const fetchStorageList = () => {
@@ -845,18 +992,22 @@ const formatTaskLogTime = (taskLog: Models.FileTaskLog) => {
   return startTime
 }
 
-const intervalTimer = ref<NodeJS.Timeout | null>(null)
 // 初始化
 onMounted(() => {
   console.log('页面挂载，开始获取数据')
+
+  // 获取数据
   fetchStorageList()
-  intervalTimer.value = setInterval(() => {
-    fetchStorageList()
-  }, 1000 * 10)
+
+  // 启动自动刷新
+  if (pageAutoRefreshStore.autoRefreshEnabled) {
+    startAutoRefresh()
+  }
 })
+
 onUnmounted(() => {
   console.log('页面卸载，清除定时器')
-  clearInterval(intervalTimer.value!)
+  stopAutoRefresh()
 })
 </script>
 
@@ -885,10 +1036,45 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 页面设置样式 */
+.page-settings-config {
+  padding: 8px 0;
+}
+
+.settings-section {
+  padding: 16px 0;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--n-text-color);
+  min-width: 80px;
 }
 
 .header-right {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.header-right .n-button:hover {
+  background-color: var(--n-color-hover);
+  border-radius: 6px;
 }
 
 /* 加载状态 */
@@ -1275,6 +1461,9 @@ onUnmounted(() => {
 
   .header-left {
     justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
   }
 
   .header-right {
