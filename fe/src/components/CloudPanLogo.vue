@@ -1,11 +1,11 @@
+<script setup lang="ts">
+// ✅ 改用 import 方式
+import logoSrc from '@/assets/logo.png'
+</script>
+
 <template>
   <img :src="logoSrc" :width="24" :height="24" class="cloudpan-logo" alt="CloudPan Logo" />
 </template>
-
-<script setup lang="ts">
-// 使用 Vite public 资源路径
-const logoSrc = '/logo.png'
-</script>
 
 <style scoped>
 .cloudpan-logo {
