@@ -4,7 +4,6 @@ import (
 	"regexp"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
-	"github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 )
 
 type getShareInfoRequest struct {
