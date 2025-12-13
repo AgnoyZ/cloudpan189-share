@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
-	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 
 	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
+	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 
 	"gorm.io/gorm"
@@ -66,7 +66,7 @@ func (s *service) BatchParseText(ctx context.Context, req *topic.BatchParseTextR
         return nil, err
     }
     // 构造 AuthToken
-    authToken := cloudbridgeSvi.NewAuthToken(tokenInfo.AccessToken, tokenInfo.ExpiresAt)
+    authToken := cloudbridgeSvi.NewAuthToken(tokenInfo.AccessToken, tokenInfo.ExpiresIn)
 
     var results []*topic.BatchParseItem
     lines := strings.Split(req.Content, "\n")
@@ -93,14 +93,14 @@ func (s *service) BatchParseText(ctx context.Context, req *topic.BatchParseTextR
 
             name := ""
             if err == nil && info != nil {
-                name = info.FileName
+                name = info.Name
             } else {
                 name = "未知分享_" + shareCode
             }
 
             results = append(results, &topic.BatchParseItem{
                 Name:            name,
-                OsType:          consts.OSTypeShareFolder,
+                OsType:          models.OsTypeShareFolder,
                 ShareCode:       shareCode,
                 ShareAccessCode: accessCode,
             })
@@ -118,7 +118,7 @@ func (s *service) BatchParseText(ctx context.Context, req *topic.BatchParseTextR
 
             results = append(results, &topic.BatchParseItem{
                 Name:   name,
-                OsType: consts.OSTypePersonFolder,
+                OsType: models.OsTypePersonFolder,
                 FileId: fileId,
             })
         }

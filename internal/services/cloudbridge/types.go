@@ -23,13 +23,6 @@ type (
 		CurrentPage int         `json:"currentPage"`
 		PageSize    int         `json:"pageSize"`
 	}
-    ShareInfo struct {
-        ShareId    int64  `json:"shareId"`
-        FileName   string `json:"fileName"`
-        IsFolder   bool   `json:"isFolder"`
-        AccessCode string `json:"accessCode"`
-        FileId     string `json:"fileId"`
-    }
 )
 
 func NewAuthToken(accessToken string, expires int64) AuthToken {
