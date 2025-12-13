@@ -3,6 +3,7 @@ package virtualfile
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -58,18 +59,22 @@ func (s *service) BatchUpdatePlus(ctx context.Context, values []utils.Field, exp
 func (s *service) BatchUpdate(ctx context.Context, filesToUpdate map[int64][]utils.Field) error {
 	ctx.Debug("批量更新文件(Map模式)", zap.Int("count", len(filesToUpdate)))
 
-	return s.withLock(ctx, func(db *gorm.DB) *gorm.DB {
-		return db.Transaction(func(tx *gorm.DB) error {
+	var err error
+	s.withLock(ctx, func(db *gorm.DB) *gorm.DB {
+		err = db.Transaction(func(tx *gorm.DB) error {
 			for id, fields := range filesToUpdate {
 				updates := make(map[string]interface{})
 				for _, opt := range fields {
 					updates[opt.Key] = opt.Value
 				}
-				if err := tx.Model(new(models.VirtualFile)).Where("id = ?", id).Updates(updates).Error; err != nil {
-					return err
+				if txErr := tx.Model(&models.VirtualFile{}).Where("id = ?", id).Updates(updates).Error; txErr != nil {
+					return txErr
 				}
 			}
 			return nil
 		})
-	}).Error
+		return db
+	})
+
+	return err
 }
