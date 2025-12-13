@@ -11,10 +11,10 @@ import (
 
 // HandleBatchDelete 后台排队删除处理逻辑
 func (h *handler) HandleBatchDelete() taskcontext.HandlerFunc {
-	return func(ctx taskcontext.Context) error {
+	return func(ctx *taskcontext.Context) error {
 		req := new(topic.FileBatchDeleteRequest)
 
-		if err := ctx.Bind(req); err != nil {
+		if err := ctx.Unmarshal(req); err != nil {
 			h.logger.Error("解析删除任务失败", zap.Error(err))
 			return nil
 		}

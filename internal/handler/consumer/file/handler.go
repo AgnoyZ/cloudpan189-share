@@ -55,7 +55,7 @@ func NewHandler(
 		virtualFileService: virtualFileService,
 		cloudBridgeService: cloudBridgeService,
 		cloudTokenService:  cloudTokenService,
-		mountPointService:  mountPointSvi,
+		mountPointService:  mountPointService,
 		fileTaskLogService: fileTaskLogService,
 		mediaFileService:   mediaFileService,
 		verifyService:      verifyService,
