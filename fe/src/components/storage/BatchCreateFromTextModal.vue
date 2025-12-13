@@ -60,12 +60,12 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue'
 import {
-  NForm, NFormItem, NInput, NSelect, NButton, NAlert, useMessage
+  NForm, NFormItem, NInput, NSelect, NButton, NAlert, useMessage,
+  type FormRules
 } from 'naive-ui'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { batchParseStorageText, type BatchParseItem } from '@/api/storage'
 
-// 修改 Emits，现在返回解析后的数据和Token
 interface Emits {
   (e: 'parsed', payload: { items: BatchParseItem[], token: number }): void
   (e: 'cancel'): void
@@ -86,9 +86,19 @@ const formModel = reactive({
   content: ''
 })
 
-const rules = {
-  cloudToken: [{ type: 'number', required: true, message: '请选择云盘账号', trigger: 'change' }],
-  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
+// 修改点：显式指定类型 : FormRules
+const rules: FormRules = {
+  cloudToken: [{
+    type: 'number',
+    required: true,
+    message: '请选择云盘账号',
+    trigger: ['blur', 'change']
+  }],
+  content: [{
+    required: true,
+    message: '请输入内容',
+    trigger: 'blur'
+  }]
 }
 
 const cloudTokenOptions = computed(() => {
@@ -98,7 +108,6 @@ const cloudTokenOptions = computed(() => {
   }))
 })
 
-// 获取云盘列表
 const fetchCloudTokens = async () => {
   state.loadingTokens = true
   try {
@@ -116,7 +125,6 @@ const fetchCloudTokens = async () => {
   }
 }
 
-// 点击下一步：调用解析接口
 const handleNext = () => {
   (formRef.value as any)?.validate((errors: any) => {
     if (errors || !formModel.cloudToken) return
@@ -130,7 +138,6 @@ const handleNext = () => {
         .then(res => {
           if (res.code === 200 && res.data && res.data.length > 0) {
             message.success(`成功解析 ${res.data.length} 个资源`)
-            // 抛出解析结果，交给父组件(Hook)处理
             emit('parsed', {
               items: res.data,
               token: formModel.cloudToken as number
