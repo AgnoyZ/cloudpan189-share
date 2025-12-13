@@ -31,6 +31,7 @@ type Service interface {
 	BatchDelete(ctx context.Context, ids []int64, hooks ...BatchDeleteHook) (deletedIdList []int64, err error)
 	Update(ctx context.Context, id int64, opts []utils.Field, hooks ...UpdateHook) error
 	ModifyAddition(ctx context.Context, id int64, key string, value any) error
+	BatchUpdate(ctx context.Context, filesToUpdate map[int64][]utils.Field) error
 	BatchUpdatePlus(ctx context.Context, values []utils.Field, exps []clause.Expression) error
 	GroupCountByTopId(ctx context.Context, req *GroupCountByTopIdRequest) ([]*GroupCountByTopId, error)
 	ClearUnusedAncestorFolder(ctx context.Context, subId int64) error

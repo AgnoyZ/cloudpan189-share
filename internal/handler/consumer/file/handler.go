@@ -3,6 +3,7 @@ package file
 import (
 	"path"
 	"sync"
+	"time"
 
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
