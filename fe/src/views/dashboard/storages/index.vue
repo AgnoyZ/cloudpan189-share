@@ -37,6 +37,16 @@
         </n-text>
       </div>
       <div class="header-right">
+        <template v-if="isBatchMode">
+          <n-button type="error" @click="handleBatchDelete" style="margin-right: 12px" :disabled="selectedIds.length === 0">
+            <template #icon><n-icon><TrashOutline /></n-icon></template>
+            删除选中 ({{ selectedIds.length }})
+          </n-button>
+          <n-button @click="exitBatchMode" style="margin-right: 12px">取消</n-button>
+        </template>
+        <template v-else>
+          <n-button @click="enterBatchMode" style="margin-right: 12px">批量管理</n-button>
+        </template>
         <n-tooltip trigger="hover">
           <template #trigger>
             <n-button text @click="handlePageSettings" style="margin-right: 8px; font-size: 16px">
@@ -72,25 +82,42 @@
     </div>
 
     <!-- 存储卡片列表 -->
-    <div v-else class="storage-cards">
+
+    <div class="storage-cards">
       <n-card
-        v-for="storage in tableData"
-        :key="storage.id"
-        class="storage-card"
-        hoverable
-        :bordered="false"
+          v-for="storage in tableData"
+          :key="storage.id"
+          class="storage-card"
+          :class="{ 'is-selected': selectedIds.includes(storage.id) }"
+          hoverable
+          :bordered="false"
+          @click="handleCardClick(storage.id)"
       >
+        <!-- 选择遮罩 -->
+        <div v-if="isBatchMode" class="selection-overlay">
+          <n-checkbox
+              :checked="selectedIds.includes(storage.id)"
+              class="selection-checkbox"
+              size="large"
+              @click.stop="toggleSelection(storage.id)"
+          />
+        </div>
+        <!-- 存储卡片内容 -->
         <template #header>
           <div class="card-header">
             <div class="storage-info">
               <div class="storage-title">
-                <n-text strong class="storage-name">{{ storage.name || '未命名存储' }}</n-text>
+                <n-text strong class="storage-name">
+                  {{ storage.name || '未命名存储' }}
+                </n-text>
               </div>
               <n-ellipsis class="storage-path" :tooltip="{ placement: 'top' }">
                 {{ storage.fullPath || '-' }}
               </n-ellipsis>
             </div>
-            <div class="storage-actions">
+
+            <!-- 非批量模式才显示操作按钮 -->
+            <div class="storage-actions" v-if="!isBatchMode">
               <n-button size="small" quaternary circle @click="handleModifyToken(storage)">
                 <template #icon>
                   <n-icon :size="16">
@@ -98,6 +125,7 @@
                   </n-icon>
                 </template>
               </n-button>
+
               <n-button size="small" quaternary circle @click="handleDelete(storage)">
                 <template #icon>
                   <n-icon :size="16">
@@ -105,10 +133,11 @@
                   </n-icon>
                 </template>
               </n-button>
+
               <n-dropdown
-                :options="getRefreshOptions(storage.id)"
-                @select="handleRefreshSelect"
-                trigger="click"
+                  :options="getRefreshOptions(storage.id)"
+                  @select="handleRefreshSelect"
+                  trigger="click"
               >
                 <n-button size="small" quaternary circle>
                   <template #icon>
@@ -423,6 +452,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import {
+  NCheckbox,
   NInput,
   NButton,
   NCard,
@@ -468,7 +498,7 @@ import {
   toggleAutoRefresh,
   modifyToken,
 } from '@/api/storage'
-import type { StorageInfo } from '@/api/storage'
+import type { StorageInfo, batchDeleteStorage } from '@/api/storage'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { formatDateTime } from '@/utils/time'
 import { getOsTypeDisplayName, getOsTypeColor, mountTypeConfigs } from '@/utils/osType'
@@ -805,6 +835,63 @@ const handleDelete = (storage: StorageInfo) => {
   })
 }
 
+// 批量操作状态
+const isBatchMode = ref(false)
+const selectedIds = ref<number[]>([])
+
+// 进入批量模式
+const enterBatchMode = () => {
+  isBatchMode.value = true
+  selectedIds.value = []
+}
+
+// 退出批量模式
+const exitBatchMode = () => {
+  isBatchMode.value = false
+  selectedIds.value = []
+}
+
+// 切换选中状态
+const toggleSelection = (id: number) => {
+  if (selectedIds.value.includes(id)) {
+    selectedIds.value = selectedIds.value.filter(item => item !== id)
+  } else {
+    selectedIds.value.push(id)
+  }
+}
+
+// 处理卡片点击（在批量模式下作为选择）
+const handleCardClick = (id: number) => {
+  if (isBatchMode.value) {
+    toggleSelection(id)
+  }
+}
+
+// 处理批量删除
+const handleBatchDelete = () => {
+  if (selectedIds.value.length === 0) return
+
+  dialog.warning({
+    title: '批量删除',
+    content: `确定要删除选中的 ${selectedIds.value.length} 个挂载点吗？此操作不可撤销。`,
+    positiveText: '确认删除',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      message.loading('正在批量删除...')
+
+      batchDeleteStorage({ ids: selectedIds.value })
+          .then(() => {
+            message.success('批量删除成功')
+            exitBatchMode()
+            fetchStorageList()
+          })
+          .catch((error) => {
+            message.error(error?.message || '批量删除失败')
+          })
+    }
+  })
+}
+
 // 处理编辑自动刷新
 const handleEditAutoRefresh = (storage: StorageInfo) => {
   currentEditStorage.value = storage
@@ -1105,6 +1192,31 @@ onUnmounted(() => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
+  position: relative;
+}
+
+.storage-card.is-selected {
+  border: 1px solid var(--n-primary-color);
+  background-color: var(--n-color-hover);
+}
+
+.selection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  cursor: pointer;
+  /* 半透明背景，让用户知道处于选择模式 */
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.selection-checkbox {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 11;
 }
 
 .storage-card:hover {

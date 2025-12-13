@@ -14,6 +14,7 @@ type Service interface {
 	List(ctx context.Context, req *ListRequest) ([]*models.MountPoint, error)
 	Count(ctx context.Context, req *ListRequest) (int64, error)
 	Delete(ctx context.Context, fileId int64) error
+    BatchDelete(ctx context.Context, ids []int64) error
 	EnableAutoRefresh(ctx context.Context, fileId int64, enable bool) error
 	GetAutoRefreshList(ctx context.Context, req *GetAutoRefreshListRequest) ([]*models.MountPoint, error)
 	UpdateRefreshConfig(ctx context.Context, fileId int64, config RefreshConfig) error

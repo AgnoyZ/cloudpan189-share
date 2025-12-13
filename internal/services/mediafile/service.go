@@ -1,6 +1,7 @@
 package mediafile
 
 import (
+	"os"
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
@@ -18,6 +19,7 @@ type Service interface {
 	QueryStrm(ctx context.Context, fid int64) (*models.MediaFile, error)
 	QueryByPath(ctx context.Context, path string) (*models.MediaFile, error)
 	DeleteStrm(ctx context.Context, fid int64, rootPath string) error
+	DeleteStrmByFullPath(ctx context.Context, fullPath string) error
 	ClearEmptyDir(ctx context.Context, entryPath string) error
 	Clear(ctx context.Context, rootPath string) error
 }
@@ -34,4 +36,11 @@ func NewService(svc bootstrap.ServiceContext) Service {
 
 func (s *service) getDB(ctx context.Context) *gorm.DB {
 	return s.svc.GetDB(ctx).Model(new(models.MediaFile))
+}
+
+func (s *service) DeleteStrmByFullPath(ctx context.Context, fullPath string) error {
+	if err := os.Remove(fullPath); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
 }

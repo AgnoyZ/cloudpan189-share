@@ -96,14 +96,13 @@ func (h *handler) walkFile(ctx context.Context, rootId int64, walkFunc walkFunc)
 			return err
 		}
 	}
-
+	time.Sleep(5 * time.Millisecond)
 	ctx.Debug(
 		"开始处理文件",
 		zap.Int64("file_id", file.ID),
 		zap.String("file_name", file.Name),
 	)
 
-	// 判断是否还要继续
 	if nextFiles, walkErr := walkFunc(ctx, file, children); walkErr != nil {
 		return walkErr
 	} else if len(nextFiles) > 0 {
@@ -116,6 +115,7 @@ func (h *handler) walkFile(ctx context.Context, rootId int64, walkFunc walkFunc)
 		// 如果只有一个线程或者文件数量很少，使用串行处理
 		if threadCount == 1 || len(nextFiles) <= 1 {
 			for _, nextFile := range nextFiles {
+        time.Sleep(2 * time.Millisecond)
 				if err = h.walkFile(ctx, nextFile.ID, walkFunc); err != nil {
 					return err
 				}
@@ -135,8 +135,10 @@ func (h *handler) walkFile(ctx context.Context, rootId int64, walkFunc walkFunc)
 
 					// 获取信号量
 					semaphore <- struct{}{}
-
-					defer func() { <-semaphore }()
+					defer func() {
+                        <-semaphore
+                        time.Sleep(10 * time.Millisecond)
+                    }()
 
 					if err = h.walkFile(ctx, file.ID, walkFunc); err != nil {
 						errorChan <- err

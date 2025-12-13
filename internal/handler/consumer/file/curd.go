@@ -4,6 +4,7 @@ import (
 	"path"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
@@ -18,29 +19,43 @@ import (
 	"go.uber.org/zap"
 )
 
-// 为了 实现 hook 功能，添加中间函数操作
+// batchDeleteFiles 递归删除文件
 func (h *handler) batchDeleteFiles(ctx context.Context, filesToDelete []*models.VirtualFile) (err error) {
+	if len(filesToDelete) == 0 {
+		return nil
+	}
+
 	ids := make([]int64, 0, len(filesToDelete))
 	for _, file := range filesToDelete {
 		ids = append(ids, file.ID)
 	}
 
+	// 执行当前层级的删除
 	if _, err = h.virtualFileService.BatchDelete(ctx, ids, h.deleteStrmIterator); err != nil {
 		ctx.Error("批量删除文件 - 服务层删除失败", zap.Int64s("file_ids", ids), zap.Error(err))
 
 		return err
 	}
 
+	// 性能优化：删除一批文件后，短暂休眠，释放 DB 锁给前台 Web 请求
+	time.Sleep(10 * time.Millisecond)
+
 	for _, file := range filesToDelete {
 		if file.IsDir {
-			if child, childErr := h.virtualFileService.List(ctx, &virtualfile.ListRequest{
+			// 更新上下文中的路径，以便子文件的 strm 删除能找到正确路径
+			currentPath, _ := ctx.GetString(consts.CtxKeyFileFullPath)
+			subCtx := ctx.WithValue(consts.CtxKeyFileFullPath, path.Join(currentPath, file.Name))
+
+			if child, childErr := h.virtualFileService.List(subCtx, &virtualfile.ListRequest{
 				ParentId: &file.ID,
 			}); childErr != nil {
-				ctx.Error("批量删除文件 - 服务层查询子节点失败", zap.Int64("file_id", file.ID), zap.Error(childErr))
-
+				// 忽略记录不存在的错误，可能已经被并发删除了
+				if !errors.Is(childErr, gorm.ErrRecordNotFound) {
+					ctx.Error("批量删除文件 - 服务层查询子节点失败", zap.Int64("file_id", file.ID), zap.Error(childErr))
+				}
 				continue
 			} else if len(child) > 0 {
-				if err = h.batchDeleteFiles(ctx, child); err != nil {
+				if err = h.batchDeleteFiles(subCtx, child); err != nil {
 					ctx.Error("批量删除文件 - 子节点删除失败", zap.Int64("file_id", file.ID), zap.Error(err))
 
 					continue
@@ -52,6 +67,7 @@ func (h *handler) batchDeleteFiles(ctx context.Context, filesToDelete []*models.
 	return nil
 }
 
+// clearMountFiles 清理挂载点下的所有文件
 func (h *handler) clearMountFiles(ctx context.Context, topId int64) error {
 	ctx.Debug("清理挂载文件 - 开始清理", zap.Int64("top_id", topId))
 
@@ -59,11 +75,10 @@ func (h *handler) clearMountFiles(ctx context.Context, topId int64) error {
 		files, err := h.virtualFileService.List(ctx, &virtualfile.ListRequest{
 			TopId:       &topId,
 			CurrentPage: 1,
-			PageSize:    1000,
+			PageSize:    500,
 		})
 		if err != nil {
 			ctx.Error("清理挂载文件 - 服务层查询失败", zap.Int64("top_id", topId), zap.Error(err))
-
 			return err
 		}
 
@@ -71,16 +86,26 @@ func (h *handler) clearMountFiles(ctx context.Context, topId int64) error {
 			break
 		}
 
-		fileIds := make([]int64, 0, len(files))
+		// 过滤掉挂载点自己（防止死循环，通常 TopId=ID 时 List 会查出来）
+		filesToDelete := make([]int64, 0, len(files))
 		for _, file := range files {
-			fileIds = append(fileIds, file.ID)
+			if file.ID != topId {
+				filesToDelete = append(filesToDelete, file.ID)
+			}
 		}
 
-		if _, err = h.virtualFileService.BatchDelete(ctx, fileIds, h.deleteStrmIterator); err != nil {
-			ctx.Error("批量删除文件 - 服务层删除失败", zap.Int64s("file_ids", fileIds), zap.Error(err))
-
-			continue
+		if len(filesToDelete) == 0 {
+			break
 		}
+
+		if _, err = h.virtualFileService.BatchDelete(ctx, filesToDelete, h.deleteStrmIterator); err != nil {
+			ctx.Error("批量删除文件 - 服务层删除失败", zap.Int64s("file_ids", filesToDelete), zap.Error(err))
+			// 如果删除失败，避免死循环
+			return err
+		}
+
+		// 性能优化：每批次处理完，强制休眠，让出 CPU 和 DB 锁
+		time.Sleep(50 * time.Millisecond)
 	}
 
 	return nil
@@ -93,23 +118,15 @@ func (h *handler) batchCreateFiles(ctx context.Context, pid int64, filesToCreate
 
 		return err
 	}
-
+	// 性能优化：创建操作后也休眠一下
+	time.Sleep(10 * time.Millisecond)
 	return nil
 }
 
 func (h *handler) batchUpdateFiles(ctx context.Context, filesToUpdate map[int64][]utils.Field) (err error) {
-	var texts []string
-
-	for fid, fields := range filesToUpdate {
-		if err = h.virtualFileService.Update(ctx, fid, fields); err != nil {
-			ctx.Error("批量更新文件 - 服务层更新失败", zap.Int64("file_id", fid), zap.Error(err))
-
-			texts = append(texts, err.Error())
-		}
-	}
-
-	if len(texts) > 0 {
-		return errors.New(strings.Join(texts, "; "))
+	if err = h.virtualFileService.BatchUpdate(ctx, filesToUpdate); err != nil {
+		ctx.Error("批量更新文件 - 服务层更新失败", zap.Error(err))
+		return err
 	}
 
 	return nil
@@ -161,13 +178,39 @@ func (h *handler) createStrmIteratorfunc(ctx context.Context, result *gorm.DB, f
 	}
 }
 
-func (h *handler) deleteStrmIterator(ctx context.Context, result *gorm.DB, idList []int64) {
+func (h *handler) deleteStrmIterator(ctx context.Context, result *gorm.DB, files []*models.VirtualFile) {
 	if result.Error == nil && shared.MediaConfig != nil && shared.MediaConfig.Enable {
-		ctx.Debug("批量删除文件 - 删除 strm 文件", zap.Int("file_count", len(idList)))
+		ctx.Debug("批量删除文件 - 删除 strm 文件", zap.Int("file_count", len(files)))
 
-		for _, fileId := range idList {
-			if err := h.mediaFileService.DeleteStrm(ctx, fileId, shared.MediaConfig.StoragePath); err != nil {
-				ctx.Error("批量删除文件 - 遍历 - 删除 strm 文件失败", zap.Int64("file_id", fileId), zap.Error(err))
+		// 尝试从 Context 获取当前目录的完整路径（这是物理路径的前缀/虚拟路径）
+		// 注意：这里的 dirPath 是虚拟路径，我们需要结合 StoragePath 转换为物理路径
+		dirPath, hasPath := ctx.GetString(consts.CtxKeyFileFullPath)
+
+		for _, file := range files {
+			if file.IsDir {
+				continue
+			}
+
+			// 逻辑 1: 如果有 fileId，尝试清理数据库记录（如果 media_file 表存在）
+			_ = h.mediaFileService.DeleteStrm(ctx, file.ID, shared.MediaConfig.StoragePath)
+
+			// 逻辑 2: 物理删除 strm 文件
+			if hasPath {
+				extName := path.Ext(file.Name)
+				if len(shared.MediaConfig.IncludedSuffixes) > 0 && !slices.Contains(shared.MediaConfig.IncludedSuffixes, extName) {
+					continue
+				}
+
+				// 构造 strm 文件名
+				strmName := strings.TrimSuffix(file.Name, extName) + ".strm"
+
+				fullPhysicalPath := path.Join(shared.MediaConfig.StoragePath, dirPath, strmName)
+
+				if err := h.mediaFileService.DeleteStrmByFullPath(ctx, fullPhysicalPath); err != nil {
+					ctx.Warn("删除 strm 物理文件失败", zap.String("path", fullPhysicalPath), zap.Error(err))
+				} else {
+					ctx.Debug("删除 strm 物理文件成功", zap.String("path", fullPhysicalPath))
+				}
 			}
 		}
 	}

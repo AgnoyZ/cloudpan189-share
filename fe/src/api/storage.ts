@@ -33,6 +33,11 @@ export interface DeleteStorageRequest {
   id: number // 存储节点ID
 }
 
+// 批量删除存储挂载请求接口
+export interface BatchDeleteStorageRequest {
+    ids: number[]
+}
+
 // 刷新存储挂载请求接口
 export interface RefreshStorageRequest {
   id: number // 挂载点ID
@@ -91,6 +96,11 @@ export const addStorage = (data: AddStorageRequest): Promise<ApiResponse<AddStor
 // 删除存储挂载
 export const deleteStorage = (data: DeleteStorageRequest): Promise<ApiResponse> => {
   return api.post('/storage/delete', data).then((res) => res.data)
+}
+
+// 批量删除存储挂载
+export const batchDeleteStorage = (data: BatchDeleteStorageRequest): Promise<ApiResponse> => {
+    return api.post('/storage/batch_delete', data).then((res) => res.data)
 }
 
 // 获取存储挂载点列表
