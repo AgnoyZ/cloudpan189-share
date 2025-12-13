@@ -1,6 +1,8 @@
 package virtualfile
 
 import (
+	"time"
+
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
@@ -57,24 +59,61 @@ func (s *service) BatchUpdatePlus(ctx context.Context, values []utils.Field, exp
 }
 
 func (s *service) BatchUpdate(ctx context.Context, filesToUpdate map[int64][]utils.Field) error {
-	ctx.Debug("批量更新文件(Map模式)", zap.Int("count", len(filesToUpdate)))
+	total := len(filesToUpdate)
+	ctx.Debug("批量更新文件(Map模式)", zap.Int("total_count", total))
 
-	var err error
-	s.withLock(ctx, func(db *gorm.DB) *gorm.DB {
-		err = db.Transaction(func(tx *gorm.DB) error {
-			for id, fields := range filesToUpdate {
-				updates := make(map[string]interface{})
-				for _, opt := range fields {
-					updates[opt.Key] = opt.Value
+	if total == 0 {
+		return nil
+	}
+
+	// 1. 将 map 转换为 slice 以便分批处理
+	type updateItem struct {
+		ID     int64
+		Fields []utils.Field
+	}
+	items := make([]updateItem, 0, total)
+	for id, fields := range filesToUpdate {
+		items = append(items, updateItem{ID: id, Fields: fields})
+	}
+
+	// 2. 定义批次大小
+	batchSize := 10 // 每次事务处理 50 条，避免长事务
+
+	for i := 0; i < total; i += batchSize {
+		end := i + batchSize
+		if end > total {
+			end = total
+		}
+
+		batchItems := items[i:end]
+
+		// 3. 执行小事务
+		var err error
+		s.withLock(ctx, func(db *gorm.DB) *gorm.DB {
+			err = db.Transaction(func(tx *gorm.DB) error {
+				for _, item := range batchItems {
+					updates := make(map[string]interface{})
+					for _, opt := range item.Fields {
+						updates[opt.Key] = opt.Value
+					}
+					// 执行单条更新
+					if txErr := tx.Model(&models.VirtualFile{}).Where("id = ?", item.ID).Updates(updates).Error; txErr != nil {
+						return txErr
+					}
 				}
-				if txErr := tx.Model(&models.VirtualFile{}).Where("id = ?", id).Updates(updates).Error; txErr != nil {
-					return txErr
-				}
-			}
-			return nil
+				return nil
+			})
+			return db
 		})
-		return db
-	})
 
-	return err
+		if err != nil {
+			// 如果某一批次失败，记录错误但继续尝试下一批（或者根据业务需求直接返回错误）
+			ctx.GetContext().Error("批量更新分片失败", zap.Int("start_index", i), zap.Error(err))
+			return err
+		}
+
+		time.Sleep(20 * time.Millisecond)
+	}
+
+	return nil
 }

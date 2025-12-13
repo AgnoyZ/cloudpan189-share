@@ -38,6 +38,13 @@
       </div>
       <div class="header-right">
         <template v-if="isBatchMode">
+          <n-button
+              :type="isAllSelected ? 'warning' : 'default'"
+              @click="toggleSelectAll"
+              style="margin-right: 12px"
+          >
+            {{ isAllSelected ? '取消全选' : '全选当页' }}
+          </n-button>
           <n-button type="error" @click="handleBatchDelete" style="margin-right: 12px" :disabled="selectedIds.length === 0">
             <template #icon><n-icon><TrashOutline /></n-icon></template>
             删除选中 ({{ selectedIds.length }})
@@ -834,6 +841,29 @@ const handleDelete = (storage: StorageInfo) => {
         })
     },
   })
+}
+
+// 计算属性：当前页面展示的所有 ID
+const currentViewIds = computed(() => tableData.map(item => item.id))
+
+// 计算属性：是否已全选当前页
+const isAllSelected = computed(() => {
+  if (tableData.length === 0) return false
+  // 检查当前页的所有 ID 是否都在 selectedIds 中
+  return currentViewIds.value.every(id => selectedIds.value.includes(id))
+})
+
+// 处理全选/取消全选
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    // 如果已全选，则移除当前页的所有 ID (保留可能在其他页选中的 ID，如果你的逻辑支持跨页的话。这里简化为只操作当前页)
+    // 简单逻辑：从 selectedIds 中过滤掉当前页的 ID
+    selectedIds.value = selectedIds.value.filter(id => !currentViewIds.value.includes(id))
+  } else {
+    // 未全选，将当前页未选中的 ID 加进去
+    const newIds = currentViewIds.value.filter(id => !selectedIds.value.includes(id))
+    selectedIds.value.push(...newIds)
+  }
 }
 
 // 批量操作状态

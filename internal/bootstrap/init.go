@@ -27,6 +27,9 @@ func useSQLiteDB(c *configs.Config) (db *gorm.DB, err error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open SQLite database")
 	}
+	db.Exec("PRAGMA journal_mode = WAL;")
+	db.Exec("PRAGMA synchronous = NORMAL;")
+	db.Exec("PRAGMA busy_timeout = 5000;")
 
 	if err = db.Use(new(TracePlugin)); err != nil {
 		return nil, errors.Wrap(err, "failed to register trace plugin")
