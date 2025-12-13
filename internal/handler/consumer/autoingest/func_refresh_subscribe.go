@@ -167,6 +167,7 @@ func (h *handler) RefreshSubscribe() taskcontext.HandlerFunc {
 				}
 
 				addCount++
+                time.Sleep(50 * time.Millisecond)
 			}
 		}
 

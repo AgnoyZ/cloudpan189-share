@@ -77,7 +77,7 @@ func (s *service) BatchUpdate(ctx context.Context, filesToUpdate map[int64][]uti
 	}
 
 	// 2. 定义批次大小
-	batchSize := 10 // 每次事务处理 50 条，避免长事务
+	batchSize := 10 // 每次事务处理 10 条
 
 	for i := 0; i < total; i += batchSize {
 		end := i + batchSize
@@ -107,11 +107,11 @@ func (s *service) BatchUpdate(ctx context.Context, filesToUpdate map[int64][]uti
 		})
 
 		if err != nil {
-			// 如果某一批次失败，记录错误但继续尝试下一批（或者根据业务需求直接返回错误）
-			ctx.GetContext().Error("批量更新分片失败", zap.Int("start_index", i), zap.Error(err))
+			ctx.Error("批量更新分片失败", zap.Int("start_index", i), zap.Error(err))
 			return err
 		}
 
+		// 4. 休眠释放锁
 		time.Sleep(20 * time.Millisecond)
 	}
 
