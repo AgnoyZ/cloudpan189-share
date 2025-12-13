@@ -26,7 +26,7 @@ import (
 type Handler interface {
 	ScanFile() taskcontext.HandlerFunc
 	ClearFile() taskcontext.HandlerFunc
-    HandleBatchDelete() taskcontext.HandlerFunc
+	HandleBatchDelete() taskcontext.HandlerFunc
 }
 
 type handler struct {
@@ -55,7 +55,7 @@ func NewHandler(
 		virtualFileService: virtualFileService,
 		cloudBridgeService: cloudBridgeService,
 		cloudTokenService:  cloudTokenService,
-		mountPointService:  mountPointService,
+		mountPointService:  mountPointSvi,
 		fileTaskLogService: fileTaskLogService,
 		mediaFileService:   mediaFileService,
 		verifyService:      verifyService,

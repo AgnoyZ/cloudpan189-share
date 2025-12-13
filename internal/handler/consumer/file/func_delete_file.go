@@ -1,7 +1,6 @@
 package file
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
@@ -13,10 +12,10 @@ import (
 // HandleBatchDelete 后台排队删除处理逻辑
 func (h *handler) HandleBatchDelete() taskcontext.HandlerFunc {
 	return func(ctx taskcontext.Context) error {
-		payload := ctx.Payload()
-
 		req := new(topic.FileBatchDeleteRequest)
-		if err := json.Unmarshal(payload, req); err != nil {
+
+		if err := ctx.Bind(req); err != nil {
+			h.logger.Error("解析删除任务失败", zap.Error(err))
 			return nil
 		}
 

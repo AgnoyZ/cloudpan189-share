@@ -38,6 +38,23 @@ export interface BatchDeleteStorageRequest {
     ids: number[]
 }
 
+// 批量文本导入挂载请求接口
+export interface BatchCreateTextRequest {
+    content: string // 文本内容（一行一个资源）
+    cloudToken: number // 云盘令牌ID
+    enableAutoRefresh?: boolean // 是否启用自动刷新
+    refreshInterval?: number // 刷新间隔，单位秒
+    shareAccessCode?: string // 默认提取码（可选）
+}
+
+// 批量文本导入挂载响应接口
+export interface BatchCreateTextResponse {
+    total: number // 总行数
+    success: number // 成功数量
+    failed: number // 失败数量
+}
+
+
 // 刷新存储挂载请求接口
 export interface RefreshStorageRequest {
   id: number // 挂载点ID
@@ -101,6 +118,13 @@ export const deleteStorage = (data: DeleteStorageRequest): Promise<ApiResponse> 
 // 批量删除存储挂载
 export const batchDeleteStorage = (data: BatchDeleteStorageRequest): Promise<ApiResponse> => {
     return api.post('/storage/batch_delete', data).then((res) => res.data)
+}
+
+// 文本批量导入存储挂载
+export const batchCreateStorageFromText = (
+    data: BatchCreateTextRequest
+): Promise<ApiResponse<BatchCreateTextResponse>> => {
+    return api.post('/storage/batch_create_text', data).then((res) => res.data)
 }
 
 // 获取存储挂载点列表

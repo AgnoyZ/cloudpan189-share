@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
-	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	"go.uber.org/zap"
 )
@@ -60,45 +59,61 @@ func (h *handler) BatchCreateFromText() httpcontext.HandlerFunc {
 
 			parts := strings.Fields(line)
 			resourceStr := parts[0]
-			currentAccessCode := req.ShareAccessCode
-			if len(parts) > 1 {
-				currentAccessCode = parts[1]
-			}
+			// 这里的 AccessCode 解析虽然保留，但目前的 CreateRequest 结构体中没有对应字段
+			// 如果业务需要存储访问码，请在 mountPointSvi.CreateRequest 中添加字段，或将其编码进 FullPath 中
+			// currentAccessCode := req.ShareAccessCode
+			// if len(parts) > 1 {
+			// 	currentAccessCode = parts[1]
+			// }
 
-			// 1. 先构建 Model 对象
-			mp := &models.MountPoint{
-				TokenId:           req.CloudToken,
-				EnableAutoRefresh: req.EnableAutoRefresh,
-				RefreshInterval:   req.RefreshInterval,
-			}
+			var createReq *mountPointSvi.CreateRequest
 
+			// 匹配分享链接
 			if matches := reShareLink.FindStringSubmatch(resourceStr); len(matches) > 1 {
 				shareCode := matches[1]
-				mp.Name = "分享导入_" + shareCode
-				mp.OsType = protocolSubscribeShare
-				mp.TokenName = shareCode
-				mp.Password = currentAccessCode
+				// Service 层逻辑：name = parts[len(parts)-1]，所以构造 FullPath 来传递 Name
+				name := "分享_" + shareCode
+
+				createReq = &mountPointSvi.CreateRequest{
+					TokenId:           req.CloudToken,
+					FullPath:          "/" + name, // 构造路径以便 Service 提取名称
+					OsType:            protocolSubscribeShare,
+					EnableAutoRefresh: req.EnableAutoRefresh,
+					RefreshInterval:   req.RefreshInterval,
+					FileId: 0,
+				}
+
+			// 匹配纯数字文件夹ID
 			} else if reFolderID.MatchString(resourceStr) {
 				fileId, _ := strconv.ParseInt(resourceStr, 10, 64)
-				mp.Name = "文件夹导入_" + resourceStr
-				mp.OsType = protocolSubscribe
-				mp.FileId = fileId
+				name := "文件夹_" + resourceStr
+
+				createReq = &mountPointSvi.CreateRequest{
+					TokenId:           req.CloudToken,
+					FullPath:          "/" + name, // 构造路径以便 Service 提取名称
+					OsType:            protocolSubscribe,
+					FileId:            fileId,
+					EnableAutoRefresh: req.EnableAutoRefresh,
+					RefreshInterval:   req.RefreshInterval,
+				}
 			} else {
+				ctx.GetContext().Warn("无法识别的资源格式", zap.String("line", line))
 				failCount++
 				continue
 			}
 
-			// 2. 构造 Request 对象
-			createReq := &mountPointSvi.CreateRequest{
-				MountPoint: mp,
-			}
-
-			// 3. 调用 Service 层创建
-			if _, err := h.mountPointService.Create(ctx.GetContext(), createReq); err != nil {
-				ctx.GetContext().Error("批量创建失败", zap.String("source", line), zap.Error(err))
-				failCount++
-			} else {
-				successCount++
+			// 执行创建
+			if createReq != nil {
+				_, err := h.mountPointService.Create(ctx.GetContext(), createReq)
+				if err != nil {
+					ctx.GetContext().Error("批量导入创建失败",
+						zap.Error(err),
+						zap.String("line", line),
+					)
+					failCount++
+				} else {
+					successCount++
+				}
 			}
 		}
 
