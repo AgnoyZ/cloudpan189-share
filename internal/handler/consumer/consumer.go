@@ -58,6 +58,11 @@ func Start(svc bootstrap.ServiceContext) error {
 			return err
 		}
 
+        if err := taskEngine.RegisterProcessor(new(topic.FileBatchDeleteRequest).Topic(), wrap(fileHandler.HandleBatchDelete)); err != nil {
+			logger.Error("注册文件批量删除处理器失败")
+			return err
+		}
+
 		if err := taskEngine.RegisterProcessor(new(topic.FileClearFileRequest).Topic(), wrap(fileHandler.ClearFile())); err != nil {
 			logger.Error("注册文件清理处理器失败")
 

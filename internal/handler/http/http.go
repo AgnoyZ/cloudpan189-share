@@ -139,6 +139,7 @@ func Start(svc bootstrap.ServiceContext) {
 			storageRouter.POST("/add", wrap(storageHandler.Add()))
 			storageRouter.POST("/delete", wrap(storageHandler.Delete()))
 			storageRouter.POST("/batch_delete", wrap(storageHandler.BatchDelete()))
+			storageRouter.POST("/batch_create_text", wrap(storageHandler.BatchCreateFromText()))
 			storageRouter.GET("/list", wrap(storageHandler.List()))
 			storageRouter.GET("/select_list", wrap(storageHandler.SelectList()))
 			storageRouter.POST("/refresh", wrap(storageHandler.Refresh()))

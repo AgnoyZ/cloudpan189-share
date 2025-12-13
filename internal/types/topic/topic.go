@@ -44,3 +44,13 @@ type MediaRebuildStrmFileRequest struct{}
 func (r MediaRebuildStrmFileRequest) Topic() taskengine.Topic {
 	return taskengine.Topic(KeyMediaRebuildStrmFile)
 }
+
+// 2. 定义请求结构体
+type FileBatchDeleteRequest struct {
+	IDs []int64 `json:"ids"`
+}
+
+// 3. 实现接口
+func (r FileBatchDeleteRequest) Topic() taskengine.Topic {
+	return taskengine.Topic(KeyFileBatchDelete)
+}

@@ -26,6 +26,7 @@ import (
 type Handler interface {
 	ScanFile() taskcontext.HandlerFunc
 	ClearFile() taskcontext.HandlerFunc
+    HandleBatchDelete(ctx context.Context, payload []byte) error
 }
 
 type handler struct {
