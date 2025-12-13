@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	"go.uber.org/zap"
 )
@@ -37,7 +38,6 @@ func (h *handler) BatchCreateFromText() httpcontext.HandlerFunc {
 			return
 		}
 
-		// 校验 CloudToken
 		tokenInfo, err := h.cloudTokenService.Query(ctx.GetContext(), req.CloudToken)
 		if err != nil || tokenInfo == nil {
 			ctx.Fail(busCodeStorageCloudTokenNotExist)
@@ -65,42 +65,37 @@ func (h *handler) BatchCreateFromText() httpcontext.HandlerFunc {
 				currentAccessCode = parts[1]
 			}
 
-			// 注意：这里使用 mountPointSvi.CreateRequest 而不是 models.MountPoint
-			var createReq *mountPointSvi.CreateRequest
+			// 1. 先构建 Model 对象
+			mp := &models.MountPoint{
+				TokenId:           req.CloudToken,
+				EnableAutoRefresh: req.EnableAutoRefresh,
+				RefreshInterval:   req.RefreshInterval,
+			}
 
 			if matches := reShareLink.FindStringSubmatch(resourceStr); len(matches) > 1 {
 				shareCode := matches[1]
-				// 分享链接
-				createReq = &mountPointSvi.CreateRequest{
-					Name:              "分享导入_" + shareCode,
-					TokenId:           req.CloudToken,
-					OsType:            protocolSubscribeShare,
-					EnableAutoRefresh: req.EnableAutoRefresh,
-					RefreshInterval:   req.RefreshInterval,
-					// 假设 CreateRequest 结构体中有 AccessKey 或 Remark 来存 ShareCode
-					// 如果编译报错说没有 AccessKey，请尝试用 Remark 或 ShareId
-					AccessKey: shareCode,
-					Password:  currentAccessCode,
-				}
+				mp.Name = "分享导入_" + shareCode
+				mp.OsType = protocolSubscribeShare
+				mp.TokenName = shareCode
+				mp.Password = currentAccessCode
 			} else if reFolderID.MatchString(resourceStr) {
-				// 文件夹ID
 				fileId, _ := strconv.ParseInt(resourceStr, 10, 64)
-				createReq = &mountPointSvi.CreateRequest{
-					Name:              "文件夹导入_" + resourceStr,
-					TokenId:           req.CloudToken,
-					OsType:            protocolSubscribe,
-					EnableAutoRefresh: req.EnableAutoRefresh,
-					RefreshInterval:   req.RefreshInterval,
-					FileId:            fileId,
-				}
+				mp.Name = "文件夹导入_" + resourceStr
+				mp.OsType = protocolSubscribe
+				mp.FileId = fileId
 			} else {
 				failCount++
 				continue
 			}
 
-			// 调用 Create 方法，传入 CreateRequest
+			// 2. 构造 Request 对象
+			createReq := &mountPointSvi.CreateRequest{
+				MountPoint: mp,
+			}
+
+			// 3. 调用 Service 层创建
 			if _, err := h.mountPointService.Create(ctx.GetContext(), createReq); err != nil {
-				h.taskEngine.GetLogger().Error("批量创建失败", zap.String("source", line), zap.Error(err))
+				ctx.GetContext().Error("批量创建失败", zap.String("source", line), zap.Error(err))
 				failCount++
 			} else {
 				successCount++

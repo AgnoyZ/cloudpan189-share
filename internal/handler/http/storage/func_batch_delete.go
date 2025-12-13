@@ -22,18 +22,17 @@ func (h *handler) BatchDelete() httpcontext.HandlerFunc {
 		}
 
 		task := &topic.FileBatchDeleteRequest{IDs: req.IDs}
-
 		body, _ := json.Marshal(task)
 
 		err := h.taskEngine.PushMessage(
 			ctx.GetContext().WithValue(consts.CtxKeyInvokeHandlerName, "API批量删除"),
 			task.Topic(),
-			body, // 传入字节数组
+			body,
 		)
 
 		if err != nil {
 			ctx.GetContext().Error("推送删除任务失败", zap.Error(err))
-			ctx.AbortWithError(busCodeStorageSendTaskFail, err)
+			ctx.Fail(busCodeStorageSendTaskFail.WithError(err))
 			return
 		}
 

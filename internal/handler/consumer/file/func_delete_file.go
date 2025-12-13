@@ -13,23 +13,22 @@ import (
 // HandleBatchDelete 后台排队删除处理逻辑
 func (h *handler) HandleBatchDelete() taskcontext.HandlerFunc {
 	return func(ctx taskcontext.Context) error {
-		// 1. 获取消息内容
-		payload := ctx.Message().Payload()
+		payload := ctx.Payload()
 
 		req := new(topic.FileBatchDeleteRequest)
 		if err := json.Unmarshal(payload, req); err != nil {
-			return nil // 格式错误直接丢弃
+			return nil
 		}
 
 		h.logger.Info("消费者开始处理批量删除", zap.Int("count", len(req.IDs)))
 
 		for _, id := range req.IDs {
-			// 1. 删除 MountPoint
+			// 删除挂载点
 			if err := h.mountPointService.BatchDelete(ctx.GetContext(), []int64{id}); err != nil {
 				h.logger.Warn("后台删除挂载点记录异常", zap.Int64("id", id), zap.Error(err))
 			}
 
-			// 2. 尝试删除 VirtualFile
+			// 删除虚拟文件
 			targetFileID := id
 			fileInfo, fileErr := h.virtualFileService.Query(ctx.GetContext(), targetFileID)
 
@@ -44,8 +43,6 @@ func (h *handler) HandleBatchDelete() taskcontext.HandlerFunc {
 					h.logger.Info("后台删除完成", zap.Int64("fid", targetFileID))
 				}
 			}
-
-			// 防止锁死数据库
 			time.Sleep(20 * time.Millisecond)
 		}
 

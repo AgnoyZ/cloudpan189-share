@@ -30,6 +30,7 @@ type Handler interface {
 }
 
 type handler struct {
+	logger             *zap.Logger
 	virtualFileService virtualfileSvi.Service
 	cloudBridgeService cloudbridgeSvi.Service
 	cloudTokenService  cloudtokenSvi.Service
@@ -40,6 +41,7 @@ type handler struct {
 }
 
 func NewHandler(
+	logger *zap.Logger,
 	virtualFileService virtualfileSvi.Service,
 	cloudBridgeService cloudbridgeSvi.Service,
 	cloudTokenService cloudtokenSvi.Service,
@@ -49,6 +51,7 @@ func NewHandler(
 	verifyService verifySvi.Service,
 ) Handler {
 	return &handler{
+		logger:             logger,
 		virtualFileService: virtualFileService,
 		cloudBridgeService: cloudBridgeService,
 		cloudTokenService:  cloudTokenService,
