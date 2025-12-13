@@ -120,11 +120,26 @@ export const batchDeleteStorage = (data: BatchDeleteStorageRequest): Promise<Api
     return api.post('/storage/batch_delete', data).then((res) => res.data)
 }
 
-// 文本批量导入存储挂载
-export const batchCreateStorageFromText = (
-    data: BatchCreateTextRequest
-): Promise<ApiResponse<BatchCreateTextResponse>> => {
-    return api.post('/storage/batch_create_text', data).then((res) => res.data)
+// 批量解析响应项接口
+export interface BatchParseItem {
+    name: string
+    osType: string
+    shareCode?: string
+    shareAccessCode?: string
+    fileId?: string
+}
+
+// 批量解析请求接口
+export interface BatchParseTextRequest {
+    content: string
+    cloudToken: number
+}
+
+// 批量解析文本
+export const batchParseStorageText = (
+    data: BatchParseTextRequest
+): Promise<ApiResponse<BatchParseItem[]>> => {
+    return api.post('/storage/batch_parse_text', data).then((res) => res.data)
 }
 
 // 获取存储挂载点列表

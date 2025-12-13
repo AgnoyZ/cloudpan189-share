@@ -77,3 +77,21 @@ func (s *service) CheckFamily(ctx context.Context, token AuthToken, familyId, fi
 
 	return nil
 }
+
+func (s *service) GetShareInfo(ctx context.Context, shareCode string, accessCode string) (*ShareInfo, error) {
+    resp, err := client.New().WithClient(ctx.HTTPClient()).GetShareInfo(ctx, shareCode, func(gsir *client.GetShareInfoRequest) {
+        gsir.AccessCode = accessCode
+    })
+    if err != nil {
+        ctx.Error("查询分享信息失败", zap.Error(err), zap.String("share_code", shareCode), zap.String("access_code", accessCode))
+        return nil, errors.WithStack(err)
+    }
+
+    return &ShareInfo{
+        ShareId:    resp.ShareId,
+        FileName:   resp.FileName, // 关键：获取文件名
+        IsFolder:   resp.IsFolder,
+        AccessCode: resp.AccessCode,
+        FileId:     string(resp.FileId),
+    }, nil
+}

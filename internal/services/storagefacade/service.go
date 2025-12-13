@@ -3,8 +3,11 @@ package storagefacade
 import (
 	"github.com/xxcheng123/cloudpan189-share/internal/bootstrap"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
-	mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
-	virtualFileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
+	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
+    cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
+    mountPointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
+    virtualFileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
+
 )
 
 // Service 仅实现创建存储的组合能力（接口与构造定义）。
@@ -20,9 +23,12 @@ type service struct {
 }
 
 func NewService(svc bootstrap.ServiceContext) Service {
+    cloudTokenService := cloudtokenSvi.NewService(svc)
+    cloudBridgeService := cloudbridgeSvi.NewService(svc)
+
 	return &service{
 		svc:                svc,
-		mountPointService:  mountPointSvi.NewService(svc),
+		mountPointService:  mountPointSvi.NewService(svc, cloudTokenService, cloudBridgeService),
 		virtualFileService: virtualFileSvi.NewService(svc),
 	}
 }

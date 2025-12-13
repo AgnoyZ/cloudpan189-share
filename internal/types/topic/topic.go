@@ -54,3 +54,18 @@ type FileBatchDeleteRequest struct {
 func (r FileBatchDeleteRequest) Topic() taskengine.Topic {
 	return taskengine.Topic(KeyFileBatchDelete)
 }
+
+// 批量解析文本请求 (仅用于 API，不用于 Task)
+type BatchParseTextRequest struct {
+	Content    string `json:"content" binding:"required"` // 文本内容
+	CloudToken int64  `json:"cloudToken" binding:"required"` // 需要用到token去查询信息
+}
+
+// 批量解析响应项 (仅用于 API，不用于 Task)
+type BatchParseItem struct {
+	Name            string `json:"name"`            // 识别出的名称
+	OsType          string `json:"osType"`          // 识别出的类型: share_folder 或 person_folder
+	ShareCode       string `json:"shareCode"`       // 分享码
+	ShareAccessCode string `json:"shareAccessCode"` // 提取码
+	FileId          string `json:"fileId"`          // 文件夹ID
+}

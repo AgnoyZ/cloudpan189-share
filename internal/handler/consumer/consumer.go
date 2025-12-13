@@ -36,7 +36,7 @@ func Start(svc bootstrap.ServiceContext) error {
 		virtualFileService    = virtualfileSvi.NewService(svc)
 		cloudBridgeService    = cloudbridgeSvi.NewService(svc)
 		cloudTokenService     = cloudtokenSvi.NewService(svc)
-		mountPointService     = mountPointSvi.NewService(svc)
+		mountPointService     = mountPointSvi.NewService(svc, cloudTokenService, cloudBridgeService)
 		fileTaskLogService    = filetasklogSvi.NewService(svc)
 		authIngestLogService  = autoingestlogSvi.NewService(svc)
 		autoIngestPlanService = autoingestplanSvi.NewService(svc)
