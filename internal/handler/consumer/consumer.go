@@ -58,7 +58,7 @@ func Start(svc bootstrap.ServiceContext) error {
 			return err
 		}
 
-        if err := taskEngine.RegisterProcessor(new(topic.FileBatchDeleteRequest).Topic(), wrap(fileHandler.HandleBatchDelete)); err != nil {
+        if err := taskEngine.RegisterProcessor(new(topic.FileBatchDeleteRequest).Topic(), wrap(fileHandler.HandleBatchDelete())); err != nil {
 			logger.Error("注册文件批量删除处理器失败")
 			return err
 		}
