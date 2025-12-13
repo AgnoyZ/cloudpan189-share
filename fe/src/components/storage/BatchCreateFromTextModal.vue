@@ -192,8 +192,17 @@ const fetchCloudTokens = async () => {
   try {
     const res = await getCloudTokenList({ noPaginate: true })
     if (res.code === 0 || res.code === 200) {
-      const list = res.data.data || res.data
-      state.cloudTokens = Array.isArray(list) ? list : []
+      const rawData = res.data
+      let list: Models.CloudToken[] = []
+
+      if (Array.isArray(rawData)) {
+        list = rawData
+      } else if (rawData && typeof rawData === 'object') {
+        // 使用类型断言或可选链
+        list = (rawData as any).data || []
+      }
+
+      state.cloudTokens = list
       // 如果只有一个账号，默认选中
       if (state.cloudTokens.length === 1) {
         formModel.cloudToken = state.cloudTokens[0].id
@@ -227,7 +236,7 @@ const handleConfirm = () => {
 
     batchCreateStorageFromText(reqData)
         .then((res) => {
-          if (res.code === 200) {
+          if (res.code === 200 && res.data) {
             const { total, success, failed } = res.data
             if (failed === 0) {
               message.success(`导入成功！共导入 ${success} 个资源`)
