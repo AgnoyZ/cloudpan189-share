@@ -7,12 +7,10 @@ import (
 )
 
 func (s *service) Delete(ctx context.Context, fileId int64) error {
-	if err := s.getDB(ctx).Where("file_id = ?", fileId).Delete(nil).Error; err != nil {
+	if err := s.getDB(ctx).Where("file_id = ?", fileId).Delete(&models.MountPoint{}).Error; err != nil {
 		ctx.Error("删除挂载点失败", zap.Error(err), zap.Int64("fileId", fileId))
-
 		return err
 	}
-
 	return nil
 }
 
@@ -21,11 +19,13 @@ func (s *service) BatchDelete(ctx context.Context, ids []int64) error {
 		return nil
 	}
 
-    // 直接物理删除挂载点记录
-	if err := s.getDB(ctx).Where("id IN ?", ids).Delete(&models.MountPoint{}).Error; err != nil {
-		ctx.Error("批量删除挂载点失败", zap.Error(err), zap.Int64s("ids", ids))
-		return err
+	result := s.getDB(ctx).Where("id IN ?", ids).Delete(&models.MountPoint{})
+
+	if result.Error != nil {
+		ctx.Error("批量删除挂载点失败", zap.Error(result.Error), zap.Int64s("ids", ids))
+		return result.Error
 	}
 
+	ctx.Info("批量删除挂载点成功", zap.Int64s("ids", ids), zap.Int64("rows_affected", result.RowsAffected))
 	return nil
 }
