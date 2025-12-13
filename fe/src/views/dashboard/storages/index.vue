@@ -497,8 +497,9 @@ import {
   deleteStorage,
   toggleAutoRefresh,
   modifyToken,
+  batchDeleteStorage,
 } from '@/api/storage'
-import type { StorageInfo, batchDeleteStorage } from '@/api/storage'
+import type { StorageInfo } from '@/api/storage'
 import { getCloudTokenList } from '@/api/cloudtoken'
 import { formatDateTime } from '@/utils/time'
 import { getOsTypeDisplayName, getOsTypeColor, mountTypeConfigs } from '@/utils/osType'
