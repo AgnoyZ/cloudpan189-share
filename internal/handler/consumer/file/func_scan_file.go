@@ -164,21 +164,30 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 
 				if shareId, ok = inputFile.Addition.Int64(consts.FileAdditionKeyShareId); !ok {
 					ctx.Error("获取分享ID失败", zap.Int64("file_id", inputFile.ID))
-
 					return nil, errors.New("获取分享ID失败")
 				}
 
 				if shareMode, ok = inputFile.Addition.Int(consts.FileAdditionKeyShareMode); !ok {
-					ctx.Error("获取分享类型失败", zap.Int64("file_id", inputFile.ID))
-
-					return nil, errors.New("获取分享类型失败")
+					if v, fOk := inputFile.Addition[consts.FileAdditionKeyShareMode]; fOk {
+						if fMode, ok := v.(float64); ok {
+							shareMode = int(fMode)
+						} else {
+							shareMode = 1
+						}
+					} else {
+						shareMode = 1
+					}
 				}
 
 				accessCode, _ = inputFile.Addition.String(consts.FileAdditionKeyAccessCode)
+				// 调试
+				logger.Info("准备扫描分享文件",
+					zap.Int64("shareId", shareId),
+					zap.String("accessCode", accessCode),
+					zap.Int("shareMode", shareMode))
 
 				if isFolder, ok = inputFile.Addition.Bool(consts.FileAdditionKeyIsFolder); !ok {
 					ctx.Error("获取分享类型失败", zap.Int64("file_id", inputFile.ID))
-
 					return nil, errors.New("获取分享类型失败")
 				}
 

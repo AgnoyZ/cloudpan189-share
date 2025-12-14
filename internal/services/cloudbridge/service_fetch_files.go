@@ -66,7 +66,7 @@ func (s *service) GetSubscribeUserFiles(ctx context.Context, userId string) ([]c
 
 	return s.doFetch(ctx, func(ctx context.Context) ([]converter.VirtualFileConverter, error) {
 		return s.simplyFetch(ctx, func(ctx context.Context, pageNum int64) ([]converter.VirtualFileConverter, bool, error) {
-			resp, err := s.client.GetUpResourceShare(ctx, userId, pageNum, pageSize)
+			resp, err := s.getClient(ctx).GetUpResourceShare(ctx, userId, pageNum, pageSize)
 			if err != nil {
 				ctx.Error("获取数据失败", zap.String("user_id", userId), zap.Int64("page_num", pageNum), zap.Error(err))
 
@@ -97,7 +97,7 @@ func (s *service) GetSubscribeShareFiles(ctx context.Context, upUserId string, s
 
 	return s.doFetch(ctx, func(ctx context.Context) ([]converter.VirtualFileConverter, error) {
 		return s.simplyFetch(ctx, func(ctx context.Context, pageNum int64) ([]converter.VirtualFileConverter, bool, error) {
-			resp, err := s.client.ListShareDir(ctx, shareId, client.String(fileId), func(req *client.ListShareFileRequest) {
+			resp, err := s.getClient(ctx).ListShareDir(ctx, shareId, client.String(fileId), func(req *client.ListShareFileRequest) {
 				req.IsFolder = isFolder
 				req.IconOption = 5
 				req.OrderBy = "lastOpTime"
@@ -151,7 +151,7 @@ func (s *service) GetShareFiles(ctx context.Context, shareId int64, fileId strin
 
 	return s.doFetch(ctx, func(ctx context.Context) ([]converter.VirtualFileConverter, error) {
 		return s.simplyFetch(ctx, func(ctx context.Context, pageNum int64) ([]converter.VirtualFileConverter, bool, error) {
-			resp, err := s.client.ListShareDir(ctx, shareId, client.String(fileId), func(req *client.ListShareFileRequest) {
+			resp, err := s.getClient(ctx).ListShareDir(ctx, shareId, client.String(fileId), func(req *client.ListShareFileRequest) {
 				req.PageNum = int(pageNum)
 				req.PageSize = int(pageSize)
 				req.AccessCode = accessCode
