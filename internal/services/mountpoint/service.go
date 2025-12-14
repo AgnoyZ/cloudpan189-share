@@ -56,7 +56,7 @@ func (s *service) getDB(ctx context.Context) *gorm.DB {
 var (
 	reFolderID  = regexp.MustCompile(`^\d+$`)
 	reShareLink  = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
-	reAccessCode = regexp.MustCompile(`(?:访问码|code)[:：]\s*([a-zA-Z0-9]+)`)
+	reAccessCode = regexp.MustCompile(`(?:\S+码|code)[:：]\s*([a-zA-Z0-9]+)`)
 )
 
 // 实现 BatchParseText
