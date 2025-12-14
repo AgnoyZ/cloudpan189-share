@@ -58,7 +58,7 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 		}
 
 		// 清理无用的祖先目录
-		// _ = h.virtualFileService.ClearUnusedAncestorFolder(ctx.GetContext(), mountPointInfo.FileId)
+		_ = h.virtualFileService.ClearUnusedAncestorFolder(ctx.GetContext(), mountPointInfo.FileId)
 
 		taskReq := &topic.FileClearFileRequest{
 			FileId: req.ID,

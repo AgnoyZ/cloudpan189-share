@@ -38,12 +38,13 @@ type CheckShareResult struct {
 }
 
 func (s *service) CheckShare(ctx context.Context, shareCode string, accessCode string) (result *CheckShareResult, err error) {
-	resp, err := client.New().WithClient(ctx.HTTPClient()).GetShareInfo(ctx, shareCode, func(gsir *client.GetShareInfoRequest) {
+	cli := client.New().WithClient(ctx.HTTPClient())
+
+	resp, err := cli.GetShareInfo(ctx, shareCode, func(gsir *client.GetShareInfoRequest) {
 		gsir.AccessCode = accessCode
 	})
 	if err != nil {
 		ctx.Error("查询分享信息失败", zap.Error(err), zap.String("share_code", shareCode), zap.String("access_code", accessCode))
-
 		return nil, errors.WithStack(err)
 	}
 

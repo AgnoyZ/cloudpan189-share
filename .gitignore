@@ -10,7 +10,9 @@ session.json
 
 datadir
 media_dir
+package-lock.json
 .clinerules
+.DS_Store
 
 fe/node_modules
 fe/llm-prompt.txt
