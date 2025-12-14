@@ -83,7 +83,8 @@ func Start(svc bootstrap.ServiceContext) {
 		storageHandler        = storage.NewHandler(taskEngine, virtualFileService, cloudBridgeService, cloudTokenService, mountPointService, fileTaskLogService, storageFacadeService)
 		storageAdvanceHandler = advance.NewHandler(cloudBridgeService, cloudTokenService)
 		cloudTokenHandler     = cloudtoken.NewHandler(cloudTokenService, mountPointService)
-		fileHandler           = file.NewHandler(virtualFileService, verifyService, cloudTokenService, cloudBridgeService, mountPointService, group2FileService)
+		fileHandler           = file.NewHandler(virtualFileService, verifyService, cloudTokenService, cloudBridgeService, mountPointService, group2FileService, taskEngine)
+
 		taskStateHandler      = taskstate.NewHandler(taskEngine, fileTaskLogService)
 		autoIngestHandler     = autoingest.NewHandler(taskEngine, autoIngestPlanService, autoIngestLogService, cloudBridgeService)
 		loginLogHandler       = loginlogHandler.NewHandler(loginLogService)
@@ -163,6 +164,7 @@ func Start(svc bootstrap.ServiceContext) {
 			fileRouter.GET("/search", wrap(fileHandler.Search()))
 			fileRouter.POST("/create_download_url", wrap(fileHandler.CreateDownloadURL()))
 			fileRouter.GET("/open/*fullPath", wrap(fileHandler.Open()))
+    	fileRouter.POST("/batch_delete", wrap(fileHandler.BatchDelete()))
 		}
 
 		{

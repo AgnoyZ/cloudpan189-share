@@ -4,6 +4,8 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 
+	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
+
 	cloudBridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
 	cloudTokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	group2fileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/group2file"
@@ -17,6 +19,7 @@ type Handler interface {
 	CreateDownloadURL() httpcontext.HandlerFunc
 	Download() httpcontext.HandlerFunc
 	Open() httpcontext.HandlerFunc
+	BatchDelete() httpcontext.HandlerFunc // [新增]
 }
 
 var bi = httpcontext.NewBusinessGenerator(consts.BusCodeFileStartCode)
@@ -41,6 +44,7 @@ var (
 	busCodeFileInvalidPath              = bi.Next("路径不合法，需要 / 开头的路径")
 	busCodeFileNotFound                 = bi.Next("文件不存在")
 	busCodeQueryTopIdError              = bi.Next("查询文件顶级id失败")
+	busCodeBatchDeleteError = bi.Next("发送批量删除任务失败")
 )
 
 type handler struct {
@@ -50,6 +54,7 @@ type handler struct {
 	cloudBridgeService cloudBridgeSvi.Service
 	mountPointService  mountPointSvi.Service
 	group2FileService  group2fileSvi.Service
+	taskEngine         taskengine.TaskEngine
 }
 
 func NewHandler(
@@ -59,6 +64,7 @@ func NewHandler(
 	cloudBridgeService cloudBridgeSvi.Service,
 	mountPointService mountPointSvi.Service,
 	group2FileService group2fileSvi.Service,
+	taskEngine taskengine.TaskEngine,
 ) Handler {
 	return &handler{
 		virtualFileService: virtualFileService,
@@ -67,5 +73,6 @@ func NewHandler(
 		cloudBridgeService: cloudBridgeService,
 		mountPointService:  mountPointService,
 		group2FileService:  group2FileService,
+		taskEngine:         taskEngine,
 	}
 }

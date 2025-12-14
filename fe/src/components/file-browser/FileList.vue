@@ -1,59 +1,22 @@
 <template>
   <div class="file-list-container">
-    <!-- 列表头部 -->
-    <div class="list-header">
-      <div class="header-item">名称</div>
-      <div class="header-item">大小</div>
-      <div class="header-item">修改时间</div>
-      <div class="header-item">操作</div>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
-      <n-spin size="large" />
-    </div>
-
-    <!-- 文件列表 -->
-    <div v-else class="file-list">
-      <div v-for="file in fileList" :key="file.id" class="file-item" @click="handleFileClick(file)">
-        <div class="file-info">
-          <div class="file-icon-name">
-            <n-icon :component="getFileIcon(file.name, file.isDir)" class="file-icon" />
-            <span class="file-name">{{ file.name }}</span>
-          </div>
-          <div class="file-size">
-            {{ file.isDir ? '-' : formatFileSize(file.size) }}
-          </div>
-          <div class="file-date">
-            {{ formatDate(file.modifyDate) }}
-          </div>
-          <div class="file-actions" @click.stop>
-            <n-button size="small" type="primary" text @click="handleFileClick(file)">
-              {{ file.isDir ? '打开' : '查看' }}
-            </n-button>
-            <n-button
-              v-if="!file.isDir"
-              size="small"
-              type="error"
-              text
-              @click="$emit('download', file)"
-            >
-              下载
-            </n-button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 空状态 -->
-      <div v-if="fileList.length === 0" class="empty-state">
-        <n-empty description="此目录为空" />
-      </div>
-    </div>
+    <n-data-table
+      :columns="columns"
+      :data="fileList"
+      :loading="loading"
+      :row-key="(row) => row.id"
+      :checked-row-keys="checkedRowKeys"
+      @update:checked-row-keys="handleCheck"
+      :row-props="rowProps"
+      :bordered="false"
+      class="custom-table"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { NButton, NIcon, NEmpty, NSpin } from 'naive-ui'
+import { h, computed } from 'vue'
+import { NDataTable, NIcon, NButton, type DataTableColumns } from 'naive-ui'
 import {
   FolderOutline,
   DocumentOutline,
@@ -61,51 +24,147 @@ import {
   MusicalNotesOutline,
   ImageOutline,
   ArchiveOutline,
+  DownloadOutline, // <--- 修改：换成 DownloadOutline，更通用
 } from '@vicons/ionicons5'
 import type { FileChild } from '@/api/file'
 import { formatFileSize, formatDate } from '@/utils/format'
 
-// Props
+// 修改：直接调用 defineProps，不需要赋值给 const props，因为 JS 逻辑里没用到它
+// Vue 的宏会自动将 props 暴露给 template 使用
 defineProps<{
   fileList: FileChild[]
   loading: boolean
+  checkedRowKeys?: number[] // 接收父组件的选中状态
 }>()
 
-// Emits
+// Emits 定义
 const emit = defineEmits<{
-  fileClick: [file: FileChild]
-  download: [file: FileChild]
+  (e: 'update:checkedRowKeys', keys: number[]): void
+  (e: 'fileClick', file: FileChild): void
+  (e: 'download', file: FileChild): void
 }>()
 
-// 方法
-const handleFileClick = (file: FileChild) => {
-  emit('fileClick', file)
+// 处理选中事件
+const handleCheck = (keys: Array<string | number>) => {
+  emit('update:checkedRowKeys', keys as number[])
 }
 
+// 处理行点击（点击行进入目录）
+const rowProps = (row: FileChild) => {
+  return {
+    style: 'cursor: pointer;',
+    onClick: (e: MouseEvent) => {
+      // 获取点击的目标元素
+      const target = e.target as HTMLElement
+      // 如果点击的是复选框、按钮或其内部元素，不触发进入目录操作
+      if (target.closest('.n-checkbox') || target.closest('.n-button') || target.tagName === 'A') {
+        return
+      }
+      emit('fileClick', row)
+    },
+  }
+}
+
+// 图标判断逻辑
 const getFileIcon = (fileName: string, isDir?: boolean) => {
   if (isDir) return FolderOutline
-
   const ext = fileName.split('.').pop()?.toLowerCase()
   if (!ext) return DocumentOutline
-
-  if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'].includes(ext)) {
-    return VideocamOutline
-  }
-
-  if (['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(ext)) {
-    return MusicalNotesOutline
-  }
-
-  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) {
-    return ImageOutline
-  }
-
-  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
-    return ArchiveOutline
-  }
-
+  if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'].includes(ext)) return VideocamOutline
+  if (['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(ext)) return MusicalNotesOutline
+  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) return ImageOutline
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return ArchiveOutline
   return DocumentOutline
 }
+
+// 表格列定义
+const columns = computed<DataTableColumns<FileChild>>(() => [
+  {
+    type: 'selection', // 开启复选框列
+    width: 40,
+    fixed: 'left',
+  },
+  {
+    title: '名称',
+    key: 'name',
+    render(row) {
+      const IconComponent = getFileIcon(row.name, row.isDir)
+      const iconColor = row.isDir ? 'var(--n-primary-color)' : undefined
+
+      return h(
+        'div',
+        {
+          style: 'display: flex; align-items: center; gap: 12px; min-width: 0;',
+        },
+        [
+          h(NIcon, { size: 22, color: iconColor }, { default: () => h(IconComponent) }),
+          h(
+            'span',
+            {
+              style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;',
+            },
+            row.name
+          ),
+        ]
+      )
+    },
+  },
+  {
+    title: '大小',
+    key: 'size',
+    width: 120,
+    align: 'center',
+    render(row) {
+      return row.isDir ? '-' : formatFileSize(row.size)
+    },
+  },
+  {
+    title: '修改时间',
+    key: 'updatedAt', // 这里确认一下你的 API 返回的是 modifyDate 还是 updatedAt
+    width: 180,
+    align: 'center',
+    render(row) {
+      // 优先使用 modifyDate，如果没有则尝试 updatedAt
+      const dateStr = row.modifyDate || row.updatedAt
+      return formatDate(dateStr)
+    },
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 100,
+    align: 'center',
+    fixed: 'right',
+    render(row) {
+      if (row.isDir) {
+        return h(
+          NButton,
+          {
+            size: 'small',
+            text: true,
+            type: 'primary',
+            onClick: () => emit('fileClick', row),
+          },
+          { default: () => '打开' }
+        )
+      } else {
+        return h(
+          NButton,
+          {
+            size: 'small',
+            text: true,
+            type: 'error',
+            onClick: () => emit('download', row),
+          },
+          {
+            icon: () => h(NIcon, null, { default: () => h(DownloadOutline) }),
+            default: () => '下载',
+          }
+        )
+      }
+    },
+  },
+])
 </script>
 
 <style scoped>
@@ -114,140 +173,17 @@ const getFileIcon = (fileName: string, isDir?: boolean) => {
   border: 1px solid var(--n-border-color);
   border-radius: 8px;
   overflow: hidden;
-}
-
-.list-header {
-  display: grid;
-  grid-template-columns: 1fr 120px 180px 120px;
-  gap: 16px;
-  padding: 12px 20px;
-  background: var(--n-color-hover);
-  border-bottom: 1px solid var(--n-border-color);
-  font-weight: 500;
-  color: var(--n-text-color);
-  font-size: 14px;
-}
-
-.header-item {
-  display: flex;
-  align-items: center;
-}
-
-.header-item:nth-child(2),
-.header-item:nth-child(3),
-.header-item:nth-child(4) {
-  justify-content: center;
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 60px 20px;
-}
-
-.file-list {
   min-height: 400px;
 }
 
-.file-item {
-  border-bottom: 1px solid var(--n-divider-color);
-  cursor: pointer;
-  transition: background-color 0.2s;
+/* 覆盖 Naive UI 默认样式，使其更紧凑美观 */
+:deep(.custom-table .n-data-table-td) {
+  padding: 12px 16px;
+  vertical-align: middle;
 }
 
-.file-item:hover {
+:deep(.custom-table .n-data-table-th) {
   background-color: var(--n-color-hover);
-}
-
-.file-item:last-child {
-  border-bottom: none;
-}
-
-.file-info {
-  display: grid;
-  grid-template-columns: 1fr 120px 180px 120px;
-  gap: 16px;
-  padding: 12px 20px;
-  align-items: center;
-}
-
-.file-icon-name {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.file-icon {
-  font-size: 20px;
-  color: var(--n-primary-color);
-  flex-shrink: 0;
-}
-
-.file-name {
-  font-size: 14px;
-  color: var(--n-text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-size {
-  font-size: 14px;
-  color: var(--n-text-color-2);
-  text-align: center;
-}
-
-.file-date {
-  font-size: 14px;
-  color: var(--n-text-color-2);
-  text-align: center;
-}
-
-.file-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-.empty-state {
-  padding: 60px 20px;
-  text-align: center;
-}
-
-/* 响应式设计 */
-@media (width <= 768px) {
-  .list-header,
-  .file-info {
-    grid-template-columns: 1fr 80px 100px;
-    gap: 8px;
-    padding: 8px 12px;
-  }
-
-  .file-actions {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .file-date {
-    display: none;
-  }
-}
-
-@media (width <= 480px) {
-  .list-header,
-  .file-info {
-    grid-template-columns: 1fr 60px;
-    gap: 8px;
-  }
-
-  .file-size {
-    display: none;
-  }
-
-  .file-name {
-    font-size: 13px;
-  }
+  font-weight: 500;
 }
 </style>

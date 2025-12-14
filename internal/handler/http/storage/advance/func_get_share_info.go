@@ -39,30 +39,40 @@ func (h *handler) GetShareInfo() httpcontext.HandlerFunc {
 		cleanCode := strings.ReplaceAll(req.ShareCode, "（", "(")
 		cleanCode = strings.ReplaceAll(cleanCode, "）", ")")
 		cleanCode = strings.ReplaceAll(cleanCode, "：", ":")
+		cleanCode = strings.TrimSpace(cleanCode)
+
+		var pureShareCode, pureAccessCode string
 
 		if req.ShareAccessCode == "" {
 			if codeMatch := reAccessCode.FindStringSubmatch(cleanCode); len(codeMatch) > 1 {
-				req.ShareAccessCode = codeMatch[1]
+				pureAccessCode = codeMatch[1]
 			} else {
 				parts := strings.Fields(cleanCode)
 				if len(parts) > 1 {
 					lastPart := strings.Trim(parts[len(parts)-1], "()")
 					if len(lastPart) == 4 {
-						req.ShareAccessCode = lastPart
+						pureAccessCode = lastPart
 					}
 				}
 			}
-		}
-		if matches := reShareLink.FindStringSubmatch(cleanCode); len(matches) > 1 {
-			req.ShareCode = matches[1]
 		} else {
-			parts := strings.Fields(cleanCode)
-			if len(parts) > 0 {
-				req.ShareCode = strings.Trim(parts[0], "()")
+			pureAccessCode = req.ShareAccessCode
+		}
+
+		if matches := reShareLink.FindStringSubmatch(cleanCode); len(matches) > 1 {
+			pureShareCode = matches[1]
+		} else {
+			if idx := strings.Index(cleanCode, "("); idx > -1 {
+				pureShareCode = strings.TrimSpace(cleanCode[:idx])
+			} else {
+				parts := strings.Fields(cleanCode)
+				if len(parts) > 0 {
+					pureShareCode = strings.Trim(parts[0], "()")
+				}
 			}
 		}
 
-		shareInfo, err := h.cloudBridgeService.GetShareInfo(ctx.GetContext(), req.ShareCode, req.ShareAccessCode)
+		shareInfo, err := h.cloudBridgeService.GetShareInfo(ctx.GetContext(), pureShareCode, pureAccessCode)
 		if err != nil {
 			ctx.Fail(codeStorageAdvanceGetShareInfoError.WithError(err))
 			return

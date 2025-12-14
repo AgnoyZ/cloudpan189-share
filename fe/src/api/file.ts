@@ -48,9 +48,13 @@ export interface CreateDownloadUrlResponse {
   downloadUrl: string
 }
 
+// 批量删除请求接口
+export interface BatchDeleteRequest {
+  ids: number[]
+}
+
 // 路径编码工具函数
 const encodePath = (path: string): string => {
-  // 检查是否已经编码过（简单检查是否包含%符号）
   if (path.includes('%')) {
     return path
   }
@@ -66,7 +70,6 @@ export const searchFiles = (params: FileSearchQuery): Promise<ApiResponse<FileSe
 
 // 打开文件/目录
 export const openFile = (fullPath: string): Promise<ApiResponse<FileOpenResponse>> => {
-  // 使用安全的路径编码
   const safePath = encodePath(fullPath)
   return api.get(`/file/open/${safePath}`).then((res) => res.data)
 }
@@ -76,4 +79,9 @@ export const createDownloadUrl = (
   data: CreateDownloadUrlRequest
 ): Promise<ApiResponse<CreateDownloadUrlResponse>> => {
   return api.post('/file/create_download_url', data).then((res) => res.data)
+}
+
+// 批量删除文件
+export const batchDeleteFiles = (data: BatchDeleteRequest): Promise<ApiResponse<null>> => {
+  return api.post('/file/batch_delete', data).then((res) => res.data)
 }

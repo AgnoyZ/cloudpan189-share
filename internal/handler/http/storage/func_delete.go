@@ -36,7 +36,6 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 		req := new(deleteRequest)
 		if err := ctx.ShouldBindJSON(req); err != nil {
 			ctx.AbortWithInvalidParams(err)
-
 			return
 		}
 
@@ -47,21 +46,18 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 			} else {
 				ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
 			}
-
 			return
 		}
 
 		if err = h.mountPointService.Delete(ctx.GetContext(), req.ID); err != nil {
 			ctx.Fail(busCodeStorageMountPointDeleteFail.WithError(err))
-
 			return
 		}
 
-		// 清理无用的祖先目录
 		_ = h.virtualFileService.ClearUnusedAncestorFolder(ctx.GetContext(), mountPointInfo.FileId)
 
-		taskReq := &topic.FileClearFileRequest{
-			FileId: req.ID,
+		taskReq := &topic.FileBatchDeleteRequest{
+			IDs: []int64{req.ID},
 		}
 
 		body, _ := json.Marshal(taskReq)
@@ -69,12 +65,11 @@ func (h *handler) Delete() httpcontext.HandlerFunc {
 		if err := h.taskEngine.PushMessage(
 			ctx.GetContext().
 				WithValue(consts.CtxKeyFullPath, mountPointInfo.FullPath).
-				WithValue(consts.CtxKeyInvokeHandlerName, "清理执行器"),
+				WithValue(consts.CtxKeyInvokeHandlerName, "删除接口"),
 			taskReq.Topic(),
 			body,
 		); err != nil {
 			ctx.Fail(busCodeStorageSendTaskFail.WithError(err))
-
 			return
 		}
 

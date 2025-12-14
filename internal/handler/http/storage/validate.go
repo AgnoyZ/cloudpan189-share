@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -10,10 +11,13 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/datatypes"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
+	"go.uber.org/zap"
 )
 
-var reSimpleCode = regexp.MustCompile(`[a-zA-Z0-9]{12,14}`)
-var reShareLinkForAdd = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
+var (
+	reShareLinkForAdd  = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
+	reAccessCodeForAdd = regexp.MustCompile(`(?:\S+码|code)[:：]\s*([a-zA-Z0-9]+)`)
+)
 
 func (h *handler) executeOsTypeSubscribe(ctx context.Context, req *addRequest) (datatypes.JSONMap, httpcontext.BusinessError) {
 	if req.OsType != models.OsTypeSubscribe {
@@ -56,59 +60,98 @@ func (h *handler) executeOsTypeShare(ctx context.Context, req *addRequest) (data
 		return nil, "", busCodeStorageShareCodeEmpty
 	}
 
-	cleanCode := req.ShareCode
-	cleanCode = strings.ReplaceAll(cleanCode, "（", "(")
+	// 1. 清洗输入
+	cleanCode := strings.ReplaceAll(req.ShareCode, "（", "(")
 	cleanCode = strings.ReplaceAll(cleanCode, "）", ")")
 	cleanCode = strings.ReplaceAll(cleanCode, "：", ":")
-	cleanCode = strings.ReplaceAll(cleanCode, "访问码", "")
 	cleanCode = strings.TrimSpace(cleanCode)
 
-	if req.ShareAccessCode == "" {
-		if start := strings.Index(cleanCode, "("); start > -1 {
-			end := strings.Index(cleanCode, ")")
-			if end > start {
-				req.ShareAccessCode = strings.TrimSpace(cleanCode[start+1 : end])
+	var pureShareCode, pureAccessCode string
+
+	// 2. 智能提取访问码
+	req.ShareAccessCode = strings.TrimSpace(req.ShareAccessCode)
+	if codeMatch := reAccessCodeForAdd.FindStringSubmatch(cleanCode); len(codeMatch) > 1 {
+		pureAccessCode = codeMatch[1]
+	} else if req.ShareAccessCode != "" {
+		pureAccessCode = req.ShareAccessCode
+	} else {
+		parts := strings.Fields(cleanCode)
+		if len(parts) > 1 {
+			lastPart := strings.Trim(parts[len(parts)-1], "()")
+			if len(lastPart) == 4 {
+				pureAccessCode = lastPart
 			}
 		}
-		if req.ShareAccessCode == "" {
+	}
+
+	// 3. 智能提取分享码
+	if matches := reShareLinkForAdd.FindStringSubmatch(cleanCode); len(matches) > 1 {
+		pureShareCode = matches[1]
+	} else {
+		if idx := strings.Index(cleanCode, "("); idx > -1 {
+			pureShareCode = strings.TrimSpace(cleanCode[:idx])
+		} else {
 			parts := strings.Fields(cleanCode)
-			if len(parts) > 1 {
-				last := parts[len(parts)-1]
-				if len(last) == 4 {
-					req.ShareAccessCode = last
+			if len(parts) > 0 {
+				pureShareCode = strings.Trim(parts[0], "()")
+			}
+		}
+	}
+
+	// 4. 构造 SDK 调用用的分享码格式
+	formattedCode := pureShareCode
+	if pureShareCode != "" && pureAccessCode != "" {
+		formattedCode = fmt.Sprintf("%s（访问码：%s）", pureShareCode, pureAccessCode)
+		req.ShareCode = formattedCode
+		req.ShareAccessCode = pureAccessCode
+	} else if pureShareCode != "" {
+		req.ShareCode = pureShareCode
+	}
+
+	// 5. 调用 API 验证
+	ctx.Info("开始校验分享码", zap.String("try_code", formattedCode), zap.String("access_code", pureAccessCode))
+
+	result, err := h.cloudBridgeService.CheckShare(ctx, formattedCode, pureAccessCode)
+
+	// 6. 错误处理与重试
+	if err != nil || (result != nil && result.ShareId == 0) {
+		ctx.Warn("完整格式校验未通过，尝试使用纯码重试",
+			zap.String("formatted_code", formattedCode),
+			zap.String("pure_code", pureShareCode),
+			zap.Error(err),
+			zap.Any("first_result", result),
+		)
+		if formattedCode != pureShareCode {
+			resultRetry, errRetry := h.cloudBridgeService.CheckShare(ctx, pureShareCode, pureAccessCode)
+			if errRetry == nil && resultRetry != nil && resultRetry.ShareId != 0 {
+				result = resultRetry
+				err = nil
+			} else {
+				checkUrl := fmt.Sprintf("https://cloud.189.cn/t/%s", pureShareCode)
+				resultUrl, errUrl := h.cloudBridgeService.CheckShare(ctx, checkUrl, pureAccessCode)
+				if errUrl == nil && resultUrl != nil && resultUrl.ShareId != 0 {
+					result = resultUrl
+					err = nil
 				}
 			}
 		}
 	}
-	req.ShareAccessCode = strings.TrimSpace(req.ShareAccessCode)
 
-	finalCode := ""
-	if matches := reShareLinkForAdd.FindStringSubmatch(cleanCode); len(matches) > 1 {
-		finalCode = matches[1]
-	} else {
-		if match := reSimpleCode.FindString(cleanCode); match != "" {
-			finalCode = match
-		} else {
-			parts := strings.Fields(cleanCode)
-			if len(parts) > 0 {
-				finalCode = strings.Trim(parts[0], "()")
-			}
-		}
-	}
-	req.ShareCode = finalCode
-	result, err := h.cloudBridgeService.CheckShare(ctx, req.ShareCode, req.ShareAccessCode)
+	// 7. 最终检查
 	if err != nil {
 		return nil, "", busCodeStorageQuerySubscribeShareError.WithError(err)
 	}
-	if result.ShareId == 0 && result.FileId == "" {
-		return nil, "", busCodeStorageQuerySubscribeShareError
+	if result == nil || result.ShareId == 0 {
+		ctx.Error("所有尝试均失败，无法获取ShareId",
+			zap.String("final_result_struct", fmt.Sprintf("%+v", result)))
+		return nil, "", busCodeStorageQuerySubscribeShareError.WithError(fmt.Errorf("无法获取有效的分享ID(ShareId=0)，请确认分享链接是否有效"))
 	}
 
 	return datatypes.JSONMap{
 		consts.FileAdditionKeyShareId:    result.ShareId,
 		consts.FileAdditionKeyIsFolder:   result.IsFolder,
 		consts.FileAdditionKeyShareMode:  result.ShareMode,
-		consts.FileAdditionKeyAccessCode: req.ShareAccessCode,
+		consts.FileAdditionKeyAccessCode: pureAccessCode,
 	}, result.FileId, nil
 }
 

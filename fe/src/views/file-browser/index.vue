@@ -19,6 +19,16 @@
       </div>
 
       <div class="actions">
+        <!-- 新增：批量删除按钮 -->
+        <n-button v-if="selectedRowKeys.length > 0" type="error" text @click="handleBatchDelete">
+          <template #icon>
+            <n-icon :component="TrashOutline" />
+          </template>
+          删除({{ selectedRowKeys.length }})
+        </n-button>
+
+        <n-divider vertical v-if="selectedRowKeys.length > 0" />
+
         <n-button text @click="goBack" :disabled="!canGoBack">
           <template #icon>
             <n-icon :component="ArrowUndoOutline" />
@@ -55,10 +65,14 @@
     <template v-else-if="fileInfo">
       <!-- 目录：显示文件列表 -->
       <div v-if="fileInfo.isDir" class="directory-view">
-        <!-- 文件列表组件 -->
+        <!--
+          修改点：传入 checked-row-keys 和更新事件
+          注意：你需要确保 FileList 组件接收这些 props 并传递给内部的 n-data-table
+        -->
         <FileList
           :file-list="fileInfo.children || []"
           :loading="false"
+          v-model:checked-row-keys="selectedRowKeys"
           @file-click="handleFileClick"
           @download="downloadFile"
         />
@@ -80,17 +94,28 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NIcon, NBreadcrumb, NBreadcrumbItem, NSpin, useMessage } from 'naive-ui'
+import {
+  NButton,
+  NIcon,
+  NBreadcrumb,
+  NBreadcrumbItem,
+  NSpin,
+  NDivider,
+  useMessage,
+  useDialog, // 引入 useDialog
+} from 'naive-ui'
 import {
   HomeOutline,
   RefreshOutline,
   ArrowUndoOutline,
   SearchOutline,
   SettingsOutline,
+  TrashOutline, // 引入删除图标
 } from '@vicons/ionicons5'
 import {
   openFile,
   createDownloadUrl,
+  batchDeleteFiles, // 引入批量删除API
   type FileChild,
   type BreadcrumbItem,
   type FileOpenResponse,
@@ -101,6 +126,7 @@ import { FileList, FileDetail, SearchFilesDialog } from '@/components/file-brows
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const dialog = useDialog() // 初始化 dialog
 
 // 响应式数据
 const loading = ref(false)
@@ -108,6 +134,8 @@ const fileInfo = ref<FileOpenResponse | null>(null)
 const currentPath = ref('/')
 const breadcrumbs = ref<BreadcrumbItem[]>([])
 const showSearch = ref(false)
+// 新增：选中的文件ID列表
+const selectedRowKeys = ref<number[]>([])
 
 // 计算属性
 const canGoBack = computed(() => breadcrumbs.value.length > 0)
@@ -115,6 +143,9 @@ const canGoBack = computed(() => breadcrumbs.value.length > 0)
 // 方法
 const loadPath = (path: string) => {
   loading.value = true
+  // 切换路径时清空选中状态
+  selectedRowKeys.value = []
+
   openFile(path)
     .then((response) => {
       if (response.code === 200 && response.data) {
@@ -150,12 +181,42 @@ const refreshCurrentPath = () => {
 }
 
 const goAdmin = () => {
-  // 后台首页路由，如有自定义请改成你的后台路径
   router.push({ path: '/@dashboard' })
 }
 
+// 新增：处理批量删除
+const handleBatchDelete = () => {
+  if (selectedRowKeys.value.length === 0) return
+
+  dialog.warning({
+    title: '确认删除',
+    content: `确定要删除选中的 ${selectedRowKeys.value.length} 个文件/文件夹吗？此操作不可恢复。`,
+    positiveText: '确定删除',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      loading.value = true
+      batchDeleteFiles({ ids: selectedRowKeys.value })
+        .then((res) => {
+          if (res.code === 200) {
+            message.success('删除任务已提交')
+            selectedRowKeys.value = [] // 清空选中
+            refreshCurrentPath() // 刷新列表
+          } else {
+            message.error(res.msg || '删除失败')
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          message.error('删除请求出错')
+        })
+        .finally(() => {
+          loading.value = false
+        })
+    },
+  })
+}
+
 const onSearchSelect = (row: FileSearchItem) => {
-  // 目录：直接进入目录；文件：进入其所在目录
   let targetPath = row.fullPath || '/'
   if (!row.isDir) {
     const idx = targetPath.lastIndexOf('/')
@@ -228,13 +289,9 @@ watch(
   border-radius: 8px;
   margin-bottom: 20px;
   border: 1px solid var(--n-border-color);
-
-  /* 使顶部栏在页面滚动时保持固定在顶部 */
   position: sticky;
   top: 0;
   z-index: 100;
-
-  /* 贴顶时更清晰的层级与视觉分隔 */
   box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
   backdrop-filter: saturate(180%) blur(2px);
 }
@@ -250,6 +307,7 @@ watch(
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center; /* 确保垂直居中 */
 }
 
 .file-container {
