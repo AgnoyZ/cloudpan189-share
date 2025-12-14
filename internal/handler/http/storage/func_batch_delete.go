@@ -13,6 +13,20 @@ type batchDeleteRequest struct {
 	IDs []int64 `json:"ids" binding:"required,min=1"`
 }
 
+// BatchDelete 批量删除存储挂载
+// @Summary 批量删除存储挂载
+// @Description 批量删除指定的存储挂载点，将任务推送到后台异步处理
+// @Tags 存储管理
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param request body batchDeleteRequest true "批量删除请求参数"
+// @Success 200 {object} httpcontext.Response "删除任务已提交，后台处理中"
+// @Failure 400 {object} httpcontext.Response "参数验证失败，code=99998"
+// @Failure 400 {object} httpcontext.Response "发送清理任务失败，code=4024"
+// @Failure 401 {object} httpcontext.Response "未授权访问"
+// @Failure 403 {object} httpcontext.Response "权限不足"
+// @Router /api/storage/batch_delete [post]
 func (h *handler) BatchDelete() httpcontext.HandlerFunc {
 	return func(ctx *httpcontext.Context) {
 		req := new(batchDeleteRequest)

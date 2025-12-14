@@ -141,6 +141,7 @@ export const batchParseStorageText = (
 ): Promise<ApiResponse<BatchParseItem[]>> => {
     return api.post('/storage/batch_parse_text', data).then((res) => res.data)
 }
+}
 
 // 获取存储挂载点列表
 export const getStorageList = (

@@ -2563,7 +2563,7 @@ const docTemplate = `{
         },
         "/api/storage/advance/share_info": {
             "get": {
-                "description": "根据分享码获取分享的详细信息，包括文件名、是否为文件夹、分享时间等",
+                "description": "根据分享码获取分享的详细信息，支持直接传入完整分享链接",
                 "consumes": [
                     "application/json"
                 ],
@@ -2584,8 +2584,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "example": "\"abc123\"",
-                        "description": "分享码",
+                        "example": "\"https://cloud.189.cn/t/abc12345\"",
+                        "description": "分享码或完整链接",
                         "name": "shareCode",
                         "in": "query",
                         "required": true
@@ -2618,7 +2618,54 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "获取分享详情失败，code=8005",
+                        "description": "获取分享详情失败",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/storage/batch_delete": {
+            "post": {
+                "description": "批量删除指定的存储挂载点，将任务推送到后台异步处理",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "批量删除存储挂载",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "批量删除请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/storage.batchDeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除任务已提交，后台处理中",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "发送清理任务失败，code=4024",
                         "schema": {
                             "$ref": "#/definitions/httpcontext.Response"
                         }
@@ -2631,6 +2678,59 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/storage/batch_parse_text": {
+            "post": {
+                "description": "解析文本内容（如分享链接），验证CloudToken，返回资源的真实名称和ID，但不创建挂载",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "批量解析文本（预览）",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "解析请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/topic.BatchParseTextRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "解析成功，data为解析结果列表",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "解析服务内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/httpcontext.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
                         "schema": {
                             "$ref": "#/definitions/httpcontext.Response"
                         }
@@ -6049,6 +6149,21 @@ const docTemplate = `{
                 }
             }
         },
+        "storage.batchDeleteRequest": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "storage.deleteRequest": {
             "type": "object",
             "required": [
@@ -6421,6 +6536,23 @@ const docTemplate = `{
                 "Minute",
                 "Hour"
             ]
+        },
+        "topic.BatchParseTextRequest": {
+            "type": "object",
+            "required": [
+                "cloudToken",
+                "content"
+            ],
+            "properties": {
+                "cloudToken": {
+                    "description": "需要用到token去查询信息",
+                    "type": "integer"
+                },
+                "content": {
+                    "description": "文本内容",
+                    "type": "string"
+                }
+            }
         },
         "user.addRequest": {
             "type": "object",

@@ -8,8 +8,8 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 
-	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
+	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 
 	"gorm.io/gorm"
@@ -55,7 +55,8 @@ func (s *service) getDB(ctx context.Context) *gorm.DB {
 
 var (
 	reFolderID  = regexp.MustCompile(`^\d+$`)
-	reShareLink = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
+	reShareLink  = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
+	reAccessCode = regexp.MustCompile(`(?:访问码|code)[:：]\s*([a-zA-Z0-9]+)`)
 )
 
 // 实现 BatchParseText
@@ -77,18 +78,57 @@ func (s *service) BatchParseText(ctx context.Context, req *topic.BatchParseTextR
             continue
         }
 
-        parts := strings.Fields(line)
-        resourceStr := parts[0]
-        accessCode := ""
-        if len(parts) > 1 {
-            accessCode = parts[1]
+        // 预处理：统一中文符号
+        cleanLine := strings.ReplaceAll(line, "（", "(")
+        cleanLine = strings.ReplaceAll(cleanLine, "）", ")")
+        cleanLine = strings.ReplaceAll(cleanLine, "：", ":")
+
+        var (
+            shareCode  string
+            accessCode string
+            fileId     string
+            isShare    bool
+            isFolder   bool
+        )
+
+        // 1. 尝试匹配分享链接 (全行搜索)
+        if matches := reShareLink.FindStringSubmatch(cleanLine); len(matches) > 1 {
+            shareCode = matches[1]
+            isShare = true
         }
 
-        // --- 情况A: 分享链接 ---
-        if matches := reShareLink.FindStringSubmatch(resourceStr); len(matches) > 1 {
-            shareCode := matches[1]
+        // 2. 如果不是分享链接，尝试匹配纯数字文件夹ID
+        if !isShare {
+            // 这里需要严谨一点，如果是纯数字或者是 "数字" 这种格式
+            // 简单处理：如果是纯数字
+            if reFolderID.MatchString(line) {
+                fileId = line
+                isFolder = true
+            } else {
+                // 如果是 "folder_id 12345" 这种格式，尝试提取
+                parts := strings.Fields(line)
+                if len(parts) > 0 && reFolderID.MatchString(parts[0]) {
+                    fileId = parts[0]
+                    isFolder = true
+                }
+            }
+        }
 
-            // 调用 cloudbridge 获取分享详情
+        // 3. 提取访问码 (仅针对分享链接)
+        if isShare {
+            if codeMatch := reAccessCode.FindStringSubmatch(cleanLine); len(codeMatch) > 1 {
+                accessCode = codeMatch[1]
+            } else {
+                parts := strings.Fields(cleanLine)
+                if len(parts) > 1 {
+                    lastPart := strings.Trim(parts[len(parts)-1], "()")
+                    if len(lastPart) == 4 {
+                        accessCode = lastPart
+                    }
+                }
+            }
+        }
+        if isShare {
             info, err := s.cloudBridgeService.GetShareInfo(ctx, shareCode, accessCode)
 
             name := ""
@@ -105,11 +145,7 @@ func (s *service) BatchParseText(ctx context.Context, req *topic.BatchParseTextR
                 ShareAccessCode: accessCode,
             })
 
-        // --- 情况B: 纯数字文件夹ID ---
-        } else if reFolderID.MatchString(resourceStr) {
-            fileId := resourceStr
-
-            // 调用 cloudbridge 获取文件名
+        } else if isFolder {
             name, err := s.cloudBridgeService.CheckPerson(ctx, authToken, fileId)
 
             if err != nil || name == "" {
