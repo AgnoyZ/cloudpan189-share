@@ -10,10 +10,10 @@ import (
 
 	autoingestlogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestlog"
 	autoingestplanSvi "github.com/xxcheng123/cloudpan189-share/internal/services/autoingestplan"
+	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
+	cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	mountpointSvi "github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
-    cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
-    cloudtokenSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudtoken"
 
 	stdContext "context"
 )
@@ -42,11 +42,11 @@ func Start(svc bootstrap.ServiceContext) (func(), error) {
 
 	var (
 		cloudTokenService     = cloudtokenSvi.NewService(svc)
-        cloudBridgeService    = cloudbridgeSvi.NewService(svc)
-        fileTaskLogService    = filetasklogSvi.NewService(svc)
-        mountPointService     = mountpointSvi.NewService(svc, cloudTokenService, cloudBridgeService)
-        autoIngestPlanService = autoingestplanSvi.NewService(svc)
-        autoIngestLogService  = autoingestlogSvi.NewService(svc)
+		cloudBridgeService    = cloudbridgeSvi.NewService(svc)
+		fileTaskLogService    = filetasklogSvi.NewService(svc)
+		mountPointService     = mountpointSvi.NewService(svc, cloudTokenService, cloudBridgeService)
+		autoIngestPlanService = autoingestplanSvi.NewService(svc)
+		autoIngestLogService  = autoingestlogSvi.NewService(svc)
 
 		taskEngine = svc.GetTaskEngine()
 	)

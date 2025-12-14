@@ -57,7 +57,7 @@ func (r FileBatchDeleteRequest) Topic() taskengine.Topic {
 
 // 批量解析文本请求 (仅用于 API，不用于 Task)
 type BatchParseTextRequest struct {
-	Content    string `json:"content" binding:"required"` // 文本内容
+	Content    string `json:"content" binding:"required"`    // 文本内容
 	CloudToken int64  `json:"cloudToken" binding:"required"` // 需要用到token去查询信息
 }
 

@@ -56,11 +56,11 @@ func (h *handler) GetShareInfo() httpcontext.HandlerFunc {
 		if matches := reShareLink.FindStringSubmatch(cleanCode); len(matches) > 1 {
 			req.ShareCode = matches[1]
 		} else {
-            parts := strings.Fields(cleanCode)
-            if len(parts) > 0 {
-                req.ShareCode = strings.Trim(parts[0], "()")
-            }
-        }
+			parts := strings.Fields(cleanCode)
+			if len(parts) > 0 {
+				req.ShareCode = strings.Trim(parts[0], "()")
+			}
+		}
 
 		shareInfo, err := h.cloudBridgeService.GetShareInfo(ctx.GetContext(), req.ShareCode, req.ShareAccessCode)
 		if err != nil {
