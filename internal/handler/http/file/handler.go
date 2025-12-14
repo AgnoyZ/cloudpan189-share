@@ -44,7 +44,7 @@ var (
 	busCodeFileInvalidPath              = bi.Next("路径不合法，需要 / 开头的路径")
 	busCodeFileNotFound                 = bi.Next("文件不存在")
 	busCodeQueryTopIdError              = bi.Next("查询文件顶级id失败")
-	busCodeBatchDeleteError = bi.Next("发送批量删除任务失败")
+	busCodeBatchDeleteError             = bi.Next("发送批量删除任务失败")
 )
 
 type handler struct {
