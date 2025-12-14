@@ -1,12 +1,20 @@
 package storage
 
 import (
+	"regexp"
+	"strings"
+
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/datatypes"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
 	cloudbridgeSvi "github.com/xxcheng123/cloudpan189-share/internal/services/cloudbridge"
+)
+
+var (
+	reShareLinkForAdd  = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
+	reAccessCodeForAdd = regexp.MustCompile(`(?:\S+码|code)[:：]\s*([a-zA-Z0-9]+)`)
 )
 
 func (h *handler) executeOsTypeSubscribe(ctx context.Context, req *addRequest) (datatypes.JSONMap, httpcontext.BusinessError) {
@@ -57,6 +65,33 @@ func (h *handler) executeOsTypeShare(ctx context.Context, req *addRequest) (data
 		return nil, "", busCodeStorageShareCodeEmpty
 	}
 
+	cleanCode := strings.ReplaceAll(req.ShareCode, "（", "(")
+	cleanCode = strings.ReplaceAll(cleanCode, "）", ")")
+	cleanCode = strings.ReplaceAll(cleanCode, "：", ":")
+	cleanCode = strings.TrimSpace(cleanCode)
+
+	req.ShareAccessCode = strings.TrimSpace(req.ShareAccessCode)
+	if codeMatch := reAccessCodeForAdd.FindStringSubmatch(cleanCode); len(codeMatch) > 1 {
+		req.ShareAccessCode = codeMatch[1]
+	} else {
+		if req.ShareAccessCode == "" {
+			parts := strings.Fields(cleanCode)
+			if len(parts) > 1 {
+				lastPart := strings.Trim(parts[len(parts)-1], "()")
+				if len(lastPart) == 4 {
+					req.ShareAccessCode = lastPart
+				}
+			}
+		}
+	}
+	if matches := reShareLinkForAdd.FindStringSubmatch(cleanCode); len(matches) > 1 {
+		req.ShareCode = matches[1]
+	} else {
+		parts := strings.Fields(cleanCode)
+		if len(parts) > 0 {
+			req.ShareCode = strings.Trim(parts[0], "()")
+		}
+	}
 	result, err := h.cloudBridgeService.CheckShare(ctx, req.ShareCode, req.ShareAccessCode)
 	if err != nil {
 		return nil, "", busCodeStorageQuerySubscribeShareError.WithError(err)

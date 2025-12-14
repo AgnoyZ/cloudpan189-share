@@ -2,18 +2,18 @@ package advance
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
 )
 
 type getShareInfoRequest struct {
-	// 允许前端传 code 或者完整 url
-	ShareCode       string `form:"shareCode" binding:"required" example:"abc12345"`
-	ShareAccessCode string `form:"shareAccessCode" example:"1234"`
+	ShareCode       string `form:"shareCode" binding:"required"`
+	ShareAccessCode string `form:"shareAccessCode"`
 }
 
-// 预编译正则，提取 /t/ 后面的字符
 var reShareLink = regexp.MustCompile(`cloud\.189\.cn\/t\/([a-zA-Z0-9]+)`)
+var reAccessCode = regexp.MustCompile(`(?:\S+码|code)[:：]\s*([a-zA-Z0-9]+)`)
 
 // GetShareInfo 获取分享信息
 // @Summary 获取分享信息
@@ -36,10 +36,31 @@ func (h *handler) GetShareInfo() httpcontext.HandlerFunc {
 			return
 		}
 
-		// 如果前端传的是 https://cloud.189.cn/t/xxx 形式的链接，则提取 xxx 作为分享码
-		if matches := reShareLink.FindStringSubmatch(req.ShareCode); len(matches) > 1 {
-			req.ShareCode = matches[1]
+		cleanCode := strings.ReplaceAll(req.ShareCode, "（", "(")
+		cleanCode = strings.ReplaceAll(cleanCode, "）", ")")
+		cleanCode = strings.ReplaceAll(cleanCode, "：", ":")
+
+		if req.ShareAccessCode == "" {
+			if codeMatch := reAccessCode.FindStringSubmatch(cleanCode); len(codeMatch) > 1 {
+				req.ShareAccessCode = codeMatch[1]
+			} else {
+				parts := strings.Fields(cleanCode)
+				if len(parts) > 1 {
+					lastPart := strings.Trim(parts[len(parts)-1], "()")
+					if len(lastPart) == 4 {
+						req.ShareAccessCode = lastPart
+					}
+				}
+			}
 		}
+		if matches := reShareLink.FindStringSubmatch(cleanCode); len(matches) > 1 {
+			req.ShareCode = matches[1]
+		} else {
+            parts := strings.Fields(cleanCode)
+            if len(parts) > 0 {
+                req.ShareCode = strings.Trim(parts[0], "()")
+            }
+        }
 
 		shareInfo, err := h.cloudBridgeService.GetShareInfo(ctx.GetContext(), req.ShareCode, req.ShareAccessCode)
 		if err != nil {

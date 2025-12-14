@@ -2,9 +2,11 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/httpcontext"
+	filetasklogSvi "github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 	"go.uber.org/zap"
 )
@@ -34,12 +36,24 @@ func (h *handler) BatchDelete() httpcontext.HandlerFunc {
 			ctx.AbortWithInvalidParams(err)
 			return
 		}
+    if len(req.IDs) > 0 {
+        tracker, _ := h.fileTaskLogService.Create(
+            ctx.GetContext(),
+            "批量删除", // 自定义Topic名
+            fmt.Sprintf("批量删除 %d 个挂载点", len(req.IDs)),
+            filetasklogSvi.WithFile(req.IDs[0]), // 以第一个ID作为代表
+            filetasklogSvi.WithDesc(fmt.Sprintf("ID列表: %v", req.IDs)),
+        )
+        if tracker != nil {
+            _ = h.fileTaskLogService.Completed(ctx.GetContext(), tracker)
+        }
+    }
 
 		task := &topic.FileBatchDeleteRequest{IDs: req.IDs}
 		body, _ := json.Marshal(task)
 
 		err := h.taskEngine.PushMessage(
-			ctx.GetContext().WithValue(consts.CtxKeyInvokeHandlerName, "API批量删除"),
+			ctx.GetContext().WithValue(consts.CtxKeyInvokeHandlerName, "批量删除"),
 			task.Topic(),
 			body,
 		)
