@@ -4,11 +4,11 @@
     <div class="header">
       <div class="header-left">
         <n-input
-            v-model:value="searchKeyword"
-            placeholder="请输入路径搜索"
-            clearable
-            style="width: 240px; margin-right: 12px"
-            @keyup.enter="handleSearch"
+          v-model:value="searchKeyword"
+          placeholder="请输入路径搜索"
+          clearable
+          style="width: 200px; margin-right: 12px"
+          @keyup.enter="handleSearch"
         >
           <template #prefix>
             <n-icon :size="16" :depth="3">
@@ -16,6 +16,13 @@
             </n-icon>
           </template>
         </n-input>
+        <n-select
+          v-model:value="selectedState"
+          placeholder="状态筛选"
+          clearable
+          style="width: 120px; margin-right: 12px"
+          :options="stateOptions"
+        />
         <n-button type="primary" @click="handleSearch" style="margin-right: 8px">
           <template #icon>
             <n-icon>
@@ -39,20 +46,20 @@
       <div class="header-right">
         <template v-if="isBatchMode">
           <n-button
-              :type="isAllSelected ? 'warning' : 'default'"
-              @click="toggleSelectAll"
-              style="margin-right: 12px"
+            :type="isAllSelected ? 'warning' : 'default'"
+            @click="toggleSelectAll"
+            style="margin-right: 12px"
           >
             {{ isAllSelected ? '取消全选' : '全选当页' }}
           </n-button>
           <n-button
-              type="error"
-              @click="handleBatchDelete"
-              style="margin-right: 12px"
-              :disabled="selectedIds.length === 0"
+            type="error"
+            @click="handleBatchDelete"
+            style="margin-right: 12px"
+            :disabled="selectedIds.length === 0"
           >
             <template #icon
-            ><n-icon><TrashOutline /></n-icon
+              ><n-icon><TrashOutline /></n-icon
             ></template>
             删除选中 ({{ selectedIds.length }})
           </n-button>
@@ -99,21 +106,21 @@
     <!-- 存储卡片列表 -->
     <div class="storage-cards">
       <n-card
-          v-for="storage in tableData"
-          :key="storage.id"
-          class="storage-card"
-          :class="{ 'is-selected': selectedIds.includes(storage.id) }"
-          hoverable
-          :bordered="false"
-          @click="handleCardClick(storage.id)"
+        v-for="storage in tableData"
+        :key="storage.id"
+        class="storage-card"
+        :class="{ 'is-selected': selectedIds.includes(storage.id) }"
+        hoverable
+        :bordered="false"
+        @click="handleCardClick(storage.id)"
       >
         <!-- 选择遮罩 -->
         <div v-if="isBatchMode" class="selection-overlay">
           <n-checkbox
-              :checked="selectedIds.includes(storage.id)"
-              class="selection-checkbox"
-              size="large"
-              @click.stop="toggleSelection(storage.id)"
+            :checked="selectedIds.includes(storage.id)"
+            class="selection-checkbox"
+            size="large"
+            @click.stop="toggleSelection(storage.id)"
           />
         </div>
         <!-- 存储卡片内容 -->
@@ -149,9 +156,9 @@
               </n-button>
 
               <n-dropdown
-                  :options="getRefreshOptions(storage.id)"
-                  @select="handleRefreshSelect"
-                  trigger="click"
+                :options="getRefreshOptions(storage.id)"
+                @select="handleRefreshSelect"
+                trigger="click"
               >
                 <n-button size="small" quaternary circle>
                   <template #icon>
@@ -212,9 +219,9 @@
                     <span>自动刷新</span>
                   </div>
                   <n-tag
-                      v-if="storage.enableAutoRefresh"
-                      :type="storage.isInAutoRefreshPeriod ? 'success' : 'warning'"
-                      size="small"
+                    v-if="storage.enableAutoRefresh"
+                    :type="storage.isInAutoRefreshPeriod ? 'success' : 'warning'"
+                    size="small"
                   >
                     {{ computedRefreshStatusText(storage) }}
                   </n-tag>
@@ -314,13 +321,13 @@
     <!-- 分页 -->
     <div v-if="!loading && tableData.length > 0" class="pagination-container">
       <n-pagination
-          v-model:page="paginationReactive.page"
-          v-model:page-size="paginationReactive.pageSize"
-          :item-count="paginationReactive.itemCount"
-          :page-sizes="paginationReactive.pageSizes"
-          show-size-picker
-          @update:page="handlePageChange"
-          @update:page-size="handlePageSizeChange"
+        v-model:page="paginationReactive.page"
+        v-model:page-size="paginationReactive.pageSize"
+        :item-count="paginationReactive.itemCount"
+        :page-sizes="paginationReactive.pageSizes"
+        show-size-picker
+        @update:page="handlePageChange"
+        @update:page-size="handlePageSizeChange"
       >
         <template #prefix="{ itemCount }"> 共 {{ itemCount }} 项 </template>
       </n-pagination>
@@ -330,11 +337,11 @@
     <n-modal v-model:show="showAutoRefreshModal" preset="dialog" title="自动刷新配置">
       <div class="auto-refresh-config">
         <n-form
-            ref="autoRefreshFormRef"
-            :model="autoRefreshForm"
-            :rules="autoRefreshRules"
-            label-placement="left"
-            label-width="120px"
+          ref="autoRefreshFormRef"
+          :model="autoRefreshForm"
+          :rules="autoRefreshRules"
+          label-placement="left"
+          label-width="120px"
         >
           <n-form-item label="启用自动刷新" path="enableAutoRefresh">
             <n-switch v-model:value="autoRefreshForm.enableAutoRefresh" />
@@ -343,30 +350,30 @@
           <template v-if="autoRefreshForm.enableAutoRefresh">
             <n-form-item label="刷新间隔(分钟)" path="refreshInterval">
               <n-input-number
-                  v-model:value="autoRefreshForm.refreshInterval"
-                  :min="30"
-                  :max="1440"
-                  placeholder="30-1440分钟"
-                  style="width: 100%"
+                v-model:value="autoRefreshForm.refreshInterval"
+                :min="30"
+                :max="1440"
+                placeholder="30-1440分钟"
+                style="width: 100%"
               />
             </n-form-item>
 
             <n-form-item label="持续天数" path="autoRefreshDays">
               <n-input-number
-                  v-model:value="autoRefreshForm.autoRefreshDays"
-                  :min="1"
-                  :max="365"
-                  placeholder="1-365天"
-                  style="width: 100%"
+                v-model:value="autoRefreshForm.autoRefreshDays"
+                :min="1"
+                :max="365"
+                placeholder="1-365天"
+                style="width: 100%"
               />
             </n-form-item>
 
             <n-form-item label="开始日期" path="refreshBeginAt">
               <n-date-picker
-                  v-model:value="autoRefreshForm.refreshBeginAt"
-                  type="date"
-                  placeholder="选择开始日期"
-                  style="width: 100%"
+                v-model:value="autoRefreshForm.refreshBeginAt"
+                type="date"
+                placeholder="选择开始日期"
+                style="width: 100%"
               />
             </n-form-item>
 
@@ -387,19 +394,19 @@
 
     <!-- 页面设置弹窗 -->
     <n-modal
-        v-model:show="showPageSettingsModal"
-        preset="dialog"
-        title="页面设置"
-        style="width: 420px"
+      v-model:show="showPageSettingsModal"
+      preset="dialog"
+      title="页面设置"
+      style="width: 420px"
     >
       <div class="page-settings-config">
         <div class="settings-section">
           <div class="setting-item">
             <div class="setting-label">启用自动刷新</div>
             <n-switch
-                v-model:value="pageSettingsForm.autoRefreshEnabled"
-                @update:value="handlePageAutoRefreshToggle"
-                size="medium"
+              v-model:value="pageSettingsForm.autoRefreshEnabled"
+              @update:value="handlePageAutoRefreshToggle"
+              size="medium"
             >
               <template #checked>已开启</template>
               <template #unchecked>已关闭</template>
@@ -409,11 +416,11 @@
           <div v-if="pageSettingsForm.autoRefreshEnabled" class="setting-item">
             <div class="setting-label">刷新间隔</div>
             <n-select
-                v-model:value="pageSettingsForm.refreshInterval"
-                :options="refreshIntervalOptions"
-                style="width: 160px"
-                @update:value="handlePageRefreshIntervalChange"
-                size="small"
+              v-model:value="pageSettingsForm.refreshInterval"
+              :options="refreshIntervalOptions"
+              style="width: 160px"
+              @update:value="handlePageRefreshIntervalChange"
+              size="small"
             />
           </div>
 
@@ -443,11 +450,11 @@
 
           <n-form-item label="选择令牌">
             <n-select
-                v-model:value="selectedTokenId"
-                :options="cloudTokenOptions"
-                placeholder="请选择要绑定的令牌"
-                clearable
-                style="width: 100%"
+              v-model:value="selectedTokenId"
+              :options="cloudTokenOptions"
+              placeholder="请选择要绑定的令牌"
+              clearable
+              style="width: 100%"
             />
           </n-form-item>
         </n-form>
@@ -531,6 +538,7 @@ import dayjs from 'dayjs'
 const tableData = reactive<StorageInfo[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
+const selectedState = ref<string>('')
 
 // 弹窗控制
 const showAutoRefreshModal = ref(false)
@@ -697,24 +705,33 @@ const fetchStorageList = () => {
     currentPage: paginationReactive.page || 1,
     pageSize: paginationReactive.pageSize || 10,
     path: searchKeyword.value || undefined,
+    lastState: selectedState.value || undefined,
   }
 
   getStorageList(params)
-      .then((response) => {
-        if (response.data) {
-          tableData.splice(0, tableData.length, ...response.data.data)
-          paginationReactive.itemCount = response.data.total
-        }
-      })
-      .catch((error) => {
-        console.error('获取存储列表失败:', error)
-        message.error(error?.message || '获取存储列表失败')
-      })
-      .finally(() => {
-        loading.value = false
-        refreshTime.value = dayjs()
-      })
+    .then((response) => {
+      if (response.data) {
+        tableData.splice(0, tableData.length, ...response.data.data)
+        paginationReactive.itemCount = response.data.total
+      }
+    })
+    .catch((error) => {
+      console.error('获取存储列表失败:', error)
+      message.error(error?.message || '获取存储列表失败')
+    })
+    .finally(() => {
+      loading.value = false
+      refreshTime.value = dayjs()
+    })
 }
+
+// 状态筛选选项
+const stateOptions = [
+  { label: '全部', value: '' },
+  { label: '成功', value: '成功' },
+  { label: '失败', value: '失败' },
+  { label: '进行中', value: '进行中' },
+]
 
 // 搜索
 const handleSearch = () => {
@@ -725,6 +742,7 @@ const handleSearch = () => {
 // 重置
 const handleReset = () => {
   searchKeyword.value = ''
+  selectedState.value = ''
   paginationReactive.page = 1
   fetchStorageList()
 }
@@ -734,7 +752,7 @@ const mountTypes = mountTypeConfigs
 
 // 批量文本导入
 const addMountOptions = computed(() => {
-  const options = mountTypes.map((type) => ({
+  const options: DropdownOption[] = mountTypes.map((type) => ({
     label: type.label,
     key: type.value,
   }))
@@ -743,14 +761,14 @@ const addMountOptions = computed(() => {
   options.push({
     type: 'divider',
     key: 'divider-batch',
-  } as any)
+  })
 
   // 添加批量文本导入选项
   options.push({
     label: '批量文本导入',
     key: 'batch_text_import',
     icon: () => h(NIcon, null, { default: () => h(ClipboardOutline) }),
-  } as any)
+  })
 
   return options
 })
@@ -772,7 +790,7 @@ const handleSelectMountType = (mountType: string) => {
     batchTextMount.show().then(addNewStorageCallback)
   } else {
     message.info(
-        `您选择了：${mountTypes.find((t) => t.value === mountType)?.label}，该功能正在开发中`
+      `您选择了：${mountTypes.find((t) => t.value === mountType)?.label}，该功能正在开发中`
     )
   }
 }
@@ -819,14 +837,14 @@ const handleRefresh = (storageId: number, deep: boolean) => {
   message.loading(`正在执行${refreshType}...`)
 
   refreshStorage({ id: storageId, deep })
-      .then(() => {
-        message.success(`${storage?.name || '存储'} ${refreshType}成功`)
-        fetchStorageList()
-      })
-      .catch((error) => {
-        console.error('刷新存储失败:', error)
-        message.error(error?.message || '刷新失败')
-      })
+    .then(() => {
+      message.success(`${storage?.name || '存储'} ${refreshType}成功`)
+      fetchStorageList()
+    })
+    .catch((error) => {
+      console.error('刷新存储失败:', error)
+      message.error(error?.message || '刷新失败')
+    })
 }
 
 // 处理删除
@@ -840,33 +858,33 @@ const handleDelete = (storage: StorageInfo) => {
       message.loading(`正在删除 ${storage.name || '存储'}...`)
 
       deleteStorage({ id: storage.id })
-          .then(() => {
-            message.success(`${storage.name || '存储'} 删除成功`)
-            fetchStorageList()
-          })
-          .catch((error) => {
-            console.error('删除存储失败:', error)
-            message.error(error?.message || '删除失败')
-          })
+        .then(() => {
+          message.success(`${storage.name || '存储'} 删除成功`)
+          fetchStorageList()
+        })
+        .catch((error) => {
+          console.error('删除存储失败:', error)
+          message.error(error?.message || '删除失败')
+        })
     },
   })
 }
 
 // 计算属性：当前页面展示的所有 ID
-const currentViewIds = computed(() => tableData.map(item => item.id))
+const currentViewIds = computed(() => tableData.map((item) => item.id))
 
 // 计算属性：是否已全选当前页
 const isAllSelected = computed(() => {
   if (tableData.length === 0) return false
-  return currentViewIds.value.every(id => selectedIds.value.includes(id))
+  return currentViewIds.value.every((id) => selectedIds.value.includes(id))
 })
 
 // 处理全选/取消全选
 const toggleSelectAll = () => {
   if (isAllSelected.value) {
-    selectedIds.value = selectedIds.value.filter(id => !currentViewIds.value.includes(id))
+    selectedIds.value = selectedIds.value.filter((id) => !currentViewIds.value.includes(id))
   } else {
-    const newIds = currentViewIds.value.filter(id => !selectedIds.value.includes(id))
+    const newIds = currentViewIds.value.filter((id) => !selectedIds.value.includes(id))
     selectedIds.value.push(...newIds)
   }
 }
@@ -890,7 +908,7 @@ const exitBatchMode = () => {
 // 切换选中状态
 const toggleSelection = (id: number) => {
   if (selectedIds.value.includes(id)) {
-    selectedIds.value = selectedIds.value.filter(item => item !== id)
+    selectedIds.value = selectedIds.value.filter((item) => item !== id)
   } else {
     selectedIds.value.push(id)
   }
@@ -916,15 +934,15 @@ const handleBatchDelete = () => {
       message.loading('正在批量删除...')
 
       batchDeleteStorage({ ids: selectedIds.value })
-          .then(() => {
-            message.success('批量删除成功')
-            exitBatchMode()
-            fetchStorageList()
-          })
-          .catch((error) => {
-            message.error(error?.message || '批量删除失败')
-          })
-    }
+        .then(() => {
+          message.success('批量删除成功')
+          exitBatchMode()
+          fetchStorageList()
+        })
+        .catch((error) => {
+          message.error(error?.message || '批量删除失败')
+        })
+    },
   })
 }
 
@@ -936,8 +954,8 @@ const handleEditAutoRefresh = (storage: StorageInfo) => {
     refreshInterval: storage.refreshInterval || 60,
     autoRefreshDays: storage.autoRefreshDays || 7,
     refreshBeginAt: storage.autoRefreshBeginAt
-        ? new Date(storage.autoRefreshBeginAt).getTime()
-        : Date.now(),
+      ? new Date(storage.autoRefreshBeginAt).getTime()
+      : Date.now(),
     enableDeepRefresh: storage.enableDeepRefresh || false,
   }
   showAutoRefreshModal.value = true
@@ -956,35 +974,35 @@ const handleAutoRefreshConfirm = () => {
     autoRefreshSubmitting.value = true
 
     const refreshBeginAt = autoRefreshForm.value.refreshBeginAt
-        ? dayjs(autoRefreshForm.value.refreshBeginAt).format('YYYY-MM-DD')
-        : dayjs().format('YYYY-MM-DD')
+      ? dayjs(autoRefreshForm.value.refreshBeginAt).format('YYYY-MM-DD')
+      : dayjs().format('YYYY-MM-DD')
 
     toggleAutoRefresh({
       id: currentEditStorage.value!.id,
       enableAutoRefresh: autoRefreshForm.value.enableAutoRefresh,
       refreshInterval: autoRefreshForm.value.enableAutoRefresh
-          ? autoRefreshForm.value.refreshInterval
-          : undefined,
+        ? autoRefreshForm.value.refreshInterval
+        : undefined,
       autoRefreshDays: autoRefreshForm.value.enableAutoRefresh
-          ? autoRefreshForm.value.autoRefreshDays
-          : undefined,
+        ? autoRefreshForm.value.autoRefreshDays
+        : undefined,
       refreshBeginAt: autoRefreshForm.value.enableAutoRefresh ? refreshBeginAt : undefined,
       enableDeepRefresh: autoRefreshForm.value.enableAutoRefresh
-          ? autoRefreshForm.value.enableDeepRefresh
-          : undefined,
+        ? autoRefreshForm.value.enableDeepRefresh
+        : undefined,
     })
-        .then(() => {
-          message.success('自动刷新配置更新成功')
-          showAutoRefreshModal.value = false
-          fetchStorageList()
-        })
-        .catch((error) => {
-          console.error('更新自动刷新配置失败:', error)
-          message.error(error?.message || '配置更新失败')
-        })
-        .finally(() => {
-          autoRefreshSubmitting.value = false
-        })
+      .then(() => {
+        message.success('自动刷新配置更新成功')
+        showAutoRefreshModal.value = false
+        fetchStorageList()
+      })
+      .catch((error) => {
+        console.error('更新自动刷新配置失败:', error)
+        message.error(error?.message || '配置更新失败')
+      })
+      .finally(() => {
+        autoRefreshSubmitting.value = false
+      })
   })
 }
 
@@ -1031,23 +1049,23 @@ const handleModifyToken = (storage: StorageInfo) => {
   selectedTokenId.value = storage.tokenId || null
 
   getCloudTokenList({ noPaginate: true })
-      .then((response) => {
-        if (response.data) {
-          cloudTokenOptions.value = response.data.data.map((token) => ({
-            label: token.name,
-            value: token.id,
-          }))
-          cloudTokenOptions.value.unshift({
-            label: '解绑令牌',
-            value: 0,
-          })
-          showModifyTokenModal.value = true
-        }
-      })
-      .catch((error) => {
-        console.error('获取云盘令牌列表失败:', error)
-        message.error(error?.message || '获取令牌列表失败')
-      })
+    .then((response) => {
+      if (response.data) {
+        cloudTokenOptions.value = response.data.data.map((token) => ({
+          label: token.name,
+          value: token.id,
+        }))
+        cloudTokenOptions.value.unshift({
+          label: '解绑令牌',
+          value: 0,
+        })
+        showModifyTokenModal.value = true
+      }
+    })
+    .catch((error) => {
+      console.error('获取云盘令牌列表失败:', error)
+      message.error(error?.message || '获取令牌列表失败')
+    })
 }
 
 // 确认修改令牌
@@ -1060,19 +1078,19 @@ const handleModifyTokenConfirm = () => {
     id: currentModifyStorage.value.id,
     tokenId,
   })
-      .then(() => {
-        const actionText = tokenId === 0 ? '解绑' : '修改绑定'
-        message.success(`令牌${actionText}成功`)
-        showModifyTokenModal.value = false
-        fetchStorageList()
-      })
-      .catch((error) => {
-        console.error('修改令牌失败:', error)
-        message.error(error?.message || '令牌修改失败')
-      })
-      .finally(() => {
-        modifyTokenSubmitting.value = false
-      })
+    .then(() => {
+      const actionText = tokenId === 0 ? '解绑' : '修改绑定'
+      message.success(`令牌${actionText}成功`)
+      showModifyTokenModal.value = false
+      fetchStorageList()
+    })
+    .catch((error) => {
+      console.error('修改令牌失败:', error)
+      message.error(error?.message || '令牌修改失败')
+    })
+    .finally(() => {
+      modifyTokenSubmitting.value = false
+    })
 }
 
 // 格式化任务日志时间
@@ -1115,6 +1133,7 @@ onUnmounted(() => {
 
 <style scoped>
 /* 样式部分保持不变 */
+
 /* 页面整体样式 */
 .storages-page {
   padding: 24px;
@@ -1218,14 +1237,12 @@ onUnmounted(() => {
 
 .selection-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 10;
   cursor: pointer;
+
   /* 半透明背景，让用户知道处于选择模式 */
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgb(0 0 0 / 2%);
 }
 
 .selection-checkbox {
