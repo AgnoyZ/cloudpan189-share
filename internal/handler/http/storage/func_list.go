@@ -16,6 +16,7 @@ type listRequest struct {
 	CurrentPage int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"` // 当前页码，默认为1
 	PageSize    int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`  // 每页大小，默认为10
 	Path        string `form:"path" example:"/aaa"`
+	LastState   string `form:"lastState" example:"成功"` // 按状态筛选：成功、失败等
 }
 
 type storageDTO struct {
@@ -63,6 +64,7 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			CurrentPage: req.CurrentPage,
 			PageSize:    req.PageSize,
 			FullPath:    req.Path,
+			LastState:   req.LastState,
 		}
 
 		list, err := h.mountPointService.List(ctx.GetContext(), mountReq)

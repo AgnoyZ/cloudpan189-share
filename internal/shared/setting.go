@@ -23,5 +23,10 @@ var (
 )
 
 func JoinDownloadURL(fileId int64, values url.Values) string {
-	return fmt.Sprintf("%s%s", BaseURL, fmt.Sprintf(consts.DownloadURLFormat, fileId, values.Encode()))
+	baseURL := BaseURL
+	if baseURL == "" {
+		// 默认使用 localhost 和常用端口
+		baseURL = "http://localhost:12395"
+	}
+	return fmt.Sprintf("%s%s", baseURL, fmt.Sprintf(consts.DownloadURLFormat, fileId, values.Encode()))
 }

@@ -16,6 +16,7 @@ type ListRequest struct {
 	FullPath          string `form:"fullPath" binding:"omitempty" example:"/path/to/mount"`                 // 完整路径模糊搜索，可选
 	FileId            *int64 `form:"fileId" binding:"omitempty" example:"1"`                                // 文件ID
 	EnableAutoRefresh *bool  `form:"enableAutoRefresh" binding:"omitempty" example:"true"`                  // 自动刷新
+	LastState         string `form:"lastState" binding:"omitempty" example:"成功"`                            // 按状态筛选：成功、失败等
 }
 
 func (s *service) List(ctx context.Context, req *ListRequest) (list []*models.MountPoint, err error) {
@@ -76,6 +77,10 @@ func (s *service) getListQuery(ctx context.Context, req *ListRequest) *gorm.DB {
 
 	if req.EnableAutoRefresh != nil {
 		query = query.Where("enable_auto_refresh = ?", *req.EnableAutoRefresh)
+	}
+
+	if req.LastState != "" {
+		query = query.Where("last_state = ?", req.LastState)
 	}
 
 	return query

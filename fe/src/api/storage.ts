@@ -35,25 +35,24 @@ export interface DeleteStorageRequest {
 
 // 批量删除存储挂载请求接口
 export interface BatchDeleteStorageRequest {
-    ids: number[]
+  ids: number[]
 }
 
 // 批量文本导入挂载请求接口
 export interface BatchCreateTextRequest {
-    content: string // 文本内容（一行一个资源）
-    cloudToken: number // 云盘令牌ID
-    enableAutoRefresh?: boolean // 是否启用自动刷新
-    refreshInterval?: number // 刷新间隔，单位秒
-    shareAccessCode?: string // 默认提取码（可选）
+  content: string // 文本内容（一行一个资源）
+  cloudToken: number // 云盘令牌ID
+  enableAutoRefresh?: boolean // 是否启用自动刷新
+  refreshInterval?: number // 刷新间隔，单位秒
+  shareAccessCode?: string // 默认提取码（可选）
 }
 
 // 批量文本导入挂载响应接口
 export interface BatchCreateTextResponse {
-    total: number // 总行数
-    success: number // 成功数量
-    failed: number // 失败数量
+  total: number // 总行数
+  success: number // 成功数量
+  failed: number // 失败数量
 }
-
 
 // 刷新存储挂载请求接口
 export interface RefreshStorageRequest {
@@ -82,6 +81,7 @@ export interface StorageListQuery {
   currentPage?: number // 当前页码，默认为1
   pageSize?: number // 每页大小，默认为10
   path?: string // 路径过滤
+  lastState?: string // 状态筛选：成功、失败等
 }
 
 export interface StorageSelectListQuery {
@@ -117,29 +117,29 @@ export const deleteStorage = (data: DeleteStorageRequest): Promise<ApiResponse> 
 
 // 批量删除存储挂载
 export const batchDeleteStorage = (data: BatchDeleteStorageRequest): Promise<ApiResponse> => {
-    return api.post('/storage/batch_delete', data).then((res) => res.data)
+  return api.post('/storage/batch_delete', data).then((res) => res.data)
 }
 
 // 批量解析响应项接口
 export interface BatchParseItem {
-    name: string
-    osType: string
-    shareCode?: string
-    shareAccessCode?: string
-    fileId?: string
+  name: string
+  osType: string
+  shareCode?: string
+  shareAccessCode?: string
+  fileId?: string
 }
 
 // 批量解析请求接口
 export interface BatchParseTextRequest {
-    content: string
-    cloudToken: number
+  content: string
+  cloudToken: number
 }
 
 // 批量解析文本
 export const batchParseStorageText = (
-    data: BatchParseTextRequest
+  data: BatchParseTextRequest
 ): Promise<ApiResponse<BatchParseItem[]>> => {
-    return api.post('/storage/batch_parse_text', data).then((res) => res.data)
+  return api.post('/storage/batch_parse_text', data).then((res) => res.data)
 }
 
 // 获取存储挂载点列表
