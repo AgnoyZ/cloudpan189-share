@@ -17,11 +17,12 @@
           </template>
         </n-input>
         <n-select
-          v-model:value="selectedState"
-          placeholder="状态筛选"
+          v-model:value="selectedTaskLogStatus"
+          placeholder="扫描状态"
           clearable
           style="width: 120px; margin-right: 12px"
-          :options="stateOptions"
+          :options="taskLogStatusOptions"
+          @update:value="handleSearch"
         />
         <n-button type="primary" @click="handleSearch" style="margin-right: 8px">
           <template #icon>
@@ -538,7 +539,7 @@ import dayjs from 'dayjs'
 const tableData = reactive<StorageInfo[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
-const selectedState = ref<string>('')
+const selectedTaskLogStatus = ref<string>('')
 
 // 弹窗控制
 const showAutoRefreshModal = ref(false)
@@ -705,7 +706,7 @@ const fetchStorageList = () => {
     currentPage: paginationReactive.page || 1,
     pageSize: paginationReactive.pageSize || 10,
     path: searchKeyword.value || undefined,
-    lastState: selectedState.value || undefined,
+    taskLogStatus: selectedTaskLogStatus.value || undefined,
   }
 
   getStorageList(params)
@@ -725,12 +726,13 @@ const fetchStorageList = () => {
     })
 }
 
-// 状态筛选选项
-const stateOptions = [
+// 任务日志状态筛选选项
+const taskLogStatusOptions = [
   { label: '全部', value: '' },
-  { label: '成功', value: '成功' },
-  { label: '失败', value: '失败' },
-  { label: '进行中', value: '进行中' },
+  { label: '失败', value: 'failed' },
+  { label: '成功', value: 'completed' },
+  // { label: '进行中', value: 'running' },
+  // { label: '等待中', value: 'pending' },
 ]
 
 // 搜索
@@ -742,7 +744,7 @@ const handleSearch = () => {
 // 重置
 const handleReset = () => {
   searchKeyword.value = ''
-  selectedState.value = ''
+  selectedTaskLogStatus.value = ''
   paginationReactive.page = 1
   fetchStorageList()
 }

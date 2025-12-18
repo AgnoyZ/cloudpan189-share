@@ -13,10 +13,11 @@ import (
 )
 
 type listRequest struct {
-	CurrentPage int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"` // 当前页码，默认为1
-	PageSize    int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`  // 每页大小，默认为10
-	Path        string `form:"path" example:"/aaa"`
-	LastState   string `form:"lastState" example:"成功"` // 按状态筛选：成功、失败等
+	CurrentPage   int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"` // 当前页码，默认为1
+	PageSize      int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`  // 每页大小，默认为10
+	Path          string `form:"path" example:"/aaa"`
+	// LastState     string `form:"lastState" example:"成功"`       // 按状态筛选：成功、失败等
+	TaskLogStatus string `form:"taskLogStatus" example:"failed"` // 按任务日志状态筛选：failed, completed等
 }
 
 type storageDTO struct {
@@ -56,47 +57,120 @@ func (h *handler) List() httpcontext.HandlerFunc {
 		req := new(listRequest)
 		if err := ctx.ShouldBindQuery(req); err != nil {
 			ctx.AbortWithInvalidParams(err)
-
-			return
-		}
-
-		mountReq := &mountpointSvi.ListRequest{
-			CurrentPage: req.CurrentPage,
-			PageSize:    req.PageSize,
-			FullPath:    req.Path,
-			LastState:   req.LastState,
-		}
-
-		list, err := h.mountPointService.List(ctx.GetContext(), mountReq)
-		if err != nil {
-			ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
-
-			return
-		}
-
-		count, err := h.mountPointService.Count(ctx.GetContext(), mountReq)
-		if err != nil {
-			ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
-
 			return
 		}
 
 		var (
-			tokenMap       map[int64]string
+			list           []*models.MountPoint
+			count          int64
+			err            error
 			taskLogMapList map[int64][]*models.FileTaskLog
-			fileCountMap   map[int64]int64
+		)
+
+		if req.TaskLogStatus != "" {
+			// 1. 先取出所有挂载点 (不分页)
+			allList, err := h.mountPointService.List(ctx.GetContext(), &mountpointSvi.ListRequest{
+				FullPath:   req.Path,
+				NoPaginate: true, // 关键：不分页
+			})
+			if err != nil {
+				ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
+				return
+			}
+
+			// 2. 获取所有挂载点的日志
+			fileIdList := make([]int64, 0, len(allList))
+			for _, item := range allList {
+				fileIdList = append(fileIdList, item.FileId)
+			}
+			fileIdList = lo.Uniq(fileIdList)
+
+			if len(fileIdList) > 0 {
+				// 获取日志
+				logs, err := h.fileTaskLogService.List(ctx.GetContext(), &filetasklogSvi.ListRequest{
+					PageSize:    10000, // 足够大以涵盖所有
+					CurrentPage: 1,
+					FileIdList:  fileIdList,
+				})
+				if err != nil {
+					ctx.Fail(busCodeStorageQueryFileTaskLogError.WithError(err))
+					return
+				}
+
+				// 构建日志Map
+				taskLogMapList = make(map[int64][]*models.FileTaskLog)
+				for _, taskLog := range logs {
+					if taskLog.FileId == 0 {
+						continue
+					}
+					taskLogMapList[taskLog.FileId] = append(taskLogMapList[taskLog.FileId], taskLog)
+				}
+			}
+
+			// 3. 在内存中过滤
+			filteredList := make([]*models.MountPoint, 0)
+			for _, item := range allList {
+				logs := taskLogMapList[item.FileId]
+				match := false
+				// 检查最新的日志状态是否匹配
+				if len(logs) > 0 {
+					// logs通常按时间倒序，取第一个
+					if logs[0].Status == req.TaskLogStatus {
+						match = true
+					}
+				}
+				if match {
+					filteredList = append(filteredList, item)
+				}
+			}
+
+			// 4. 手动分页
+			count = int64(len(filteredList))
+			start := (req.CurrentPage - 1) * req.PageSize
+			if start >= len(filteredList) {
+				list = []*models.MountPoint{}
+			} else {
+				end := start + req.PageSize
+				if end > len(filteredList) {
+					end = len(filteredList)
+				}
+				list = filteredList[start:end]
+			}
+		} else {
+			// --- 原有逻辑：没有日志筛选，走数据库分页 ---
+			mountReq := &mountpointSvi.ListRequest{
+				CurrentPage: req.CurrentPage,
+				PageSize:    req.PageSize,
+				FullPath:    req.Path,
+				// LastState:   req.LastState, // 这里实际上也不需要传LastState了
+			}
+
+			list, err = h.mountPointService.List(ctx.GetContext(), mountReq)
+			if err != nil {
+				ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
+				return
+			}
+
+			count, err = h.mountPointService.Count(ctx.GetContext(), mountReq)
+			if err != nil {
+				ctx.Fail(busCodeStorageQueryMountPointError.WithError(err))
+				return
+			}
+		}
+
+		var (
+			tokenMap     map[int64]string
+			fileCountMap map[int64]int64
 		)
 
 		// 查询令牌名字
 		{
 			cloudTokenList := make([]int64, 0, len(list))
-
 			for _, item := range list {
 				if item.TokenId > 0 {
 					cloudTokenList = append(cloudTokenList, item.TokenId)
 				}
 			}
-
 			cloudTokenList = lo.Uniq(cloudTokenList)
 
 			tokenList, err := h.cloudTokenService.List(ctx.GetContext(), &cloudtokenSvi.ListRequest{
@@ -105,21 +179,18 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			})
 			if err != nil {
 				ctx.Fail(busCodeStorageQueryCloudTokenError.WithError(err))
-
 				return
 			}
 
 			tokenMap = lo.SliceToMap(tokenList, func(item *models.CloudToken) (int64, string) { return item.ID, item.Name })
 		}
 
-		// 查询最近的运行任务
-		{
+		// 补查日志：如果 taskLogMapList 为空（说明走了else分支），则需要查当前页的日志
+		if taskLogMapList == nil && len(list) > 0 {
 			fileIdList := make([]int64, 0, len(list))
-
 			for _, item := range list {
 				fileIdList = append(fileIdList, item.FileId)
 			}
-
 			fileIdList = lo.Uniq(fileIdList)
 
 			taskLogList, err := h.fileTaskLogService.List(ctx.GetContext(), &filetasklogSvi.ListRequest{
@@ -129,19 +200,14 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			})
 			if err != nil {
 				ctx.Fail(busCodeStorageQueryFileTaskLogError.WithError(err))
-
 				return
 			}
 
+			taskLogMapList = make(map[int64][]*models.FileTaskLog)
 			for _, taskLog := range taskLogList {
 				if taskLog.FileId == 0 {
 					continue
 				}
-
-				if taskLogMapList == nil {
-					taskLogMapList = make(map[int64][]*models.FileTaskLog)
-				}
-
 				taskLogMapList[taskLog.FileId] = append(taskLogMapList[taskLog.FileId], taskLog)
 			}
 		}
@@ -151,7 +217,6 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			fileCountList, err := h.virtualFileService.GroupCountByTopId(ctx.GetContext(), &virtualfile.GroupCountByTopIdRequest{})
 			if err != nil {
 				ctx.Fail(busCodeStorageQueryFileCountError.WithError(err))
-
 				return
 			}
 
@@ -171,7 +236,7 @@ func (h *handler) List() httpcontext.HandlerFunc {
 				}
 			}
 
-			taskLogs := make([]*models.FileTaskLog, 0, len(taskLogMapList[item.FileId]))
+			taskLogs := make([]*models.FileTaskLog, 0)
 			if taskLogList, ok := taskLogMapList[item.FileId]; ok {
 				taskLogs = taskLogList
 			}
