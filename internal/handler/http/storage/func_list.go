@@ -13,9 +13,9 @@ import (
 )
 
 type listRequest struct {
-	CurrentPage   int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"` // 当前页码，默认为1
-	PageSize      int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`  // 每页大小，默认为10
-	Path          string `form:"path" example:"/aaa"`
+	CurrentPage int    `form:"currentPage,omitempty,default=1" binding:"omitempty,min=1" example:"1"` // 当前页码，默认为1
+	PageSize    int    `form:"pageSize,omitempty,default=10" binding:"omitempty,min=1" example:"10"`  // 每页大小，默认为10
+	Path        string `form:"path" example:"/aaa"`
 	// LastState     string `form:"lastState" example:"成功"`       // 按状态筛选：成功、失败等
 	TaskLogStatus string `form:"taskLogStatus" example:"failed"` // 按任务日志状态筛选：failed, completed等
 }
