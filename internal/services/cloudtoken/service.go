@@ -16,6 +16,10 @@ type Service interface {
 	Count(ctx context.Context, req *ListRequest) (count int64, err error)
 	UsernameLogin(ctx context.Context, req *UsernameLoginRequest) (resp *UsernameLoginResponse, err error)
 	Query(ctx context.Context, id int64) (*models.CloudToken, error)
+	// ListPasswordLoginTokens 查询所有使用密码登录的令牌
+	ListPasswordLoginTokens(ctx context.Context) ([]*models.CloudToken, error)
+	// UpdateAddition 更新令牌的附加信息
+	UpdateAddition(ctx context.Context, id int64, addition map[string]interface{}) error
 }
 
 type service struct {

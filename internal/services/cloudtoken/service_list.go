@@ -64,3 +64,38 @@ func (s *service) getListQuery(ctx context.Context, req *ListRequest) *gorm.DB {
 
 	return query
 }
+
+// ListPasswordLoginTokens 查询所有使用密码登录的令牌
+func (s *service) ListPasswordLoginTokens(ctx context.Context) ([]*models.CloudToken, error) {
+	var tokens []*models.CloudToken
+
+	// 查询所有使用密码登录的令牌（login_type = 2）
+	query := s.getDB(ctx).Where("login_type = ?", models.LoginTypePassword)
+
+	if err := query.Find(&tokens).Error; err != nil {
+		ctx.Error("查询密码登录令牌失败", zap.Error(err))
+		return nil, err
+	}
+
+	return tokens, nil
+}
+
+// UpdateAddition 更新令牌的附加信息
+func (s *service) UpdateAddition(ctx context.Context, id int64, addition map[string]interface{}) error {
+	// 首先查询现有的令牌
+	var token models.CloudToken
+	if err := s.getDB(ctx).Where("id = ?", id).First(&token).Error; err != nil {
+		ctx.Error("查询令牌失败", zap.Error(err), zap.Int64("id", id))
+		return err
+	}
+
+	// 更新addition字段
+	token.Addition = addition
+
+	// 保存更新
+	if err := s.getDB(ctx).Save(&token).Error; err != nil {
+		ctx.Error("更新令牌附加信息失败", zap.Error(err), zap.Int64("id", id))
+		return err
+	}
+	return nil
+}

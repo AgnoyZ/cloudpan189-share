@@ -66,10 +66,16 @@ func Start(svc bootstrap.ServiceContext) (func(), error) {
 		errs = append(errs, err)
 	}
 
+	refreshCloudTokenScheduler := NewRefreshCloudTokenScheduler(cloudTokenService)
+	if err := refreshCloudTokenScheduler.Start(ctx); err != nil {
+		errs = append(errs, err)
+	}
+
 	schedulers := []Scheduler{
 		fileTaskLogCheckScheduler,
 		refreshFileScheduler,
 		autoIngestRefreshScheduler,
+		refreshCloudTokenScheduler,
 	}
 
 	return closeBar(schedulers), errors2.Join(errs...)
