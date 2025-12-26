@@ -14,10 +14,10 @@ import (
 )
 
 type RefreshCloudTokenScheduler struct {
-	running          bool
-	mu               sync.Mutex
-	ctx              context.Context
-	cancel           context.CancelFunc
+	running           bool
+	mu                sync.Mutex
+	ctx               context.Context
+	cancel            context.CancelFunc
 	cloudTokenService cloudtoken.Service
 }
 
