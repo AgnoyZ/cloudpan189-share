@@ -47,7 +47,7 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/media_dir:/app/media_dir \
   --restart unless-stopped \
-  xxcheng123/cloudpan189-share:latest
+  zhazhatao0208/cloudpan189-share:latest
 ```
 更多请参考文档：[CloudPan189 Share 快速开始文档](docs/1.quick_start.md)
 
