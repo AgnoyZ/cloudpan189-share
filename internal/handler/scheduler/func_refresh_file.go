@@ -14,6 +14,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	"github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	"github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
+	"github.com/xxcheng123/cloudpan189-share/internal/shared"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
 	"go.uber.org/zap"
 )
@@ -167,7 +168,10 @@ func (s *RefreshFileScheduler) cleanupZeroFileMountPoints(ctx context.Context) {
 	s.cleanupMu.Lock()
 	defer s.cleanupMu.Unlock()
 
-	const cleanupInterval = time.Hour
+	cleanupInterval := time.Duration(shared.SettingAddition.ZeroFileCleanupInterval) * time.Minute
+	if cleanupInterval <= 0 {
+		cleanupInterval = time.Hour
+	}
 
 	if !s.lastCleanupAt.IsZero() && time.Since(s.lastCleanupAt) < cleanupInterval {
 		return
@@ -205,25 +209,10 @@ func (s *RefreshFileScheduler) cleanupZeroFileMountPoints(ctx context.Context) {
 		fileCountMap[item.TopId] = item.Count
 	}
 
-	taskLogList, err := s.fileTaskLogService.List(ctx, &filetasklog.ListRequest{
-		Type:       topic.FileScanFileRequest{}.Topic().String(),
-		FileIdList: fileIdList,
-		NoPaginate: true,
-	})
+	latestScanStatusMap, err := s.fileTaskLogService.LatestStatusByFileIDs(ctx, topic.FileScanFileRequest{}.Topic().String(), fileIdList)
 	if err != nil {
 		ctx.Error("查询挂载点扫描日志失败", zap.Error(err))
 		return
-	}
-
-	latestScanStatusMap := make(map[int64]string, len(fileIdList))
-	for _, taskLog := range taskLogList {
-		if taskLog.FileId == 0 {
-			continue
-		}
-		if _, exists := latestScanStatusMap[taskLog.FileId]; exists {
-			continue
-		}
-		latestScanStatusMap[taskLog.FileId] = taskLog.Status
 	}
 
 	zeroIDs := make([]int64, 0)
