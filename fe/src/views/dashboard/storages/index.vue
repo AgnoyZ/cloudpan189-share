@@ -24,6 +24,14 @@
           :options="taskLogStatusOptions"
           @update:value="handleSearch"
         />
+        <n-select
+          v-model:value="selectedFileCountSort"
+          placeholder="文件数量排序"
+          clearable
+          style="width: 160px; margin-right: 12px"
+          :options="fileCountSortOptions"
+          @update:value="handleSearch"
+        />
         <n-button type="primary" @click="handleSearch" style="margin-right: 8px">
           <template #icon>
             <n-icon>
@@ -540,6 +548,7 @@ const tableData = reactive<StorageInfo[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 const selectedTaskLogStatus = ref<string>('')
+const selectedFileCountSort = ref<'asc' | 'desc' | null>(null)
 
 // 弹窗控制
 const showAutoRefreshModal = ref(false)
@@ -706,6 +715,7 @@ const fetchStorageList = () => {
     currentPage: paginationReactive.page || 1,
     pageSize: paginationReactive.pageSize || 10,
     path: searchKeyword.value || undefined,
+    fileCountSort: selectedFileCountSort.value || undefined,
     taskLogStatus: selectedTaskLogStatus.value || undefined,
   }
 
@@ -735,6 +745,11 @@ const taskLogStatusOptions = [
   // { label: '等待中', value: 'pending' },
 ]
 
+const fileCountSortOptions = [
+  { label: '文件最多优先', value: 'desc' },
+  { label: '文件最少优先', value: 'asc' },
+]
+
 // 搜索
 const handleSearch = () => {
   paginationReactive.page = 1
@@ -745,6 +760,7 @@ const handleSearch = () => {
 const handleReset = () => {
   searchKeyword.value = ''
   selectedTaskLogStatus.value = ''
+  selectedFileCountSort.value = null
   paginationReactive.page = 1
   fetchStorageList()
 }
