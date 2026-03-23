@@ -209,6 +209,38 @@
           </div>
         </div>
       </div>
+
+      <!-- 零文件清理间隔 -->
+      <div class="setting-item">
+        <div class="item-left">
+          <div class="item-title">空存储清理间隔</div>
+          <div class="item-desc">
+            定时巡检“文件数为 0”的订阅/分享类挂载点的间隔，单位为分钟。设置越短，失效分享会更快被自动移除。
+          </div>
+        </div>
+        <div class="item-right">
+          <div class="right-inline">
+            <n-slider
+              v-model:value="additionForm.zeroFileCleanupInterval"
+              :min="10"
+              :max="1440"
+              :step="10"
+              :marks="cleanupIntervalMarks"
+              :format-tooltip="formatCleanupIntervalTooltip"
+              style="width: 340px"
+              @change="handleCleanupIntervalChange"
+            />
+            <n-button
+              size="small"
+              type="primary"
+              :loading="savingCleanupInterval"
+              @click="handleSaveCleanupInterval"
+            >
+              保存
+            </n-button>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -280,6 +312,7 @@ const additionForm = reactive<Models.SettingAddition>({
   multipleStreamThreadCount: 4,
   multipleStreamChunkSize: 4 * 1024 * 1024, // 4 MiB
   taskThreadCount: 1,
+  zeroFileCleanupInterval: 60,
 })
 
 // 初始化完成标记，防止初始渲染触发自动保存
@@ -291,6 +324,7 @@ const savingMultipleStream = ref(false)
 const savingThreadCount = ref(false)
 const savingChunkSize = ref(false)
 const savingTaskThreads = ref(false)
+const savingCleanupInterval = ref(false)
 
 // 通用保存函数：仅提交传入字段
 const saveAdditionField = (payload: Record<string, unknown>, setLoading: (v: boolean) => void) => {
@@ -340,6 +374,11 @@ const handleTaskThreadChange = () => {
     handleSaveTaskThreads()
   }
 }
+const handleCleanupIntervalChange = () => {
+  if (additionLoaded.value) {
+    handleSaveCleanupInterval()
+  }
+}
 
 // 数值保存函数
 const handleSaveThreadCount = () => {
@@ -358,6 +397,12 @@ const handleSaveTaskThreads = () => {
   saveAdditionField(
     { taskThreadCount: additionForm.taskThreadCount },
     (v) => (savingTaskThreads.value = v)
+  )
+}
+const handleSaveCleanupInterval = () => {
+  saveAdditionField(
+    { zeroFileCleanupInterval: additionForm.zeroFileCleanupInterval },
+    (v) => (savingCleanupInterval.value = v)
   )
 }
 
@@ -391,6 +436,17 @@ const taskThreadMarks: Record<number, string> = {
   32: '32',
 }
 const formatTaskThreadTooltip = (val: number) => `${val} 任务`
+
+const cleanupIntervalMarks: Record<number, string> = {
+  10: '10m',
+  30: '30m',
+  60: '1h',
+  180: '3h',
+  360: '6h',
+  720: '12h',
+  1440: '24h',
+}
+const formatCleanupIntervalTooltip = (val: number) => `${val} 分钟`
 
 // 标题/URL修改
 const savingTitle = ref(false)
@@ -493,6 +549,7 @@ onMounted(() => {
         additionForm.multipleStreamThreadCount = res.data.multipleStreamThreadCount ?? 4
         additionForm.multipleStreamChunkSize = res.data.multipleStreamChunkSize ?? 4 * 1024 * 1024
         additionForm.taskThreadCount = res.data.taskThreadCount ?? 1
+        additionForm.zeroFileCleanupInterval = res.data.zeroFileCleanupInterval ?? 60
       } else {
         message.error(res.msg || '获取附加设置失败')
       }

@@ -17,6 +17,7 @@ type ListRequest struct {
 	FileId            *int64 `form:"fileId" binding:"omitempty" example:"1"`                                // 文件ID
 	EnableAutoRefresh *bool  `form:"enableAutoRefresh" binding:"omitempty" example:"true"`                  // 自动刷新
 	LastState         string `form:"lastState" binding:"omitempty" example:"成功"`                            // 按状态筛选：成功、失败等
+	FileCountSort     string `form:"fileCountSort" binding:"omitempty,oneof=asc desc" example:"desc"`       // 按文件数量排序
 }
 
 func (s *service) List(ctx context.Context, req *ListRequest) (list []*models.MountPoint, err error) {
@@ -81,6 +82,19 @@ func (s *service) getListQuery(ctx context.Context, req *ListRequest) *gorm.DB {
 
 	if req.LastState != "" {
 		query = query.Where("last_state = ?", req.LastState)
+	}
+
+	if req.FileCountSort != "" {
+		fileCountSubQuery := s.svc.GetDB(ctx).
+			Model(new(models.VirtualFile)).
+			Select("top_id, COUNT(*) as file_count").
+			Where("top_id != id").
+			Group("top_id")
+
+		query = query.
+			Joins("LEFT JOIN (?) AS file_counts ON file_counts.top_id = mount_points.file_id", fileCountSubQuery).
+			Order("COALESCE(file_counts.file_count, 0) " + req.FileCountSort).
+			Order("mount_points.id ASC")
 	}
 
 	return query
