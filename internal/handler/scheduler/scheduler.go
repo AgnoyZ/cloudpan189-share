@@ -58,7 +58,7 @@ func Start(svc bootstrap.ServiceContext) (func(), error) {
 		errs = append(errs, err)
 	}
 
-	refreshFileScheduler := NewRefreshFileScheduler(mountPointService, virtualFileService, taskEngine)
+	refreshFileScheduler := NewRefreshFileScheduler(mountPointService, fileTaskLogService, virtualFileService, taskEngine)
 	if err := refreshFileScheduler.Start(ctx); err != nil {
 		errs = append(errs, err)
 	}

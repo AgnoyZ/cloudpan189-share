@@ -10,6 +10,8 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/taskengine"
+	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	"github.com/xxcheng123/cloudpan189-share/internal/services/filetasklog"
 	"github.com/xxcheng123/cloudpan189-share/internal/services/mountpoint"
 	"github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
@@ -22,18 +24,22 @@ type RefreshFileScheduler struct {
 	ctx                context.Context
 	cancel             context.CancelFunc
 	mountPointService  mountpoint.Service
+	fileTaskLogService filetasklog.Service
 	virtualFileService virtualfile.Service
 	taskEngine         taskengine.TaskEngine
+	cleanupMu          sync.Mutex
 	lastCleanupAt      time.Time
 }
 
 func NewRefreshFileScheduler(
 	mountPointService mountpoint.Service,
+	fileTaskLogService filetasklog.Service,
 	virtualFileService virtualfile.Service,
 	taskEngine taskengine.TaskEngine,
 ) Scheduler {
 	return &RefreshFileScheduler{
 		mountPointService:  mountPointService,
+		fileTaskLogService: fileTaskLogService,
 		virtualFileService: virtualFileService,
 		taskEngine:         taskEngine,
 		running:            false,
@@ -158,7 +164,12 @@ func (s *RefreshFileScheduler) doJob() bool {
 }
 
 func (s *RefreshFileScheduler) cleanupZeroFileMountPoints(ctx context.Context) {
-	if !s.lastCleanupAt.IsZero() && time.Since(s.lastCleanupAt) < time.Hour {
+	s.cleanupMu.Lock()
+	defer s.cleanupMu.Unlock()
+
+	const cleanupInterval = time.Hour
+
+	if !s.lastCleanupAt.IsZero() && time.Since(s.lastCleanupAt) < cleanupInterval {
 		return
 	}
 
@@ -178,6 +189,11 @@ func (s *RefreshFileScheduler) cleanupZeroFileMountPoints(ctx context.Context) {
 		return
 	}
 
+	fileIdList := make([]int64, 0, len(mountPoints))
+	for _, mp := range mountPoints {
+		fileIdList = append(fileIdList, mp.FileId)
+	}
+
 	fileCountList, err := s.virtualFileService.GroupCountByTopId(ctx, &virtualfile.GroupCountByTopIdRequest{})
 	if err != nil {
 		ctx.Error("查询挂载点文件数量失败", zap.Error(err))
@@ -189,12 +205,39 @@ func (s *RefreshFileScheduler) cleanupZeroFileMountPoints(ctx context.Context) {
 		fileCountMap[item.TopId] = item.Count
 	}
 
+	taskLogList, err := s.fileTaskLogService.List(ctx, &filetasklog.ListRequest{
+		Type:       topic.FileScanFileRequest{}.Topic().String(),
+		FileIdList: fileIdList,
+		NoPaginate: true,
+	})
+	if err != nil {
+		ctx.Error("查询挂载点扫描日志失败", zap.Error(err))
+		return
+	}
+
+	latestScanStatusMap := make(map[int64]string, len(fileIdList))
+	for _, taskLog := range taskLogList {
+		if taskLog.FileId == 0 {
+			continue
+		}
+		if _, exists := latestScanStatusMap[taskLog.FileId]; exists {
+			continue
+		}
+		latestScanStatusMap[taskLog.FileId] = taskLog.Status
+	}
+
 	zeroIDs := make([]int64, 0)
 	for _, mp := range mountPoints {
 		if !mp.ShouldAutoDeleteWhenZeroFiles() {
 			continue
 		}
 		if fileCountMap[mp.FileId] != 0 {
+			continue
+		}
+		if latestScanStatusMap[mp.FileId] != models.StatusCompleted {
+			ctx.Debug("跳过未完成首次成功扫描的零文件挂载点",
+				zap.Int64("file_id", mp.FileId),
+				zap.String("latest_scan_status", latestScanStatusMap[mp.FileId]))
 			continue
 		}
 		zeroIDs = append(zeroIDs, mp.FileId)

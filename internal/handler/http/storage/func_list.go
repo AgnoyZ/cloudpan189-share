@@ -77,7 +77,7 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			fileCountMap   map[int64]int64
 		)
 
-		needManualPagination := req.TaskLogStatus != "" || req.FileCountSort != ""
+		needManualPagination := req.TaskLogStatus != ""
 
 		if needManualPagination {
 			// 1. 先取出所有挂载点（不分页），后续在内存中完成筛选、排序和分页
@@ -114,18 +114,6 @@ func (h *handler) List() httpcontext.HandlerFunc {
 				}
 			}
 
-			if req.FileCountSort != "" {
-				fileCountList, err := h.virtualFileService.GroupCountByTopId(ctx.GetContext(), &virtualfile.GroupCountByTopIdRequest{})
-				if err != nil {
-					ctx.Fail(busCodeStorageQueryFileCountError.WithError(err))
-					return
-				}
-
-				fileCountMap = lo.SliceToMap(fileCountList, func(item *virtualfile.GroupCountByTopId) (int64, int64) {
-					return item.TopId, item.Count
-				})
-			}
-
 			filteredList := make([]*models.MountPoint, 0, len(allList))
 			for _, item := range allList {
 				if req.TaskLogStatus != "" {
@@ -142,6 +130,16 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			}
 
 			if req.FileCountSort != "" {
+				fileCountList, err := h.virtualFileService.GroupCountByTopId(ctx.GetContext(), &virtualfile.GroupCountByTopIdRequest{})
+				if err != nil {
+					ctx.Fail(busCodeStorageQueryFileCountError.WithError(err))
+					return
+				}
+
+				fileCountMap = lo.SliceToMap(fileCountList, func(item *virtualfile.GroupCountByTopId) (int64, int64) {
+					return item.TopId, item.Count
+				})
+
 				sort.SliceStable(filteredList, func(i, j int) bool {
 					leftCount := fileCountMap[filteredList[i].FileId]
 					rightCount := fileCountMap[filteredList[j].FileId]
@@ -168,9 +166,10 @@ func (h *handler) List() httpcontext.HandlerFunc {
 			}
 		} else {
 			mountReq := &mountpointSvi.ListRequest{
-				CurrentPage: req.CurrentPage,
-				PageSize:    req.PageSize,
-				FullPath:    req.Path,
+				CurrentPage:   req.CurrentPage,
+				PageSize:      req.PageSize,
+				FullPath:      req.Path,
+				FileCountSort: req.FileCountSort,
 			}
 
 			list, err = h.mountPointService.List(ctx.GetContext(), mountReq)
