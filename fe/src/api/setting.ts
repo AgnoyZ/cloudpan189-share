@@ -65,6 +65,7 @@ export interface ModifySettingAdditionRequest {
   multipleStreamThreadCount?: number
   multipleStreamChunkSize?: number
   taskThreadCount?: number
+  zeroFileCleanupInterval?: number
 }
 
 export const modifySettingAddition = (data: ModifySettingAdditionRequest): Promise<ApiResponse> => {

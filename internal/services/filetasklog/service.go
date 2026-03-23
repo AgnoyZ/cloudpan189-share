@@ -23,6 +23,7 @@ type Service interface {
 	List(ctx context.Context, req *ListRequest) ([]*models.FileTaskLog, error)
 	Count(ctx context.Context, req *ListRequest) (int64, error)
 	FindStaleTasksByDuration(ctx context.Context, duration time.Duration) ([]*models.FileTaskLog, error)
+	LatestStatusByFileIDs(ctx context.Context, typ string, fileIDs []int64) (map[int64]string, error)
 
 	WithError(ctx context.Context, key LogKey, err error) error
 }

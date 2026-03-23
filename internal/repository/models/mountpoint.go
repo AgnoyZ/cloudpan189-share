@@ -25,6 +25,17 @@ func (m *MountPoint) TableName() string {
 	return "mount_points"
 }
 
+// ShouldAutoDeleteWhenZeroFiles 是否在文件数归零时自动删除挂载点
+// 仅对分享/订阅类资源启用，避免误删用户主动挂载的个人云盘或家庭云盘空目录。
+func (m *MountPoint) ShouldAutoDeleteWhenZeroFiles() bool {
+	switch m.OsType {
+	case OsTypeSubscribe, OsTypeSubscribeShareFolder, OsTypeShareFolder:
+		return true
+	default:
+		return false
+	}
+}
+
 // 是否还在自动刷新时间范围内
 func (m *MountPoint) IsInAutoRefreshPeriod() bool {
 	if !m.EnableAutoRefresh || m.AutoRefreshBeginAt == nil {

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gorm.io/gorm"
 
 	"github.com/xxcheng123/cloudpan189-share/internal/consts"
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/context"
@@ -17,6 +16,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 	"github.com/xxcheng123/cloudpan189-share/internal/shared"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // batchDeleteFiles 递归删除文件
@@ -230,4 +230,64 @@ func (h *handler) deleteStrmIterator(ctx context.Context, result *gorm.DB, files
 			}
 		}
 	}
+}
+
+func (h *handler) deleteMountPointAndFiles(ctx context.Context, targetFileID int64) error {
+	fileInfo, fileErr := h.virtualFileService.Query(ctx, targetFileID)
+
+	if err := h.mountPointService.BatchDelete(ctx, []int64{targetFileID}); err != nil {
+		h.logger.Debug("删除挂载点记录异常(或已删除)", zap.Int64("id", targetFileID), zap.Error(err))
+	}
+
+	if fileErr != nil || fileInfo == nil {
+		return h.clearMountFiles(ctx, targetFileID)
+	}
+
+	parentId := fileInfo.ParentId
+
+	if err := h.clearMountFiles(ctx, targetFileID); err != nil {
+		return err
+	}
+
+	if err := h.virtualFileService.Delete(ctx, targetFileID); err != nil {
+		return err
+	}
+
+	h.logger.Info("删除挂载点根虚拟文件完成", zap.Int64("fid", targetFileID))
+
+	if shared.MediaConfig != nil && shared.MediaConfig.Enable {
+		if err := h.mediaFileService.ClearEmptyDir(ctx, shared.MediaConfig.StoragePath); err != nil {
+			h.logger.Warn("清理本地空目录失败", zap.Error(err))
+		}
+	}
+
+	scanPid := parentId
+	for scanPid > 0 {
+		pInfo, err := h.virtualFileService.Query(ctx, scanPid)
+		if err != nil || pInfo == nil {
+			break
+		}
+		nextPid := pInfo.ParentId
+
+		children, _ := h.virtualFileService.List(ctx, &virtualfile.ListRequest{
+			ParentId:    &scanPid,
+			CurrentPage: 1,
+			PageSize:    1,
+		})
+
+		if len(children) > 0 {
+			h.logger.Debug("数据库目录不为空，停止向上清理", zap.Int64("pid", scanPid))
+			break
+		}
+
+		if err := h.virtualFileService.Delete(ctx, scanPid); err != nil {
+			h.logger.Warn("删除数据库空目录失败", zap.Int64("pid", scanPid), zap.Error(err))
+			break
+		}
+
+		h.logger.Info("成功清理数据库空目录", zap.Int64("pid", scanPid), zap.String("name", pInfo.Name))
+		scanPid = nextPid
+	}
+
+	return nil
 }

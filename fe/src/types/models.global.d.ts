@@ -122,6 +122,7 @@ declare namespace Models {
     multipleStreamThreadCount: number
     multipleStreamChunkSize: number
     taskThreadCount: number
+    zeroFileCleanupInterval: number
   }
 
   // 任务引擎统计信息（对应后端 TaskStats）

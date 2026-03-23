@@ -16,6 +16,7 @@ import (
 	"github.com/xxcheng123/cloudpan189-share/internal/framework/taskcontext"
 	"github.com/xxcheng123/cloudpan189-share/internal/pkgs/utils"
 	"github.com/xxcheng123/cloudpan189-share/internal/repository/models"
+	virtualfileSvi "github.com/xxcheng123/cloudpan189-share/internal/services/virtualfile"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/apierrcode"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/converter"
 	"github.com/xxcheng123/cloudpan189-share/internal/types/topic"
@@ -416,8 +417,51 @@ func (h *handler) ScanFile() taskcontext.HandlerFunc {
 			if apiErr, ok := apierrcode.As(err); ok {
 				return apiErr
 			}
+
+			return err
+		}
+
+		if topFile.ID > 0 {
+			if err := h.cleanupZeroFileMountPoint(ctx.GetContext(), topFile.ID); err != nil {
+				logger.Error("扫描后检查零文件挂载点失败", zap.Int64("file_id", topFile.ID), zap.Error(err))
+			}
 		}
 
 		return nil
 	}
+}
+
+func (h *handler) cleanupZeroFileMountPoint(ctx context.Context, topFileID int64) error {
+	mountPoint, err := h.mountPointService.Query(ctx, topFileID)
+	if err != nil || mountPoint == nil {
+		return err
+	}
+
+	if !mountPoint.ShouldAutoDeleteWhenZeroFiles() {
+		return nil
+	}
+
+	fileCountList, err := h.virtualFileService.GroupCountByTopId(ctx, &virtualfileSvi.GroupCountByTopIdRequest{
+		TopId: topFileID,
+	})
+	if err != nil {
+		return err
+	}
+
+	var fileCount int64
+	if len(fileCountList) > 0 {
+		fileCount = fileCountList[0].Count
+	}
+
+	if fileCount > 0 {
+		return nil
+	}
+
+	ctx.Info("扫描后发现挂载点文件数为0，开始自动删除",
+		zap.Int64("mount_point_id", mountPoint.ID),
+		zap.Int64("file_id", topFileID),
+		zap.String("full_path", mountPoint.FullPath),
+		zap.String("os_type", mountPoint.OsType))
+
+	return h.deleteMountPointAndFiles(ctx, topFileID)
 }

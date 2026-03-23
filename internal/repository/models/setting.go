@@ -40,6 +40,7 @@ type SettingAddition struct {
 	MultipleStreamThreadCount int    `json:"multipleStreamThreadCount"`
 	MultipleStreamChunkSize   int64  `json:"multipleStreamChunkSize"`
 	TaskThreadCount           int    `json:"taskThreadCount"`
+	ZeroFileCleanupInterval   int    `json:"zeroFileCleanupInterval"` // 单位：分钟
 }
 
 // applyDefaults 统一填充默认值，确保零值时也能获得期望配置
@@ -54,6 +55,10 @@ func (sa *SettingAddition) applyDefaults() {
 
 	if sa.TaskThreadCount <= 0 {
 		sa.TaskThreadCount = 1
+	}
+
+	if sa.ZeroFileCleanupInterval <= 0 {
+		sa.ZeroFileCleanupInterval = 60
 	}
 }
 

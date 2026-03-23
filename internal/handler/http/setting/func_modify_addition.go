@@ -14,6 +14,7 @@ type modifyAdditionRequest struct {
 	MultipleStreamThreadCount *int   `json:"multipleStreamThreadCount" binding:"omitempty,min=1,max=64" example:"4"`    // 多线程数量（可选）
 	MultipleStreamChunkSize   *int64 `json:"multipleStreamChunkSize" binding:"omitempty,min=1048576" example:"4194304"` // 分片大小，单位字节（可选，>=1MiB）
 	TaskThreadCount           *int   `json:"taskThreadCount" binding:"omitempty,min=1,max=32" example:"1"`              // 任务线程数量（可选）
+	ZeroFileCleanupInterval   *int   `json:"zeroFileCleanupInterval" binding:"omitempty,min=10,max=10080" example:"60"` // 空存储定期清理间隔（分钟）
 }
 
 // ModifyAddition 修改系统附加设置（可选字段更新）
@@ -69,6 +70,10 @@ func (h *handler) ModifyAddition() httpcontext.HandlerFunc {
 			merged.TaskThreadCount = *req.TaskThreadCount
 		}
 
+		if req.ZeroFileCleanupInterval != nil {
+			merged.ZeroFileCleanupInterval = *req.ZeroFileCleanupInterval
+		}
+
 		// 更新数据库
 		if err := h.settingService.Update(ctx.GetContext(),
 			utils.WithField("addition", merged),
@@ -85,6 +90,7 @@ func (h *handler) ModifyAddition() httpcontext.HandlerFunc {
 			MultipleStreamThreadCount: merged.MultipleStreamThreadCount,
 			MultipleStreamChunkSize:   merged.MultipleStreamChunkSize,
 			TaskThreadCount:           merged.TaskThreadCount,
+			ZeroFileCleanupInterval:   merged.ZeroFileCleanupInterval,
 		}
 
 		ctx.Success()
