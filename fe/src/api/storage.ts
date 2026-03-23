@@ -81,6 +81,7 @@ export interface StorageListQuery {
   currentPage?: number // 当前页码，默认为1
   pageSize?: number // 每页大小，默认为10
   path?: string // 路径过滤
+  fileCountSort?: 'asc' | 'desc' // 按文件数量排序
   // lastState?: string // 状态筛选：成功、失败等
   taskLogStatus?: string // 按任务日志状态筛选：failed, completed等
 }
